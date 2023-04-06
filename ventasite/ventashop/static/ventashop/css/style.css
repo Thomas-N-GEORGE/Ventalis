@@ -1,0 +1,43 @@
+/* Our customized stylesheet */
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* forces the div to keep their size if padding applied */
+    text-decoration: none;
+}
+
+html{
+font-size: 62.5%; /* 1rem = 10px, easy to remind*/
+}
+
+body{
+font-size: 1.4rem;
+font-family: 'Open Sans',Verdana,Tahoma,Arial,Helvetica,sans-serif;
+color: white;
+}
+
+.container{
+height: 100vh;
+display: flex;
+justify-content: center;
+flex-direction: column;
+align-items: center;
+background-color: black;
+}
+
+
+h1 {
+    color: white;
+}
+
+.showcase {
+    position: relative;
+}
+
+.bg-image {
+    opacity: 0.20;
+    border: 0;
+    max-width: 100%;
+  }
+

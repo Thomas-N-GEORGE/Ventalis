@@ -1,0 +1,19 @@
+<!-- home page, "Accueil". -->
+
+{% extends 'ventashop/base.html' %}
+
+{% load static %}
+
+{% block title %}Accueil{% endblock title %}
+
+{% block content %}
+
+<div class="container">
+    <div class="banniere-titre">
+        <h1>HOME PAGE</h1>
+    </div>
+    <img src="{% static 'ventashop/img/leaves-1280.jpg' %}" alt="feuilles" class="bg-image">
+</div>
+
+{% endblock content %}
+
