@@ -1,43 +1,27 @@
 /* Our customized stylesheet */
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box; /* forces the div to keep their size if padding applied */
-    text-decoration: none;
+/* if we have some time left, it would be better to implement sass... */
+
+:root {
+    --bs-body-font-family: 'Open Sans',Verdana,Tahoma,Arial,Helvetica,sans-serif;
 }
 
-html{
-font-size: 62.5%; /* 1rem = 10px, easy to remind*/
+.container-viz {
+    border: 2px solid black;
 }
 
-body{
-font-size: 1.4rem;
-font-family: 'Open Sans',Verdana,Tahoma,Arial,Helvetica,sans-serif;
-color: white;
+.v-main {
+    padding-top: 100px;
+    height: 1800px;
 }
 
-.container{
-height: 100vh;
-display: flex;
-justify-content: center;
-flex-direction: column;
-align-items: center;
-background-color: black;
+.v-main-bgd-img {
+    background-image: url('../img/leaves-1920.jpg');
+    background-size: 4000px 1800px;
+    background-repeat: no-repeat;
+    
 }
 
-
-h1 {
+.v-white-text {
     color: white;
 }
-
-.showcase {
-    position: relative;
-}
-
-.bg-image {
-    opacity: 0.20;
-    border: 0;
-    max-width: 100%;
-  }
-
