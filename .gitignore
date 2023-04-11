@@ -3,6 +3,7 @@
 
 # unused : 
 /unused_files
+/ventasite/settings_dev.py
 
 *.pyc
 
@@ -11,6 +12,9 @@
 
 # app's sqlite database file
 *.sqlite3
+
+# static files gathered by whitenoise
+staticfiles/
 
 # testing
 #.pytest_cache/

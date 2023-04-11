@@ -8,13 +8,35 @@
 
 {% block content %}
 
-<main class="v-main v-main-bgd-img">
+<!-- <main class="v-main v-main-bgd-img">
     <div class="intermediate">
         <div class="container text-center v-white-text">
             <p class="fs-1 fw-bold">Ventalis - Produits de marketing </p>
             <p class="fs-1 fw-bold ">Montrez-vous !</p>
         </div>
     </div>
+</main> -->
+
+<main class="v-main v-main-bgd-img">
+        <div class="container text-center v-white-text">
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <div class="d-inline-flex">
+                        <div class="">
+                            <img class="img-fluid" src="{% static 'ventashop/img/logo/logo_V_white.png' %}" alt="logo V">
+                        </div>
+                        <div class="align-self-center ms-5">
+                            <p class="fs-1 fw-bold v-font-700">Ventalis</p>
+                            <p class="fs-5 fw-bold v-font-500">Produits de marketing</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                      <p class="fs-1 fw-bold v-font-700">Montrez-vous !</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 </main>
 
 {% endblock content %}
