@@ -33,9 +33,12 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 
+IS_PROD = os.environ.get('IS_HEROKU')
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
+DEBUG = not IS_PROD
 
 
 # # other way of setting to prod environement
@@ -55,11 +58,10 @@ ALLOWED_HOSTS = [
 ]
 
 # Generally avoid wildcards(*). However since Heroku router provides hostname validation it is ok
-if IS_HEROKU:
+if IS_PROD:
     ALLOWED_HOSTS = ["*"]
 else:
     ALLOWED_HOSTS = []
-
 
 
 # Application definition
