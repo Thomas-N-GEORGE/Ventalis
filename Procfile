@@ -1,1 +1,1 @@
-web: gunicorn ventasite.ventasite.wsgi
+web: gunicorn ventasite.wsgi
