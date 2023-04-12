@@ -1,0 +1,27 @@
+# virtual environment
+/env
+
+# unused : 
+/unused_files
+/ventasite/settings_dev.py
+
+*.pyc
+
+# cache :
+/__pycache__
+
+# app's sqlite database file
+*.sqlite3
+
+# static files gathered by whitenoise
+staticfiles/
+
+# testing
+#.pytest_cache/
+.coverage
+htmlcov/
+
+# Deploy
+#dist/
+#build/
+#*.egg-info/

@@ -1,0 +1,87 @@
+<!-- about page, "à propos". -->
+
+{% extends 'ventashop/base.html' %}
+
+{% load static %}
+
+{% block title %}À propos{% endblock title %}
+
+{% block content %}
+
+<main class="v-main d-flex flex-column">
+    <div class="container text-center">
+        
+    <div class="row align-items-center">
+        <div class="col-md-12 ">
+            <div class="flex-column">
+                <div class="">
+                    <img class="img-fluid" src="{% static 'ventashop/img/logo/logo_V_black.png' %}" alt="logo V">
+                </div>
+                <div> 
+                    <h1 class="display-6 text-center">Qui sommes-nous ?</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="flex-column">
+                <div class="">
+                    <img class="img-fluid" src="{% static 'ventashop/img/icon/tshirt.png' %}" alt="marketing">
+                </div>
+                <div> 
+                    <p class="fs-6">
+                        Nous sommes une entreprise spécialisée dans la vente de produit de marketing. <br>
+                        Nos produits ont un seul but : améliorer la visibilité de nos clients. <br>
+                        En activité depuis 2018, nous sommes une Licorne 100% française.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="flex-column">
+                <div class="">
+                    <img class="img-fluid" src="{% static 'ventashop/img/icon/lightning.png' %}" alt="lightning">
+                </div>
+                <div> 
+                    <p>    
+                        Nous mettons l'accent sur notre performance : <br> 
+                        rapidité de prestation, garantie satisfaction de nos clients.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="flex-column">
+                <div class="">
+                    <img class="img-fluid" src="{% static 'ventashop/img/icon/award.png' %}" alt="award">
+                </div>
+                <div> 
+                    <p>
+                        Aujourd'hui nous sommes forts 50 salariés répartis dans toute la France, un chiffre qui ne cesse de crôitre. <br>
+                        L’an passé, c'est trois millions d’euros en chiffre d’affaires consolidé. Un cap que nous sommes fiers et heureux d’avoir franchi.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="flex-column">
+                <div class="">
+                    <img class="img-fluid" src="{% static 'ventashop/img/icon/ecologic.png' %}" alt="ecologic">
+                </div>
+                <p>
+                    Aussi, dans le contexte actuel, nous nous efforçons de participer à la protection de notre planète via une démarche écologique : <br>
+                    Nous reversons 20% de notre chiffre d’affaires annuel (plus de 3 millions d’euros) dans des projets qui mettent en place des solutions durables pour l'avenir. <br>
+                    Et en toute transparence, cela se traduit par un service un peu plus cher, mais nos clients sont unanimes et optent pour un geste servant la planète.
+                </p>
+                <div> 
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>  
+</main>
+
+{% endblock content %}
