@@ -18,9 +18,9 @@ class Product(models.Model):
 
     name = models.CharField(max_length=200, unique=True)     # The default form widget for this field is a TextInput.
     date_created = models.DateTimeField(default=timezone.now)     # The default form widget for this field is a single DateTimeInput.
-    # image = models.ImageField()    # The default form widget for this field is a ClearableFileInput
+    image = models.ImageField(upload_to="product_img/%Y/%m/%d/", blank=True, null=True)    # The default form widget for this field is a ClearableFileInput
     description = models.TextField()    # The default form widget for this field is a Textarea.
-    price = models.DecimalField(max_digits=6, decimal_places=2)   # The default form widget for this field is a NumberInput when localize is False or TextInput otherwise.
+    price = models.DecimalField(max_digits=10, decimal_places=2)   # The default form widget for this field is a NumberInput when localize is False or TextInput otherwise.
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self) -> str:

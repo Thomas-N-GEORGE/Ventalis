@@ -54,13 +54,10 @@ class ProductListView(ListView):
         Return products by category, ordered by creation date, and with price multiplied by 1000.
         """
 
-        if self.kwargs["category"] == "all":
-            q_set = Product.objects.all().order_by("name")
-        else:
+        if "category" in self.kwargs:
             q_set = Product.objects.filter(category__name=self.kwargs["category"]).order_by("name")
-
-        for product in q_set:
-            product.price = product.price * 1000
+        else:
+            q_set = Product.objects.all().order_by("name")
 
         return q_set
     
@@ -90,15 +87,15 @@ class CategoryCreateView(CreateView):
     
     model = Category
     fields = ["name"]
-    success_url = "/"
+    success_url = "/all/products/"
 
 
 class ProductCreateView(CreateView):
     """Our view to create a new product"""
     
     model = Product
-    fields = ["name", "description", "price", "category"]
-    success_url = "/"
+    fields = ["name", "image", "description", "price", "category"]
+    success_url = "/all/products"
 
 
 # We can add classes to update and/or delete Categories and Products.

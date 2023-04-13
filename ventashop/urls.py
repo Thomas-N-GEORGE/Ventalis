@@ -18,7 +18,10 @@ urlpatterns = [
     # /login
     path("login/", LoginView.as_view(), name="login"),
     
-    # /category/products/
+    # /products/    (all products)
+    path("products/", ProductListView.as_view(), name="products all"),
+
+    # /category/products/   (products filtered by category)
     path("<str:category>/products/", ProductListView.as_view(), name="products"),
 
     # /5/product_detail

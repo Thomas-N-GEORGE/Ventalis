@@ -1,9 +1,10 @@
 <!-- Our product detail view -->
 
 <p>Libellé : {{ product.name }}</p>
+<img src="{{ product.image.url }}" alt="{{ product.name }}">
 <p>Ajouté le : {{ product.date_created|date:"D d M Y" }}</p>
 <p>Description : {{ product.description }} </p>
-<p>Prix à l'unité : {{ product.price }}</p>
+<p>Prix HT pour 1000 : {{ product.price }}</p>
 <p>Catégorie du produit : {{ product.category }}</p>
 
 <!-- include category to go back to same category filtered products page we came from -->

@@ -14,8 +14,6 @@ import dj_database_url
 import os
 from pathlib import Path
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,15 +37,6 @@ IS_PROD = os.environ.get('IS_HEROKU')
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 DEBUG = not IS_PROD
-
-
-# # other way of setting to prod environement
-# IS_HEROKU = "YES" in os.environ
-
-
-# # SECURITY WARNING: don't run with debug turned on in production!
-# if not IS_HEROKU:
-#     DEBUG = True
 
 
 ALLOWED_HOSTS = [
@@ -170,12 +159,16 @@ STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 # Simplified static file serving.
 # https://pypi.org/project/whitenoise/
 # Enable WhiteNoise's GZip compression of static assets.
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# During testing, at least, we need this instead : 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 
 # Media files
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
+print ("MEDIA_ROOT path", MEDIA_ROOT)
 
 
 # Default primary key field type
@@ -185,6 +178,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Update database configuration from $DATABASE_URL.
-db_from_env = dj_database_url.config(conn_max_age=500)
+# db_from_env = dj_database_url.config(conn_max_age=500)
 
-DATABASES['default'].update(db_from_env)
+# DATABASES['default'].update(db_from_env)

@@ -30,10 +30,6 @@ class StaticViewsTestCase(TestCase):
     #     response = self.c.get("/login/")
     #     self.assertContains(response, "")
     
-    # def test_products(self):
-    #     response = self.c.get("/products/")
-    #     self.assertContains(response, "")
-    
     # def test_category(self):
     #     response = self.c.get("/category/")
     #     self.assertContains(response, "")
@@ -110,3 +106,67 @@ class ProductFormTestCase(TestCase):
 
         # Assert
         self.assertEqual(self.count + 1, Product.objects.all().count())
+
+
+class ProductsMainViewTestCase(TestCase):
+    """Test class for our main Products display view."""
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        """Arrange."""
+
+        cls.c = Client()
+        cls.count = Product.objects.all().count()
+
+        # 2 categories.
+        cls.category1 = Category.objects.create(name="test1")
+        cls.category2 = Category.objects.create(name="test2")
+        
+        # 2 products in same category1.
+        cls.product1 = Product.objects.create(
+            name="product1", 
+            description="description1",
+            price=4242, 
+            category=cls.category1
+        )
+
+        cls.product2 = Product.objects.create(
+            name="product2", 
+            description="description2",
+            price=4242, 
+            category=cls.category1
+        )
+    
+    def test_all_products_display(self):
+        """Test to check all products are displayed."""
+
+        # Act.
+        response = self.c.get("/products/")
+
+        # Assert.
+        self.assertContains(response, "product1")
+        self.assertContains(response, "product2")
+
+    def test_products_filtered_by_category(self):
+        """Test to check products are displayed in their category."""
+        
+        # Act.
+        url  = "/" + str(self.category1.name) + "/products/"
+        response = self.c.get(url)
+
+        # Assert.
+        self.assertContains(response, "product1")
+        self.assertContains(response, "product2")
+        
+    def test_products_filtered_by_category_empty_category(self):
+        """Test to check no products are displayed in "empty" category."""
+
+        # Act.
+        url  = "/" + str(self.category2.name) + "/products/"
+        response = self.c.get(url)
+
+        # Assert.
+        self.assertNotContains(response, "product1")
+        self.assertNotContains(response, "product2")
+
+# CHECK : https://docs.djangoproject.com/en/4.2/ref/utils/#django.utils.text.slugify
