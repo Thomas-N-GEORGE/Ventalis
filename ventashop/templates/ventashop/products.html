@@ -6,6 +6,40 @@
 
 {% block content %}
 
-    {% include './partials/wip.html' %}
+<div>Catégories</div>
+<div>
+    <ul>
+        <li>
+            <a href="{% url 'ventashop:products' 'all' %}">Tous les produits</a> 
+        </li>
+        {% for category in category_list %}
+            <li>
+                <a href="{% url 'ventashop:products' category.name %}">
+                    {{ category.name }}
+                </a> 
+            </li>
+        {% empty %}
+            <li>No category yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<h1>Produits</h1>
+
+<ul>
+    {% for product in product_list %}
+        <li>
+            <a href="{% url 'ventashop:product detail' product.pk %}">
+                {{ product.name }}
+            </a> 
+            - Prix pour 1000 unités : {{ product.price }}
+        </li>
+    {% empty %}
+        <li>No products yet.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'ventashop:new product' %}">Ajouter un produit</a> 
+<a href="{% url 'ventashop:new category' %}">Ajouter une catégorie</a> 
 
 {% endblock content %}

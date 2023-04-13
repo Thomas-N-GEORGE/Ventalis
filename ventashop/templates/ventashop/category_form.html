@@ -1,0 +1,7 @@
+<!-- Our form to create a new category of products -->
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.name }}
+    <input type="submit" value="Save">
+</form>

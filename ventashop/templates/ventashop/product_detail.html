@@ -1,0 +1,10 @@
+<!-- Our product detail view -->
+
+<p>Libellé : {{ product.name }}</p>
+<p>Ajouté le : {{ product.date_created|date:"D d M Y" }}</p>
+<p>Description : {{ product.description }} </p>
+<p>Prix à l'unité : {{ product.price }}</p>
+<p>Catégorie du produit : {{ product.category }}</p>
+
+<!-- include category to go back to same category filtered products page we came from -->
+<a href="{% url 'ventashop:products' product.category.name %}">Retour à la liste de produits</a> 
