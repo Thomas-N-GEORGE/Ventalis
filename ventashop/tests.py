@@ -5,7 +5,7 @@ from django.test import Client, TestCase
 
 # Create your tests here.
 
-from ventashop.models import Category, Product
+from ventashop.models import Category, Product, LineItem
 
 
 class StaticViewsTestCase(TestCase):
@@ -137,6 +137,15 @@ class ProductsMainViewTestCase(TestCase):
             category=cls.category1
         )
     
+    def test_product_price_display(self):
+        """Test to check prices multiplied by 1000 are displayed."""
+
+        # Act.
+        response = self.c.get("/products/")
+
+        # Assert.
+        self.assertContains(response, "4242000")
+
     def test_all_products_display(self):
         """Test to check all products are displayed."""
 
@@ -169,4 +178,44 @@ class ProductsMainViewTestCase(TestCase):
         self.assertNotContains(response, "product1")
         self.assertNotContains(response, "product2")
 
-# CHECK : https://docs.djangoproject.com/en/4.2/ref/utils/#django.utils.text.slugify
+# !!!!!!!!!!!!!!!!!!!!!
+# CHECK TO SEE IF NAME OF CATEGORY IS PROBLEM TO URL: 
+# https://docs.djangoproject.com/en/4.2/ref/utils/#django.utils.text.slugify
+# !!!!!!!!!!!!!!!!!!!!!!
+
+
+class LineItemTest(TestCase):
+    """Test class for our Line Item model logic."""
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        """Arrange."""
+
+        cls.product1 = Product.objects.create(
+            name="product1", 
+            description="description1",
+            price=4242, 
+        )
+
+    def test_line_item_price_create(self):
+        """Test to check the price field is populated correctly"""
+
+        # Act.
+        li = LineItem.objects.create(product=self.product1, quantity=1000)
+
+        # Assert.
+        self.assertEqual(self.product1.price * 1000, li.price)
+    
+    def test_line_item_price_updated(self):
+        """Test to check the price field is updated correctly"""
+
+        # Arrange.
+        li = LineItem.objects.create(product=self.product1, quantity=1000)
+        
+        # Act.
+        li.quantity = 2000
+        li.save()
+
+        # Assert.
+        self.assertEqual(self.product1.price * 2000, li.price)
+

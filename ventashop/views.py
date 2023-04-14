@@ -55,11 +55,14 @@ class ProductListView(ListView):
         """
 
         if "category" in self.kwargs:
-            q_set = Product.objects.filter(category__name=self.kwargs["category"]).order_by("name")
+            p_set = Product.objects.filter(category__name=self.kwargs["category"]).order_by("name")
         else:
-            q_set = Product.objects.all().order_by("name")
+            p_set = Product.objects.all().order_by("name")
 
-        return q_set
+        for product in p_set:
+            product.price *= 1000
+
+        return p_set
     
     def get_context_data(self, **kwargs):
         """
