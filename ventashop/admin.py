@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Product
+from .models import Category, Product, LineItem, Cart
 
 # Register your models here.
 
@@ -16,3 +16,17 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Product, ProductAdmin)
+
+
+class LineItemAdmin(admin.ModelAdmin):
+    fields = ["product", "quantity", "price", "cart"]
+
+
+admin.site.register(LineItem, LineItemAdmin)
+
+
+class CartAdmin(admin.ModelAdmin):
+    fields = ["total_price"]
+
+
+admin.site.register(Cart, CartAdmin)

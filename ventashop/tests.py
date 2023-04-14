@@ -5,7 +5,7 @@ from django.test import Client, TestCase
 
 # Create your tests here.
 
-from ventashop.models import Category, Product, LineItem
+from ventashop.models import Category, Product, LineItem, Cart
 
 
 class StaticViewsTestCase(TestCase):
@@ -45,7 +45,7 @@ class CategoryFormTestCase(TestCase):
         self.count = Category.objects.all().count()
 
     def test_category_created(self):
-        """Test to check if new category is written to db."""
+        """Check if new category is written to db."""
 
         # Act.
         self.c.post("/category_form/", {"name": "test"})
@@ -54,7 +54,7 @@ class CategoryFormTestCase(TestCase):
         self.assertEqual(self.count + 1, Category.objects.all().count())
     
     def test_category_unique(self):
-        """Test to check if a category is unique in db."""
+        """Check if a category is unique in db."""
 
         # Act.
         self.c.post("/category_form/", {"name": "test"})
@@ -89,7 +89,7 @@ class ProductFormTestCase(TestCase):
         )
 
     def test_product_created(self):
-        """Test to check if new product is written to db."""
+        """Check if new product is written to db."""
 
         # Act.
         self.create_a_product()
@@ -98,7 +98,7 @@ class ProductFormTestCase(TestCase):
         self.assertEqual(self.count + 1, Product.objects.all().count())
     
     def test_product_unique(self):
-        """Test to check if a product is unique in db."""
+        """Check if a product is unique in db."""
 
         # Act.
         self.create_a_product()
@@ -138,7 +138,7 @@ class ProductsMainViewTestCase(TestCase):
         )
     
     def test_product_price_display(self):
-        """Test to check prices multiplied by 1000 are displayed."""
+        """Check prices multiplied by 1000 are displayed."""
 
         # Act.
         response = self.c.get("/products/")
@@ -147,7 +147,7 @@ class ProductsMainViewTestCase(TestCase):
         self.assertContains(response, "4242000")
 
     def test_all_products_display(self):
-        """Test to check all products are displayed."""
+        """Check all products are displayed."""
 
         # Act.
         response = self.c.get("/products/")
@@ -157,7 +157,7 @@ class ProductsMainViewTestCase(TestCase):
         self.assertContains(response, "product2")
 
     def test_products_filtered_by_category(self):
-        """Test to check products are displayed in their category."""
+        """Check products are displayed in their category."""
         
         # Act.
         url  = "/" + str(self.category1.name) + "/products/"
@@ -168,7 +168,7 @@ class ProductsMainViewTestCase(TestCase):
         self.assertContains(response, "product2")
         
     def test_products_filtered_by_category_empty_category(self):
-        """Test to check no products are displayed in "empty" category."""
+        """Check no products are displayed in "empty" category."""
 
         # Act.
         url  = "/" + str(self.category2.name) + "/products/"
@@ -197,25 +197,157 @@ class LineItemTest(TestCase):
             price=4242, 
         )
 
+    def test_line_item_quantity_ge_1000(self):
+        """Test to check the quantity field is updated to 1000 if less."""
+
+        # Act.
+        li = LineItem.objects.create(product=self.product1, quantity=900)
+
+        # Assert.
+        self.assertEqual(li.quantity, 1000)
+
     def test_line_item_price_create(self):
-        """Test to check the price field is populated correctly"""
+        """Test to check the price field is populated correctly."""
 
         # Act.
         li = LineItem.objects.create(product=self.product1, quantity=1000)
 
         # Assert.
         self.assertEqual(self.product1.price * 1000, li.price)
-    
-    def test_line_item_price_updated(self):
-        """Test to check the price field is updated correctly"""
 
-        # Arrange.
-        li = LineItem.objects.create(product=self.product1, quantity=1000)
-        
-        # Act.
-        li.quantity = 2000
-        li.save()
+
+class CartTest(TestCase):
+    """Test class for our Cart model logic."""
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        """Arrange."""
+
+        cls.product1 = Product.objects.create(
+            name="product1", 
+            description="description1",
+            price=4242, 
+        )
+
+        cls.product2 = Product.objects.create(
+            name="product2", 
+            description="description1",
+            price=6789, 
+        )
+
+        cls.cart = Cart.objects.create()
+
+    def test_initial_total_price_is_0(self):
+        """Initial empty cart total is 0"""
 
         # Assert.
-        self.assertEqual(self.product1.price * 2000, li.price)
+        self.assertEqual(self.cart.total_price, 0)
+        
+    def test_add_line_item(self):
+        """
+        Add a product to cart, 
+        check if a relative line item is created,
+        check the total price of cart.
+        """
 
+        # Arrange.
+        li_set_count = LineItem.objects.filter(cart=self.cart).count()
+
+        # Act.
+        self.cart.add_line_item(self.product1, 1234)
+
+        # Assert.
+        self.assertEqual(li_set_count + 1, LineItem.objects.filter(cart=self.cart).count())
+        self.assertEqual(self.cart.total_price, self.product1.price * 1234)
+
+    def test_add_line_item_quantity_less_than_1000(self):
+        """
+        Add a product to cart with quantity less than 1000, 
+        check if no relative line item is created,
+        check the total price of cart.
+        """
+
+        # Arrange.
+        li_set_count = LineItem.objects.filter(cart=self.cart).count()
+
+        # Act.
+        self.cart.add_line_item(self.product1, 123)
+
+        # Assert.
+        self.assertEqual(li_set_count , LineItem.objects.filter(cart=self.cart).count())
+        self.assertEqual(self.cart.total_price, 0)
+    
+    def test_add_same_product_twice_to_cart(self):
+        """
+        Add a product twice to cart (first with quantity >= 1000, secondly < 1000), 
+        check if only a single relative line item is created,
+        check the total price of cart.
+        """
+
+        # Arrange.
+        li_set_count = LineItem.objects.filter(cart=self.cart).count()
+
+        # Act.
+        self.cart.add_line_item(self.product1, 1234)
+        self.cart.add_line_item(self.product1, 123)
+
+        # Assert.
+        self.assertEqual(li_set_count + 1, LineItem.objects.filter(cart=self.cart).count())
+        self.assertEqual(self.cart.total_price, self.product1.price * (1234 + 123))
+
+    def test_update_line_item(self):
+        """
+        Update a product quantity in cart, 
+        check if only a single relative line item is created,
+        check the total price of cart.
+        """
+
+        # Act.
+        self.cart.add_line_item(self.product1, 1234)
+        self.cart.update_line_item(self.product1, 5678)
+
+        # Assert.
+        self.assertEqual(self.cart.total_price, self.product1.price * 5678)
+    
+    def test_update_line_item_quantity_less_than_1000(self):
+        """
+        Update a product with quantity < 1000 in cart, 
+        check if line item update is aborted.
+        """
+
+        # Act.
+        self.cart.add_line_item(self.product1, 1234)
+        self.cart.update_line_item(self.product1, 123)
+
+        # Assert.
+        self.assertEqual(self.cart.total_price, self.product1.price * 1234)
+
+    def test_remove_line_item(self):
+        """Check if line item is removed and cart total price updated."""
+
+        # Arrange.
+        self.cart.add_line_item(self.product1, 1234)
+
+        li_set = LineItem.objects.filter(cart=self.cart)
+        li_set_count = li_set.count()
+
+        # Act.
+        self.cart.remove_line_item(li_set[0])
+
+        # Assert.
+        self.assertEqual(self.cart.total_price, 0)
+        self.assertEqual(LineItem.objects.filter(cart=self.cart).count(), li_set_count - 1)
+
+    def test_empty_cart(self):
+        """Check if line items are removed and cart total price reset to 0."""
+
+        # Arrange.
+        self.cart.add_line_item(self.product1, 1234)
+        self.cart.add_line_item(self.product2, 5678)
+
+        # Act.
+        self.cart.empty_cart()
+
+        # Assert.
+        self.assertEqual(self.cart.total_price, 0)
+        self.assertEqual(LineItem.objects.filter(cart=self.cart).count(), 0)
