@@ -5,7 +5,7 @@ from django.test import Client, TestCase
 
 # Create your tests here.
 
-from ventashop.models import Category, Product, LineItem, Cart
+from ventashop.models import Category, Product, LineItem, Cart, Order
 
 
 class StaticViewsTestCase(TestCase):
@@ -255,6 +255,7 @@ class CartTest(TestCase):
 
         # Act.
         self.cart.add_line_item(self.product1, 1234)
+        li_set = self.cart.lineitem_set.all()
 
         # Assert.
         self.assertEqual(li_set_count + 1, LineItem.objects.filter(cart=self.cart).count())
@@ -351,3 +352,86 @@ class CartTest(TestCase):
         # Assert.
         self.assertEqual(self.cart.total_price, 0)
         self.assertEqual(LineItem.objects.filter(cart=self.cart).count(), 0)
+
+    def test_calculate_total_price(self):
+        """Check for correct total price of cart."""
+
+        # Arrange.
+        self.cart.add_line_item(self.product1, 1234)
+        self.cart.add_line_item(self.product2, 5678)
+
+        # Act.
+        self.cart.calculate_total_price()
+
+        # Assert.
+        self.assertEqual(self.cart.total_price, 4242 * 1234 + 6789 * 5678)
+
+    def test_create_order_aborted_if_empty_cart(self):
+        """
+        Check if order is not created from  an "empty" cart, 
+        """
+
+        o_count = Order.objects.all().count()
+
+        # Act.
+        self.cart.make_order()
+
+        # Assert.
+        self.assertEqual(Order.objects.all().count(), o_count)
+
+    def test_create_order_cart_emptied(self):
+        """
+        Check if order is created from our cart, 
+        check is cart is "emptied", its total price reset to 0.
+        """
+        
+        # Arrange.
+        self.cart.add_line_item(self.product1, 1234)
+        o_count = Order.objects.all().count()
+
+        # Act.
+        self.cart.make_order()
+
+        # Assert.
+        self.assertEqual(Order.objects.all().count(), o_count + 1)
+        self.assertEqual(self.cart.lineitem_set.all().count(), 0)
+        self.assertEqual(self.cart.total_price, 0)
+    
+    def test_create_order_check_order_is_correctly_populated(self):
+        """
+        Check created order from our cart has its fields correctly populated : 
+        the line items should be passed to the order,
+        the total price or the order sould be the same as was cart's.
+        """
+        
+        # Arrange.
+        self.cart.add_line_item(self.product1, 1234)
+        self.cart.add_line_item(self.product2, 5678)
+        cart_tp = self.cart.total_price
+        li_list = list(self.cart.lineitem_set.all())
+
+        # Act.
+        self.cart.make_order()
+        
+        # Assert.
+        o_set = Order.objects.all()
+        order = o_set[o_set.count() - 1]
+
+        self.assertListEqual(list(order.lineitem_set.all()), li_list)
+        self.assertEqual(order.total_price, cart_tp)
+
+
+class TestOrder(TestCase):
+    """Test class for our Cart model logic."""
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        """Arrange."""
+
+
+class TestComment(TestCase):
+    """Test class for our Comment model logic."""
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        """Arrange."""
