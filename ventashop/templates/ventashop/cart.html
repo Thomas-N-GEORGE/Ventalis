@@ -1,0 +1,44 @@
+<!-- This is our cart view -->
+
+{% extends 'ventashop/base.html' %}
+
+{% block title %}Panier{% endblock title %}
+
+{% block content %}
+    <h2>Cart</h2>
+    <ul>
+        {% if  line_item_list|length == 0 %}
+            <p>VOTRE PANIER EST VIDE</p>
+        {% else %}
+            
+        {% endif %}
+        {% for line_item in line_item_list %}
+            <li>
+                {{ line_item.product }} | 
+                
+                Qty : {{ line_item.quantity }} | 
+                <!-- Edit product quantity -->
+                <form action="{% url 'ventashop:line-item-update' cart.id line_item.id %}" method="post">
+                    {% csrf_token %}
+                    <label for="id_quantity">Qty:</label>
+                    <input type="number" name="quantity" step="1" required="" id="id_quantity">
+                    <input type="submit" value="Actualiser">
+                </form>
+
+                Price : {{ line_item.price }}
+            </li>
+            <form action="{% url 'ventashop:line-item-remove' line_item.id %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Retirer">
+            </form>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+
+
+<!-- Empty cart -->
+<!-- <form action=" url 'ventashop:cart-empty' cart.id " method="post">
+    {% csrf_token %}
+    <input type="submit" value="Vider le panier">
+</form> -->

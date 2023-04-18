@@ -19,6 +19,9 @@ class Category(models.Model):
 class Product(models.Model):
     """This is our Product model."""
 
+    class Meta:
+        ordering = ["-date_created"]
+
     name = models.CharField(max_length=200, unique=True)
     date_created = models.DateTimeField(default=timezone.now)
     image = models.ImageField(upload_to="product_img/%Y/%m/%d/", blank=True, null=True)
@@ -84,8 +87,7 @@ class Cart(models.Model):
     def remove_line_item(self, line_item):
         """Remove a line item from cart, update total price."""
     
-        line_item.cart.delete()
-        self.calculate_total_price()
+        line_item.delete()
         self.save()
 
     def empty_cart(self):
@@ -131,6 +133,10 @@ class Cart(models.Model):
 class Order(models.Model):
     """This is our order model."""
 
+    class Meta:
+        ordering = ["-date_created"]
+        
+
     # Choices for the state :
     NON_TRAITEE = "NT"
     EN_COURS_DE_TRAITEMENT = "CT"
@@ -172,8 +178,7 @@ class Order(models.Model):
     def add_comment(self, content):
         """Add a new comment to order."""
 
-        comment = Comment.objects.create(content=content)
-        comment.order = self
+        comment = Comment.objects.create(content=content, order = self)
         comment.save()
 
     def save(self, *args, **kwargs):
@@ -192,6 +197,10 @@ class Order(models.Model):
 
 class Comment(models.Model):
     """This is our comment model, related to order model."""
+
+    class Meta:
+        ordering = ["-date_created"]
+
 
     content = models.CharField(max_length=2000, null=False)
     date_created = models.DateTimeField(default=timezone.now)

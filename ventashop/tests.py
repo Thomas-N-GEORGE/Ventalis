@@ -2,10 +2,11 @@
 from decimal import Decimal
 
 from django.test import Client, TestCase
+from django.urls import reverse
 
 # Create your tests here.
 
-from ventashop.models import Category, Product, LineItem, Cart, Order
+from ventashop.models import Category, Product, LineItem, Cart, Order, Comment
 
 
 class StaticViewsTestCase(TestCase):
@@ -64,8 +65,8 @@ class CategoryFormTestCase(TestCase):
         self.assertEqual(self.count + 1, Category.objects.all().count())
 
 
-class ProductFormTestCase(TestCase):
-    """Test class for our Product form."""
+class ProductCreateViewTestCase(TestCase):
+    """Test class for our product create view."""
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -76,7 +77,7 @@ class ProductFormTestCase(TestCase):
         cls.category = Category.objects.create(name="test")
 
     def create_a_product(self):
-        """Simple method to create a product for test cases."""
+        """Simple utility method to create a product for test cases."""
 
         self.c.post(
             "/product_form/", 
@@ -107,9 +108,44 @@ class ProductFormTestCase(TestCase):
         # Assert
         self.assertEqual(self.count + 1, Product.objects.all().count())
 
+    def test_redirect_to_products_all_page_without_category_specified(self):
+        """Check redirection to "product-all" page after creating product without category."""
 
-class ProductsMainViewTestCase(TestCase):
-    """Test class for our main Products display view."""
+        # Act.
+        response = self.c.post(
+                "/product_form/", 
+                {
+                    "name": "test", 
+                    "description": "test description",
+                    "price": 42.42,
+                }
+            )
+        
+        # Assert.
+        self.assertRedirects(response=response, 
+                             expected_url=reverse("ventashop:products-all"))
+
+    def test_redirect_to_products_all_page_with_category_specified(self):
+        """Check redirection to "product-all" page after creating product with category."""
+
+        # Act.
+        response = self.c.post(
+                "/product_form/", 
+                {
+                    "name": "test", 
+                    "description": "test description",
+                    "price": 42.42,
+                    "category": self.category.id,
+                }
+            )
+        
+        # Assert.
+        self.assertRedirects(response=response, 
+                             expected_url=reverse("ventashop:products-all"))
+
+
+class ProductsListViewTestCase(TestCase):
+    """Test class for our main product list view."""
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -184,6 +220,81 @@ class ProductsMainViewTestCase(TestCase):
 # !!!!!!!!!!!!!!!!!!!!!!
 
 
+class ProductAddToCartViewTestCase(TestCase):
+    """Test class for our product detail view"""
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        """Arrange."""
+
+        cls.c = Client()
+        cls.category = Category.objects.create(name="test_cat")
+        cls.product1 = Product.objects.create(
+            name="product1", 
+            description="description1",
+            price=4242, 
+            category=cls.category 
+        )
+        cls.cart = Cart.objects.create()
+
+        cls.li_count = cls.cart.lineitem_set.filter(cart=cls.cart).count()
+        cls.cart_id = str(cls.cart.pk)
+        cls.product1_id = str(cls.product1.pk)
+
+    def test_add_product_to_cart(self):
+        """Check if product is added to cart"""
+
+        # Arrange.
+        url = "/product_add/" + self.cart_id + "/" + self.product1_id + "/"
+
+        # Act.
+        response = self.c.post(reverse("ventashop:product-add-to-cart", 
+                                       kwargs={'cart_id': self.cart_id, 'product_id': self.product1_id})) 
+
+        # Assert
+        self.assertEqual(self.li_count + 1, self.cart.lineitem_set.filter(cart=self.cart).count())
+    
+    def test_redirect_to_products_detail_page_after_adding_product(self):
+        """Check redirection to "product-detail" page after adding product to cart."""
+
+        # Act.
+        response = self.c.post(reverse("ventashop:product-add-to-cart", 
+                                       kwargs={'cart_id': self.cart_id, 'product_id': self.product1_id})) 
+        
+        # Assert.
+        self.assertRedirects(response=response, 
+                             expected_url=reverse("ventashop:product-detail", args=(self.product1.id,)))
+
+
+class ProductDetailViewTestCase(TestCase):
+    """Test class for product detail view."""
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        """Arrange."""
+
+        cls.c = Client()
+        cls.category = Category.objects.create(name="test_cat")
+        cls.product1 = Product.objects.create(
+            name="product1", 
+            description="description1",
+            price=4242, 
+            category=cls.category 
+        )
+
+    def test_display_product_prduct_details(self):
+        """Check if every field is displayed in view."""
+
+        # Act.
+        response = self.c.get(reverse('ventashop:product-detail', args=(self.product1.id,)))
+
+        # Assert.
+        self.assertContains(response, "product1")
+        self.assertContains(response, "description1")
+        self.assertContains(response, "4242")
+        self.assertContains(response, "test_cat")
+
+
 class LineItemTest(TestCase):
     """Test class for our Line Item model logic."""
 
@@ -216,7 +327,7 @@ class LineItemTest(TestCase):
         self.assertEqual(self.product1.price * 1000, li.price)
 
 
-class CartTest(TestCase):
+class CartTestCase(TestCase):
     """Test class for our Cart model logic."""
 
     @classmethod
@@ -421,12 +532,50 @@ class CartTest(TestCase):
         self.assertEqual(order.total_price, cart_tp)
 
 
-class TestOrder(TestCase):
+class CartViewTestCase(TestCase):
+    """Test clas for our cart view."""
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        """Arrange."""
+
+        cls.product1 = Product.objects.create(
+            name="product1", 
+            description="description1",
+            price=4242, 
+        )
+
+        cls.product2 = Product.objects.create(
+            name="product2", 
+            description="description1",
+            price=6789, 
+        )
+
+        cls.cart = Cart.objects.create()
+
+
+class OrderTestCase(TestCase):
     """Test class for our Cart model logic."""
 
     @classmethod
     def setUpTestData(cls) -> None:
         """Arrange."""
+
+        cls.order = Order.objects.create()
+
+    def test_add_comment(self):
+        """Check if comment is created."""
+
+        # Arrange.
+        com_count = Comment.objects.all().count()
+
+        # Act.
+        self.order.add_comment("test")
+        order_comments = self.order.comment_set.all()
+
+        # Assert.
+        self.assertEqual(com_count + 1, Comment.objects.all().count())
+        self.assertEqual(list(order_comments)[0].content, "test")
 
 
 class TestComment(TestCase):
@@ -435,3 +584,23 @@ class TestComment(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
         """Arrange."""
+
+        cls.order = Order.objects.create()
+
+    def test_message_ordering_in_queryset(self):
+        """Check if ordering by descending datetime."""
+
+        # Arrange.
+        self.order.add_comment("test1")
+        self.order.add_comment("test2")
+        self.order.add_comment("test3")
+
+        # Act.
+        order_comments = self.order.comment_set.all()
+
+        # Assert.
+        self.assertTrue(
+            order_comments[0].date_created > 
+            order_comments[1].date_created > 
+            order_comments[2].date_created
+        )
