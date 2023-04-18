@@ -22,10 +22,10 @@ urlpatterns = [
     path("products/", ProductListView.as_view(), name="products-all"),
 
     # /category/products/   (products filtered by category)
-    path("<str:category>/products/", ProductListView.as_view(), name="products"),
+    path("<slug:slug>/products/", ProductListView.as_view(), name="products"),
 
     # /5/product_detail
-    path("<int:pk>/product_detail/", ProductDetailView.as_view(), name="product-detail"),
+    path("<slug:slug>/product_detail/", ProductDetailView.as_view(), name="product-detail"),
 
     # /product_form
     path("product_form/", ProductCreateView.as_view() , name='product-create'),

@@ -55,8 +55,8 @@ class ProductListView(ListView):
         Return products by category, ordered by creation date, and with price multiplied by 1000.
         """
 
-        if "category" in self.kwargs:
-            p_set = Product.objects.filter(category__name=self.kwargs["category"]).order_by("name")
+        if "slug" in self.kwargs:
+            p_set = Product.objects.filter(category__slug=self.kwargs["slug"]).order_by("name")
         else:
             p_set = Product.objects.all().order_by("name")
 
@@ -109,7 +109,7 @@ class ProductAddToCartView(RedirectView):
         cart.add_line_item(product, 1000)
         
         kwargs = {}
-        args=(product.id,)
+        args=(product.slug,)
         return super().get_redirect_url(*args, **kwargs)
 
 

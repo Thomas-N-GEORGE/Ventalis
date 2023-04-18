@@ -1,6 +1,7 @@
 from django.db import models
 
 from django.db.models.signals import pre_save
+from django.template.defaultfilters import slugify
 from django.utils import timezone
 
 from .utils import unique_ref_number_generator
@@ -11,9 +12,15 @@ class Category(models.Model):
     """This is our Category model, aimed to group and filter Products."""
 
     name = models.CharField(max_length=200, unique=True)     # The default form widget for this field is a TextInput.
+    slug = models.SlugField(null=False, unique=True)
 
     def __str__(self) -> str:
         return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
 
 
 class Product(models.Model):
@@ -23,6 +30,7 @@ class Product(models.Model):
         ordering = ["-date_created"]
 
     name = models.CharField(max_length=200, unique=True)
+    slug = models.SlugField(null=False, unique=True)
     date_created = models.DateTimeField(default=timezone.now)
     image = models.ImageField(upload_to="product_img/%Y/%m/%d/", blank=True, null=True)
     description = models.TextField()
@@ -31,6 +39,11 @@ class Product(models.Model):
 
     def __str__(self) -> str:
         return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
 
 
 class Cart(models.Model):

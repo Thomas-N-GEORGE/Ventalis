@@ -14,7 +14,7 @@
         </li>
         {% for category in category_list %}
             <li>
-                <a href="{% url 'ventashop:products' category.name %}">
+                <a href="{% url 'ventashop:products' category.slug %}">
                     {{ category.name }}
                 </a> 
             </li>
@@ -29,7 +29,7 @@
 <ul>
     {% for product in product_list %}
         <li>
-            <a href="{% url 'ventashop:product-detail' product.pk %}">
+            <a href="{% url 'ventashop:product-detail' product.slug %}">
                 {{ product.name }}
             </a> 
             - Prix pour 1000 unités : {{ product.price }}

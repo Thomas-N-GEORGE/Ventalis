@@ -196,7 +196,7 @@ class ProductsListViewTestCase(TestCase):
         """Check products are displayed in their category."""
         
         # Act.
-        url  = "/" + str(self.category1.name) + "/products/"
+        url  = "/" + str(self.category1.slug) + "/products/"
         response = self.c.get(url)
 
         # Assert.
@@ -207,17 +207,12 @@ class ProductsListViewTestCase(TestCase):
         """Check no products are displayed in "empty" category."""
 
         # Act.
-        url  = "/" + str(self.category2.name) + "/products/"
+        url  = "/" + str(self.category2.slug) + "/products/"
         response = self.c.get(url)
 
         # Assert.
         self.assertNotContains(response, "product1")
         self.assertNotContains(response, "product2")
-
-# !!!!!!!!!!!!!!!!!!!!!
-# CHECK TO SEE IF NAME OF CATEGORY IS PROBLEM TO URL: 
-# https://docs.djangoproject.com/en/4.2/ref/utils/#django.utils.text.slugify
-# !!!!!!!!!!!!!!!!!!!!!!
 
 
 class ProductAddToCartViewTestCase(TestCase):
@@ -263,7 +258,7 @@ class ProductAddToCartViewTestCase(TestCase):
         
         # Assert.
         self.assertRedirects(response=response, 
-                             expected_url=reverse("ventashop:product-detail", args=(self.product1.id,)))
+                             expected_url=reverse("ventashop:product-detail", args=(self.product1.slug,)))
 
 
 class ProductDetailViewTestCase(TestCase):
@@ -286,7 +281,7 @@ class ProductDetailViewTestCase(TestCase):
         """Check if every field is displayed in view."""
 
         # Act.
-        response = self.c.get(reverse('ventashop:product-detail', args=(self.product1.id,)))
+        response = self.c.get(reverse('ventashop:product-detail', args=(self.product1.slug,)))
 
         # Assert.
         self.assertContains(response, "product1")
