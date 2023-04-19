@@ -215,8 +215,11 @@ class ProductsListViewTestCase(TestCase):
         self.assertNotContains(response, "product2")
 
 
-class ProductAddToCartViewTestCase(TestCase):
-    """Test class for our product detail view"""
+class CartEditingViewsTestCase(TestCase):
+    """
+    Test class regroupin tests for views modifying cart content,
+    e.g. ProductAddToCartView, LineItemUpdateView, LineItemRemoveFromCartView, CartEmptyView.
+    """
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -236,29 +239,133 @@ class ProductAddToCartViewTestCase(TestCase):
         cls.cart_id = str(cls.cart.pk)
         cls.product1_id = str(cls.product1.pk)
 
-    def test_add_product_to_cart(self):
-        """Check if product is added to cart"""
+    def test_product_add_to_cart_view(self):
+        """Check if product is added to cart and redirection to "product-detail" page afterwards."""
 
         # Arrange.
         url = "/product_add/" + self.cart_id + "/" + self.product1_id + "/"
 
         # Act.
-        response = self.c.post(reverse("ventashop:product-add-to-cart", 
-                                       kwargs={'cart_id': self.cart_id, 'product_id': self.product1_id})) 
+        response = self.c.post(reverse("ventashop:product-add-to-cart",
+                                        kwargs={'cart_id': self.cart_id, 'product_id': self.product1_id})) 
 
         # Assert
         self.assertEqual(self.li_count + 1, self.cart.lineitem_set.filter(cart=self.cart).count())
+        self.assertRedirects(response=response, 
+                            expected_url=reverse("ventashop:product-detail", args=(self.product1.slug,)))
     
-    def test_redirect_to_products_detail_page_after_adding_product(self):
-        """Check redirection to "product-detail" page after adding product to cart."""
+    def test_line_item_update_view_with_product_quantity_GE_1000(self):
+        """Check cart update and redirection after updating a product quantity in cart."""
+    
+        # Arrange.
+        self.cart.add_line_item(self.product1, 1000)
+        line_item = self.cart.lineitem_set.filter(cart=self.cart, product=self.product1_id)[0]
 
         # Act.
-        response = self.c.post(reverse("ventashop:product-add-to-cart", 
-                                       kwargs={'cart_id': self.cart_id, 'product_id': self.product1_id})) 
-        
+        response = self.c.post(
+            reverse("ventashop:line-item-update",
+                kwargs={
+                    'cart_id': self.cart.pk, 
+                    'line_item_id': line_item.pk,
+                    }
+                ),
+            {"quantity": 1234},
+        )
+
         # Assert.
         self.assertRedirects(response=response, 
-                             expected_url=reverse("ventashop:product-detail", args=(self.product1.slug,)))
+                            expected_url=reverse("ventashop:cart", args=(self.cart_id,)))
+        # self.assertEqual(self.cart.total_price, 4242 * 1500)  # Why does this fail ???
+        self.assertEqual(Cart.objects.get(pk=self.cart.pk).total_price, 4242 * 1234)
+
+    def test_line_item_update_view_with_product_quantity_LT_1000(self):
+        """Check cart update and redirection after updating a product quantity < 1000 in cart."""
+    
+        # Arrange.
+        self.cart.add_line_item(self.product1, 1000)
+        line_item = self.cart.lineitem_set.filter(cart=self.cart, product=self.product1_id)[0]
+
+        # Act.
+        response = self.c.post(
+            reverse("ventashop:line-item-update",
+                kwargs={
+                    'cart_id': self.cart.pk, 
+                    'line_item_id': line_item.pk,
+                    }
+                ),
+            {"quantity": 999},
+        )
+
+        # Assert.
+        self.assertRedirects(response=response, 
+                            expected_url=reverse("ventashop:cart", args=(self.cart_id,)))
+        self.assertEqual(Cart.objects.get(pk=self.cart.pk).total_price, 4242 * 1000)
+    
+    def test_line_item_update_view_with_no_product_quantity_in_request(self):
+        """Check cart update and redirection after updating a product with missing request "quantity" key."""
+    
+        # Arrange.
+        self.cart.add_line_item(self.product1, 1000)
+        line_item = self.cart.lineitem_set.filter(cart=self.cart, product=self.product1_id)[0]
+
+        # Act.
+        response = self.c.post(
+            reverse("ventashop:line-item-update",
+                kwargs={
+                    'cart_id': self.cart.pk, 
+                    'line_item_id': line_item.pk,
+                    }
+                ),
+        )
+
+        # Assert.
+        self.assertRedirects(response=response, 
+                            expected_url=reverse("ventashop:cart", args=(self.cart_id,)))
+        self.assertEqual(Cart.objects.get(pk=self.cart.pk).total_price, 4242 * 1000)
+
+    def test_line_item_remove_from_cart_view(self):
+        """Check cart update and redirection after after removing a product from cart."""
+
+        # Arrange.
+        cart_tp_init = self.cart.total_price
+        self.cart.add_line_item(self.product1, 1000)
+        line_item = self.cart.lineitem_set.filter(cart=self.cart, product=self.product1_id)[0]
+
+        # Act.
+        response = self.c.post(
+            reverse("ventashop:line-item-remove",
+                kwargs={
+                    'line_item_id': line_item.pk,
+                    }
+                ),
+        )
+
+        # Assert.
+        self.assertRedirects(response=response, 
+                            expected_url=reverse("ventashop:cart", args=(self.cart_id,)))
+        self.assertEqual(Cart.objects.get(pk=self.cart.pk).total_price, cart_tp_init)
+
+    def test_cart_empty_view(self):
+        """Check cart update and redirection after emptying cart."""
+
+        # Arrange.
+        cart_tp_init = self.cart.total_price
+        self.cart.add_line_item(self.product1, 1000)
+        line_item = self.cart.lineitem_set.filter(cart=self.cart, product=self.product1_id)[0]
+
+        # Act.
+        response = self.c.post(
+            reverse("ventashop:cart-empty",
+                kwargs={
+                    'pk': self.cart.pk,
+                    }
+                ),
+        )
+
+        # Assert.
+        self.assertRedirects(response=response, 
+                            expected_url=reverse("ventashop:products-all"))
+        self.assertEqual(Cart.objects.get(pk=self.cart.pk).total_price, cart_tp_init)
 
 
 class ProductDetailViewTestCase(TestCase):
@@ -525,6 +632,29 @@ class CartTestCase(TestCase):
 
         self.assertListEqual(list(order.lineitem_set.all()), li_list)
         self.assertEqual(order.total_price, cart_tp)
+
+    def test_make_order(self):
+        """
+        Check if order is created and cart is all reset, 
+        with the line items "transfered" from cart to order.
+        """
+
+        # Arrange.
+        self.cart.add_line_item(self.product1, 1000)
+        self.cart.add_line_item(self.product2, 1000)
+        cart_total_price = self.cart.total_price
+        line_item_set = self.cart.lineitem_set.all()
+
+        # Act.
+        order = self.cart.make_order()
+
+        # Assert.
+        self.assertEqual(self.cart.lineitem_set.all().count(), 0)
+        self.assertEqual(self.cart.total_price, 0)
+        self.assertEqual(order.total_price, cart_total_price)
+        for li in range(0, line_item_set.count()):
+            li_pk = li.pk
+            self.assertIn(LineItem.objects.filter(pk=li_pk), order.lineitem_set.all())
 
 
 class CartViewTestCase(TestCase):

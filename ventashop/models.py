@@ -111,18 +111,21 @@ class Cart(models.Model):
 
         self.save()
 
-    def make_order(self):
+    def make_order(self): 
         """
         Make order with line items of cart.
         We do not delete the line items, 
         rather we create a new Order object, 
         link the line items to it and then unlink them from the cart.
+
+        returns : order[Order]
         """
 
         if self.total_price == 0:   # abort if cart is empty
             return
         
         order = Order.objects.create()
+        order.add_comment()
         # order.owner = self.owner
 
         for li in self.lineitem_set.all():
@@ -132,6 +135,8 @@ class Cart(models.Model):
 
         order.save()
         self.save()
+
+        return order
 
     def save(self, *args, **kwargs):
         """
@@ -175,6 +180,7 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     date_created = models.DateTimeField(default=timezone.now)
     ref_number = models.CharField(max_length=20, blank= True)   # generated in self.save() method.
+    slug = models.SlugField(null=False, unique=True)
     # owner = models.Foreignkey(CustomerAccount)
 
     def __str__(self):
@@ -188,7 +194,7 @@ class Order(models.Model):
         for li in LineItem.objects.filter(order=self):
             self.total_price += li.price
 
-    def add_comment(self, content):
+    def add_comment(self, content="La commande vient d'être créée."):
         """Add a new comment to order."""
 
         comment = Comment.objects.create(content=content, order = self)
@@ -202,6 +208,9 @@ class Order(models.Model):
 
         if not self.ref_number:
             self.ref_number= unique_ref_number_generator(self)
+
+        if not self.slug:
+            self.slug = slugify(self.ref_number)
 
         self.calculate_total_price()
         

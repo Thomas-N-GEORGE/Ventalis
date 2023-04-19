@@ -7,18 +7,21 @@
 {% block content %}
     <h2>Cart</h2>
     <ul>
+        <!--  -->
         {% if  line_item_list|length == 0 %}
             <p>VOTRE PANIER EST VIDE</p>
         {% else %}
             
         {% endif %}
+
+        <!--  -->
         {% for line_item in line_item_list %}
             <li>
                 {{ line_item.product }} | 
                 
                 Qty : {{ line_item.quantity }} | 
                 <!-- Edit product quantity -->
-                <form action="{% url 'ventashop:line-item-update' cart.id line_item.id %}" method="post">
+                <form action="{% url 'ventashop:line-item-update' cart.pk line_item.pk %}" method="post">
                     {% csrf_token %}
                     <label for="id_quantity">Qty:</label>
                     <input type="number" name="quantity" step="1" required="" id="id_quantity">
@@ -27,18 +30,27 @@
 
                 Price : {{ line_item.price }}
             </li>
-            <form action="{% url 'ventashop:line-item-remove' line_item.id %}" method="post">
+            <form action="{% url 'ventashop:line-item-remove' line_item.pk %}" method="post">
                 {% csrf_token %}
                 <input type="submit" value="Retirer">
             </form>
         {% endfor %}
     </ul>
+    
+    {% if  line_item_list|length > 0 %}
+        <!-- Empty cart "button" -->
+        <form action="{% url 'ventashop:cart-empty' cart.pk %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Vider le panier">
+        </form>
+        
+        <!-- Make order "button" -->
+        <form action="{% url 'ventashop:make-order' cart.pk %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Commander">
+        </form>
+    {% endif %}
+
 {% endblock %}
 
 
-
-<!-- Empty cart -->
-<!-- <form action=" url 'ventashop:cart-empty' cart.id " method="post">
-    {% csrf_token %}
-    <input type="submit" value="Vider le panier">
-</form> -->

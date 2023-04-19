@@ -1,6 +1,6 @@
 from django.urls import path
 
-from ventashop.views import AboutView, ContactView, HomeView, LoginView, ProductView, CategoryCreateView, CategoryListView, ProductDetailView, ProductListView, ProductCreateView, CartView, ProductAddToCartView, LineItemRemoveFromCartView, LineItemUpdateView
+from ventashop.views import AboutView, ContactView, HomeView, LoginView, ProductView, CategoryCreateView, CategoryListView, ProductDetailView, ProductListView, ProductCreateView, CartView, CartEmptyView, ProductAddToCartView, LineItemRemoveFromCartView, LineItemUpdateView, OrderListView, OrderDetailView, MakeOrderView
 
 
 app_name = "ventashop"
@@ -39,12 +39,25 @@ urlpatterns = [
     # /5/cart/
     path("<int:pk>/cart/", CartView.as_view(), name="cart"),
 
-    # ProductAddToCartView
+    # Redirect CartEmptyView
+    path("<int:pk>/cart_empty/", CartEmptyView.as_view(), name="cart-empty"),
+
+    # Redirect ProductAddToCartView
     path("product_add/<int:cart_id>/<int:product_id>/", ProductAddToCartView.as_view(), name="product-add-to-cart"),
     
-    # LineItemUpdateCartView
+    # Redirect LineItemUpdateCartView
     path("line_item_update/<int:cart_id>/<int:line_item_id>/", LineItemUpdateView.as_view(), name="line-item-update"),
 
-    # LineItemRemoveFromCartView
+    # Redirect LineItemRemoveFromCartView
     path("line_item_remove/<int:line_item_id>/", LineItemRemoveFromCartView.as_view(), name="line-item-remove"),
+
+    # Redirect MakeOrderView
+    path("<int:pk>/make_order/", MakeOrderView.as_view(), name="make-order"),
+    
+    # /orders
+    path("orders/", OrderListView.as_view(), name="orders"),
+
+    # /5/order_detail
+    path("<slug:slug>/order_detail/", OrderDetailView.as_view(), name="order-detail"),
+
 ]

@@ -1,0 +1,40 @@
+<!-- Our oredr detail view -->
+
+{% extends 'ventashop/base.html' %}
+
+{% block title %}Panier{% endblock title %}
+
+{% block content %}
+
+<h2>Commande n° : {{ order.ref_number }}</h2>
+
+<p>Créée le : {{ order.date_created|date:"D d M Y" }}</p>
+
+<p>Statut : {{ status }} </p>
+
+<!-- line items -->
+<h3>ÉLÉMENTS</h3>
+<ul>
+    {% for line_item in line_item_list %}
+    <li>
+        {{ line_item.product }} | 
+        
+        Qty : {{ line_item.quantity }} | 
+        
+        Prix HT : {{ line_item.price }}
+    </li>
+    {% endfor %}
+</ul>
+
+<p>Prix total HT : {{ order.total_price }}</p>
+
+<p>Commentaires du vendeur : 
+    {% if comment %}
+        {{ comment.content }}
+    {% endif %}
+</p>
+
+<!-- Back to order list page -->
+<a href="{% url 'ventashop:orders' %}">Retour à la liste des commandes</a> 
+
+{% endblock %}

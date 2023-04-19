@@ -3,9 +3,9 @@ from django.shortcuts import render, get_object_or_404
 
 from django.urls import reverse
 from django.views.generic import TemplateView, ListView, DetailView, RedirectView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 
-from ventashop.models import Category, Product, Cart, LineItem
+from ventashop.models import Category, Product, Cart, LineItem, Order
 
 
 class HomeView(TemplateView):
@@ -90,6 +90,8 @@ class CartView(DetailView):
     context_object_name = "cart"
 
     def get_context_data(self, **kwargs):
+        """Line item list to be displayed."""
+
         context =  super().get_context_data(**kwargs)
         context["line_item_list"] = self.get_object().lineitem_set.all()
         return context
@@ -120,14 +122,15 @@ class LineItemUpdateView(RedirectView):
     pattern_name = 'ventashop:cart'
 
     def post(self, request, *args, **kwargs):
-        """update quantity"""
-        if request.POST["quantity"]:
+        """update quantity, checking its value"""
+
+        if "quantity" in request.POST:
             try:
                 quantity = int(request.POST["quantity"])
             except:
                 quantity = 1000
         
-            if quantity > 1000:
+            if quantity >= 1000:
                 cart = get_object_or_404(Cart, pk=kwargs["cart_id"])
                 line_item = get_object_or_404(LineItem, pk=kwargs["line_item_id"])
                 cart.update_line_item(line_item.product, quantity)
@@ -135,7 +138,12 @@ class LineItemUpdateView(RedirectView):
         return super().post(request, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
-        return super().get_redirect_url(*args, kwargs["cart_id"])
+        """Redirect to cart view."""
+
+        # return super().get_redirect_url(*args, kwargs["cart_id"])
+        args=(kwargs["cart_id"],)
+        kwargs = {}
+        return super().get_redirect_url(*args, **kwargs)
     
 
 class LineItemRemoveFromCartView(RedirectView):
@@ -150,10 +158,90 @@ class LineItemRemoveFromCartView(RedirectView):
         line_item = get_object_or_404(LineItem, pk=kwargs["line_item_id"])
         cart = line_item.cart
         line_item.delete()
+        cart.save()
         
         kwargs = {}
         kwargs["cart_id"] = cart.id
         return super().get_redirect_url(*args, kwargs["cart_id"])
+
+
+class CartEmptyView(RedirectView):
+    """Remove all line items (aka products) from cart"""
+    http_method_names = ["post"]
+    pattern_name = 'ventashop:products-all'
+
+    def get_redirect_url(self, *args, **kwargs):
+        """Empty cart"""
+        
+        cart = get_object_or_404(Cart, pk=kwargs["pk"])
+        cart.empty_cart()
+        
+        kwargs = {}
+        return super().get_redirect_url(*args, **kwargs)
+
+
+#######################
+##### ORDER Views #####
+#######################
+
+
+class MakeOrderView(RedirectView):
+    """Make order from cart."""
+
+    http_method_names = ["post"]
+    pattern_name = 'ventashop:order-detail'
+
+    def get_redirect_url(self, *args, **kwargs):
+        """Make order."""
+        
+        cart = get_object_or_404(Cart, pk=kwargs["pk"])
+        order = cart.make_order()
+        
+        kwargs = {}
+        args=(order.slug,)
+        return super().get_redirect_url(*args, **kwargs)   
+
+
+class OrderListView(ListView): 
+    """Our order list view."""
+
+    model = Order
+    paginate_by = 100  # if pagination is desired
+    template_name = 'ventashop/orders.html'
+    context_object_name = 'order_list'
+
+    def get_queryset(self):
+        """
+        Return all orders (ordered in model by date_created),
+        for an owner (aka CustomerAccount)
+        """
+        return Order.objects.all()
+
+
+class OrderDetailView(DetailView):
+    """Our order's detailed view."""
+
+    model = Order
+    template_name = 'ventashop/order_detail.html'
+
+    def get_context_data(self, **kwargs):
+        """Line item list, order status and last comment to be displayed."""
+
+        context =  super().get_context_data(**kwargs)
+        order = self.get_object()
+
+        context["line_item_list"] = order.lineitem_set.all()
+        
+        comments = order.comment_set.all()
+        if comments.count() > 0:
+            context["comment"] = comments[0]
+        else:
+            context["comment"] = False
+        
+        status_tuple_list = [st for st in Order.STATUS_CHOICES if st[0] == order.status]
+        context["status"] = status_tuple_list[0][1]
+
+        return context
 
 
 ######################
@@ -177,3 +265,12 @@ class ProductCreateView(CreateView):
 
 
 # We could add classes to update and/or delete Categories and Products.
+
+
+# For the desktop app !!
+# class OrderUpdateView(UpdateView):
+#     """Our view to update an odrer."""
+
+#     model = Order
+#     fields = ["status",]
+#     success_url = "/orders/"  
