@@ -217,7 +217,7 @@ class ProductsListViewTestCase(TestCase):
 
 class CartEditingViewsTestCase(TestCase):
     """
-    Test class regroupin tests for views modifying cart content,
+    Test class regrouping tests for views modifying cart content,
     e.g. ProductAddToCartView, LineItemUpdateView, LineItemRemoveFromCartView, CartEmptyView.
     """
 

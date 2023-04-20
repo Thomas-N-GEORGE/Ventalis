@@ -320,7 +320,7 @@ class LineItemTestCase(TestCase):
         self.assertEqual(self.product1.price * 1000, li.price)
 
 
-class ConvesationTestCase(TestCase):
+class ConversationTestCase(TestCase):
     """Test class for our Convesation model logic."""
 
     def test_add_message(self):
@@ -340,4 +340,3 @@ class ConvesationTestCase(TestCase):
         self.assertEqual(message_count + 1, Message.objects.all().count())
         self.assertEqual(message.author, message_author)
         self.assertEqual(message.content, message_content)
-        

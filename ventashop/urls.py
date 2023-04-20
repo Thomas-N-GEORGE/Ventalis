@@ -86,5 +86,4 @@ urlpatterns = [
     
     # /3/messages/5 for 5 last messages
     path("<int:pk>/messages/<int:last>", MessageListView.as_view(), name="messages-last"),
-
 ]

@@ -6,35 +6,43 @@
 
 {% block content %}
 
-<h2>Commande n° : {{ order.ref_number }}</h2>
+    <h2>Commande n° : {{ order.ref_number }}</h2>
 
-<p>Créée le : {{ order.date_created|date:"D d M Y" }}</p>
+    <p>Créée le : {{ order.date_created|date:"D d M Y" }}</p>
 
-<p>Statut : {{ status }} </p>
+    <p>Statut : {{ status }} </p>
 
-<!-- line items -->
-<h3>ÉLÉMENTS</h3>
-<ul>
-    {% for line_item in line_item_list %}
-    <li>
-        {{ line_item.product }} | 
-        
-        Qty : {{ line_item.quantity }} | 
-        
-        Prix HT : {{ line_item.price }}
-    </li>
-    {% endfor %}
-</ul>
+    <!-- line items -->
+    <h3>ÉLÉMENTS</h3>
+    <ul>
+        {% for line_item in line_item_list %}
+        <li>
+            {{ line_item.product }} | 
+            
+            Qty : {{ line_item.quantity }} | 
+            
+            Prix HT : {{ line_item.price }}
+        </li>
+        {% endfor %}
+    </ul>
 
-<p>Prix total HT : {{ order.total_price }}</p>
+    <!-- total price -->
+    <p>Prix total HT : {{ order.total_price }}</p>
+    <!-- VAT prices : -->
+    <div>
+        <p>Montant de la TVA : {{ order.vat_amount }}</p>
+    </div>
+    <div>
+        <p>Montant TTC : {{ order.incl_vat_price }}</p>
+    </div>
 
-<p>Commentaires du vendeur : 
-    {% if comment %}
-        {{ comment.content }}
-    {% endif %}
-</p>
+    <p>Commentaires du vendeur : 
+        {% if comment %}
+            {{ comment.content }}
+        {% endif %}
+    </p>
 
-<!-- Back to order list page -->
-<a href="{% url 'ventashop:orders' %}">Retour à la liste des commandes</a> 
+    <!-- Back to order list page -->
+    <a href="{% url 'ventashop:orders' %}">Retour à la liste des commandes</a> 
 
 {% endblock %}

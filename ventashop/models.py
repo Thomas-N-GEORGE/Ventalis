@@ -4,7 +4,7 @@ from django.db.models.signals import pre_save
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 
-from .utils import unique_ref_number_generator
+from .utils import unique_ref_number_generator, get_VAT_prices
 
 # Create your models here.
 
@@ -57,17 +57,20 @@ class Cart(models.Model):
     """This is our cart model."""
 
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
     # Where should we put this relation ? Here or in CustomerAccount class ??
     # customer_account = models.OneToOneField(CustomerAccount, on_delete=models.CASCADE, null=False)
 
     def calculate_total_price(self):
-        """A utility method to summ up the prices of all the line items in cart."""
+        """
+        A utility method to summ up the prices of all the line items in cart.
+        Populates total_price field.
+        """
 
         self.total_price = 0
 
         for li in LineItem.objects.filter(cart=self):
             self.total_price += li.price
-
 
     def add_line_item(self, product, quantity):
         """
@@ -146,9 +149,7 @@ class Cart(models.Model):
         return order
 
     def save(self, *args, **kwargs):
-        """
-        We calculate the total price to populate / update the field.
-        """
+        """We calculate the total price to populate / update the field."""
 
         self.calculate_total_price()
         
@@ -185,6 +186,8 @@ class Order(models.Model):
 
     status = models.CharField(max_length=2, choices=STATUS_CHOICES, default=NON_TRAITEE,)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    incl_vat_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     date_created = models.DateTimeField(default=timezone.now)
     ref_number = models.CharField(max_length=20, blank= True)   # generated in self.save() method.
     slug = models.SlugField(null=False, unique=True)
@@ -209,8 +212,10 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        We generate a random ref_number to populate the field.
-        And we calculate the total price to populate the field.
+        We get a random ref_number to populate the field,
+        populate slug field, 
+        calculate the total price to populate the field,
+        and finally populate vat_amount and incl_vat_price fields.
         """
 
         if not self.ref_number:
@@ -220,6 +225,7 @@ class Order(models.Model):
             self.slug = slugify(self.ref_number)
 
         self.calculate_total_price()
+        self.vat_amount, self.incl_vat_price = get_VAT_prices(self.total_price)
         
         return super().save(*args, **kwargs)
 
@@ -264,9 +270,6 @@ class LineItem(models.Model):
 class Conversation(models.Model):
     """This is our conversation model."""
 
-    # class Meta:
-    #     ordering = ["-date_created"]
-
     subject = models.CharField(max_length=300)
     date_created = models.DateTimeField(default=timezone.now)
     # customer_account = models.ForeignKey(CustomerAccount, on_delete=models.PROTECT)
@@ -291,5 +294,3 @@ class Message(models.Model):
     content = models.CharField(max_length=5000, null=False)
     is_read = models.BooleanField(default=False, null=False)
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, null=False)
-
-

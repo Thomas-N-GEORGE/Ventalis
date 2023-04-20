@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.views.generic import TemplateView, ListView, DetailView, RedirectView
 from django.views.generic.edit import CreateView, UpdateView
 
+from ventashop.utils import get_VAT_prices
 from ventashop.models import Category, Product, Cart, LineItem, Order
 
 
@@ -90,7 +91,7 @@ class CartView(DetailView):
     context_object_name = "cart"
 
     def get_context_data(self, **kwargs):
-        """Line item list to be displayed."""
+        """Line item list and VAT calulations to be displayed."""
 
         context =  super().get_context_data(**kwargs)
         context["line_item_list"] = self.get_object().lineitem_set.all()
@@ -267,10 +268,10 @@ class ProductCreateView(CreateView):
 # We could add classes to update and/or delete Categories and Products.
 
 
-# For the desktop app !!
+# For the desktop app, for now !
 # class OrderUpdateView(UpdateView):
 #     """Our view to update an odrer."""
 
 #     model = Order
 #     fields = ["status",]
-#     success_url = "/orders/"  
+#     success_url = "/orders/"
