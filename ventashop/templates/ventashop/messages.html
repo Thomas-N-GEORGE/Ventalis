@@ -1,0 +1,38 @@
+<!-- This is our message list view, aka detailed conversation. -->
+
+{% extends 'ventashop/base.html' %}
+
+{% block title %}Messages{% endblock title %}
+
+{% block content %}
+
+<h2>Sujet : {{ conversation }}</h2>
+
+<h2>Messages</h2>
+
+<ul>
+    {% for message in message_list %}
+    <li>
+        <div>{{ message.author }} a écrit : </div>
+        <div>
+            {{ message.content }}
+        </div>
+        <div>{{ message.date_created|date:"D d M Y" }}</div>
+    </li>
+    {% endfor %}
+</ul>
+
+<!-- All messages ? -->
+<a href="{% url 'ventashop:messages' conversation.pk %}">Voir tous les messages</a>
+
+<!-- New message -->
+<form action="{% url 'ventashop:messages' conversation.pk %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Envoyer">
+</form>
+
+<!-- Back to conversations -->
+<a href="{% url 'ventashop:conversations' %}">Retour aux conversations</a>
+
+{% endblock %}

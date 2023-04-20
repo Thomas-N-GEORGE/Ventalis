@@ -8,6 +8,13 @@ from .utils import unique_ref_number_generator
 
 # Create your models here.
 
+
+class CustomerAccount(models.Model):
+    "Our customer account model."
+
+    pass
+
+
 class Category(models.Model):
     """This is our Category model, aimed to group and filter Products."""
 
@@ -50,8 +57,8 @@ class Cart(models.Model):
     """This is our cart model."""
 
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    # Where should we put this relation ? Here or in CustomerAccount model class ??
-    # owner = models.OneToOne(CustomerAccount)
+    # Where should we put this relation ? Here or in CustomerAccount class ??
+    # customer_account = models.OneToOneField(CustomerAccount, on_delete=models.CASCADE, null=False)
 
     def calculate_total_price(self):
         """A utility method to summ up the prices of all the line items in cart."""
@@ -181,7 +188,7 @@ class Order(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
     ref_number = models.CharField(max_length=20, blank= True)   # generated in self.save() method.
     slug = models.SlugField(null=False, unique=True)
-    # owner = models.Foreignkey(CustomerAccount)
+    # customer_account = models.ForeignKey(CustomerAccount, on_delete=models.PROTECT)
 
     def __str__(self):
         return self.ref_number
@@ -252,3 +259,37 @@ class LineItem(models.Model):
         self.price = self.product.price * self.quantity
         
         return super().save(*args, **kwargs)
+
+
+class Conversation(models.Model):
+    """This is our conversation model."""
+
+    # class Meta:
+    #     ordering = ["-date_created"]
+
+    subject = models.CharField(max_length=300)
+    date_created = models.DateTimeField(default=timezone.now)
+    # customer_account = models.ForeignKey(CustomerAccount, on_delete=models.PROTECT)
+
+    def __str__(self) -> str:
+        return self.subject
+    
+    def add_message(self, author, content):
+        """Add a message to conversation."""
+
+        Message.objects.create(author=author, content=content, conversation=self)
+
+
+class Message(models.Model):
+    """This is our message model, related to conversation model."""
+
+    class Meta:
+        ordering = ["date_created"]
+
+    author = models.CharField(max_length=200)
+    date_created = models.DateTimeField(default=timezone.now)
+    content = models.CharField(max_length=5000, null=False)
+    is_read = models.BooleanField(default=False, null=False)
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, null=False)
+
+

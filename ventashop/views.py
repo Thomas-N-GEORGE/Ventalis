@@ -249,7 +249,7 @@ class OrderDetailView(DetailView):
 ######################
 
 class CategoryCreateView(CreateView):
-    """Our view to create a new category"""
+    """Our view to create a new category."""
     
     model = Category
     fields = ["name"]
@@ -257,7 +257,7 @@ class CategoryCreateView(CreateView):
 
 
 class ProductCreateView(CreateView):
-    """Our view to create a new product"""
+    """Our view to create a new product."""
     
     model = Product
     fields = ["name", "image", "description", "price", "category"]

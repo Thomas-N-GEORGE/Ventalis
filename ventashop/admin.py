@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Product, LineItem, Cart, Order, Comment
+from .models import Category, Product, LineItem, Cart, Order, Comment, Conversation, Message
 
 # Register your models here.
 
@@ -44,3 +44,17 @@ class CommentAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Comment, CommentAdmin)
+
+
+class ConversationAdmin(admin.ModelAdmin):
+    fields = ["subject"]
+
+
+admin.site.register(Conversation, ConversationAdmin)
+
+
+class MessageAdmin(admin.ModelAdmin):
+    fields = ["author", "content", "conversation"]
+
+
+admin.site.register(Message, MessageAdmin)

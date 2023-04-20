@@ -2,6 +2,8 @@ from django.urls import path
 
 from ventashop.views import AboutView, ContactView, HomeView, LoginView, ProductView, CategoryCreateView, CategoryListView, ProductDetailView, ProductListView, ProductCreateView, CartView, CartEmptyView, ProductAddToCartView, LineItemRemoveFromCartView, LineItemUpdateView, OrderListView, OrderDetailView, MakeOrderView
 
+from ventashop.message_views import MessageListView, ConversationListView
+
 
 app_name = "ventashop"
 
@@ -17,6 +19,10 @@ urlpatterns = [
     
     # /login
     path("login/", LoginView.as_view(), name="login"),
+
+    ###################################
+    ##### PRODUCTS AND CATEGORIES #####
+    ###################################
     
     # /products/    (all products)
     path("products/", ProductListView.as_view(), name="products-all"),
@@ -35,6 +41,10 @@ urlpatterns = [
 
     # /category_form
     path("category_form/", CategoryCreateView.as_view() , name='category-create'),
+
+    ################
+    ##### CART #####
+    ################
     
     # /5/cart/
     path("<int:pk>/cart/", CartView.as_view(), name="cart"),
@@ -54,10 +64,27 @@ urlpatterns = [
     # Redirect MakeOrderView
     path("<int:pk>/make_order/", MakeOrderView.as_view(), name="make-order"),
     
+    ##################
+    ##### ODRERS #####
+    ##################
+
     # /orders
     path("orders/", OrderListView.as_view(), name="orders"),
 
     # /5/order_detail
     path("<slug:slug>/order_detail/", OrderDetailView.as_view(), name="order-detail"),
+
+    ####################
+    ##### MESSAGES #####
+    ####################
+
+    # /conversations
+    path("conversations/", ConversationListView.as_view(), name="conversations"),
+    
+    # /3/messages
+    path("<int:pk>/messages/", MessageListView.as_view(), name="messages"),
+    
+    # /3/messages/5 for 5 last messages
+    path("<int:pk>/messages/<int:last>", MessageListView.as_view(), name="messages-last"),
 
 ]
