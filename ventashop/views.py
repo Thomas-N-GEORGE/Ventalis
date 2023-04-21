@@ -1,12 +1,12 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 
-from django.urls import reverse
-from django.views.generic import TemplateView, ListView, DetailView, RedirectView
+from django.views.generic import TemplateView, ListView, DetailView, RedirectView, FormView
 from django.views.generic.edit import CreateView, UpdateView
+from django.urls import reverse
 
-from ventashop.utils import get_VAT_prices
 from ventashop.models import Category, Product, Cart, LineItem, Order
+from ventashop.forms import ContactForm
 
 
 class HomeView(TemplateView):
@@ -17,8 +17,16 @@ class AboutView(TemplateView):
     template_name = "ventashop/about.html"
 
 
-class ContactView(TemplateView):
+class ContactFormView(FormView):
     template_name = "ventashop/contact.html"
+    form_class = ContactForm
+    success_url = "/"
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        form.send_email()
+        return super().form_valid(form)
 
 
 class ProductView(TemplateView):

@@ -1,4 +1,4 @@
-"""Our model logic test file"""
+"""Our model logic's test file."""
 
 from decimal import Decimal
 
