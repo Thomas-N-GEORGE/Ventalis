@@ -1,6 +1,6 @@
 from django.urls import path
 
-from ventashop.views import AboutView, ContactView, HomeView, LoginView, ProductView, CategoryCreateView, CategoryListView, ProductDetailView, ProductListView, ProductCreateView, CartView, CartEmptyView, ProductAddToCartView, LineItemRemoveFromCartView, LineItemUpdateView, OrderListView, OrderDetailView, MakeOrderView
+from ventashop.views import AboutView, ContactFormView, HomeView, LoginView, ProductView, CategoryCreateView, CategoryListView, ProductDetailView, ProductListView, ProductCreateView, CartView, CartEmptyView, ProductAddToCartView, LineItemRemoveFromCartView, LineItemUpdateView, OrderListView, OrderDetailView, MakeOrderView
 
 from ventashop.message_views import MessageListView, ConversationListView
 
@@ -15,7 +15,7 @@ urlpatterns = [
     path("about/", AboutView.as_view(), name="about"),
     
     # /contact
-    path("contact/", ContactView.as_view(), name="contact"),
+    path("contact/", ContactFormView.as_view(), name="contact"),
     
     # /login
     path("login/", LoginView.as_view(), name="login"),

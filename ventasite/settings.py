@@ -182,3 +182,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # db_from_env = dj_database_url.config(conn_max_age=500)
 
 # DATABASES['default'].update(db_from_env)
+
+# Email during development : 
+if not IS_PROD:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+VENTALIS_EMAIL = "ventalis-gmail@example.com"

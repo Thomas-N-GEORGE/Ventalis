@@ -1,12 +1,13 @@
+"""Our views' test file."""
 
-from decimal import Decimal
-
+from django.core import mail
 from django.test import Client, TestCase
 from django.urls import reverse
 
-# Create your tests here.
-
-from ventashop.models import Category, Product, LineItem, Cart, Order, Comment, Conversation, Message
+from ventashop.models import (Category, Product, LineItem, 
+                              Cart, Order, Comment, 
+                              Conversation, Message,
+                              )
 
 
 class StaticViewsTestCase(TestCase):
@@ -34,6 +35,34 @@ class StaticViewsTestCase(TestCase):
     # def test_category(self):
     #     response = self.c.get("/category/")
     #     self.assertContains(response, "")
+
+
+class ContactFormViewTestCase(TestCase):
+    """Test class for our contact form."""
+
+    def test_contact_form_view_sends_mail(self):
+        """Check if post request sends an email, and redirects to "/"."""
+
+        # Arrange.
+        c = Client()
+        
+        # Act.
+        response = c.post(
+            "/contact/",
+            {
+                "company": "test_company",
+                "last_name": "test_last_name", 
+                "first_name": "test_first_name",
+                "from_email": "test_from_email@test.com",
+                "subject": "test_subject",
+                "content": "test_content",
+            },
+        )
+
+        # Assert.
+        self.assertRedirects(response=response, expected_url=reverse('ventashop:home'))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "test_subject")
 
 
 class CategoryFormViewTestCase(TestCase):

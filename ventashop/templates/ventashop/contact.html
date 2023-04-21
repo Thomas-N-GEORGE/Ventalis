@@ -6,6 +6,10 @@
 
 {% block content %}
 
-    {% include './partials/wip.html' %}
+<!-- Email : Contact form -->
+    <form method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Send message">
+    </form>
 
 {% endblock content %}
