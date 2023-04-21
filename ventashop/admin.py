@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Product, LineItem, Cart, Order, Comment, Conversation, Message
+from .models import Category, Product, LineItem, Cart, Order, Comment, Conversation, Message, CustomerAccount
 
 # Register your models here.
 
@@ -58,3 +58,10 @@ class MessageAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Message, MessageAdmin)
+
+
+class CustomerAccountAdmin(admin.ModelAdmin):
+    fields = []
+
+
+admin.site.register(CustomerAccount, CustomerAccountAdmin)

@@ -1,5 +1,6 @@
 from django.db import models
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import pre_save
 from django.template.defaultfilters import slugify
 from django.utils import timezone
@@ -12,7 +13,18 @@ from .utils import unique_ref_number_generator, get_VAT_prices
 class CustomerAccount(models.Model):
     "Our customer account model."
 
-    pass
+    is_active = models.BooleanField(default=True)
+    date_created = models.DateTimeField(default=timezone.now)
+    # customer = models.ForeignKey(Customer, on_delete=models.SET_NULL)
+    # employee = models.OneToOneField(Employee, on_delete=models.SET_NULL)
+
+    def create_cart(self):
+        """Assign a cart to customer account"""
+
+        try:
+            self.cart
+        except ObjectDoesNotExist:
+            Cart.objects.create(customer_account=self)
 
 
 class Category(models.Model):
@@ -57,9 +69,7 @@ class Cart(models.Model):
     """This is our cart model."""
 
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    
-    # Where should we put this relation ? Here or in CustomerAccount class ??
-    # customer_account = models.OneToOneField(CustomerAccount, on_delete=models.CASCADE, null=False)
+    customer_account = models.OneToOneField(CustomerAccount, on_delete=models.CASCADE, null=True)
 
     def calculate_total_price(self):
         """
@@ -136,7 +146,7 @@ class Cart(models.Model):
         
         order = Order.objects.create()
         order.add_comment()
-        # order.owner = self.owner
+        order.customer_account = self.customer_account
 
         for li in self.lineitem_set.all():
             li.order = order
@@ -191,7 +201,7 @@ class Order(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
     ref_number = models.CharField(max_length=20, blank= True)   # generated in self.save() method.
     slug = models.SlugField(null=False, unique=True)
-    # customer_account = models.ForeignKey(CustomerAccount, on_delete=models.PROTECT)
+    customer_account = models.ForeignKey(CustomerAccount, on_delete=models.PROTECT, null=True)
 
     def __str__(self):
         return self.ref_number
@@ -272,7 +282,7 @@ class Conversation(models.Model):
 
     subject = models.CharField(max_length=300)
     date_created = models.DateTimeField(default=timezone.now)
-    # customer_account = models.ForeignKey(CustomerAccount, on_delete=models.PROTECT)
+    customer_account = models.ForeignKey(CustomerAccount, on_delete=models.PROTECT, null=True)
 
     def __str__(self) -> str:
         return self.subject

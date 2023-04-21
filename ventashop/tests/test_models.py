@@ -2,10 +2,12 @@
 
 from decimal import Decimal
 
-from django.test import Client, TestCase
-from django.urls import reverse
+from django.test import TestCase
 
-from ventashop.models import Category, Product, LineItem, Cart, Order, Comment, Conversation, Message
+from ventashop.models import (Product, LineItem, 
+                              Cart, Order, Comment, 
+                              Conversation, Message, 
+                              CustomerAccount)
 
 
 class OrderTestCase(TestCase):
@@ -210,7 +212,7 @@ class CartTestCase(TestCase):
         # Assert.
         self.assertEqual(self.cart.total_price, 4242 * 1234 + 6789 * 5678)
 
-    def test_create_order_aborted_if_empty_cart(self):
+    def test_make_order_aborted_if_empty_cart(self):
         """
         Check if order is not created from  an "empty" cart, 
         """
@@ -223,7 +225,7 @@ class CartTestCase(TestCase):
         # Assert.
         self.assertEqual(Order.objects.all().count(), o_count)
 
-    def test_create_order_cart_emptied(self):
+    def test_make_order_cart_emptied(self):
         """
         Check if order is created from our cart, 
         check is cart is "emptied", its total price reset to 0.
@@ -241,7 +243,7 @@ class CartTestCase(TestCase):
         self.assertEqual(self.cart.lineitem_set.all().count(), 0)
         self.assertEqual(self.cart.total_price, 0)
     
-    def test_create_order_check_order_is_correctly_populated(self):
+    def test_make_order_check_order_is_correctly_populated(self):
         """
         Check created order from our cart has its fields correctly populated : 
         the line items should be passed to the order,
@@ -268,6 +270,7 @@ class CartTestCase(TestCase):
         """
         Check if order is created and cart is all reset, 
         with the line items "transfered" from cart to order.
+        (Slightly redundant to previous tests). 
         """
 
         # Arrange.
@@ -286,6 +289,23 @@ class CartTestCase(TestCase):
         for li in range(0, line_item_set.count()):
             li_pk = li.pk
             self.assertIn(LineItem.objects.filter(pk=li_pk), order.lineitem_set.all())
+
+    def test_make_order_assigns_new_order_to_customer_account(self):
+        """Check if newly created order is assigned to customer account."""
+
+        # Arrange.
+        ca = CustomerAccount.objects.create()
+        ca.create_cart()
+        cart = ca.cart
+        cart.add_line_item(self.product1, 1000)
+        assigned_order_count = Order.objects.filter(customer_account = ca).count()
+
+        # Act.
+        cart.make_order()
+
+        # Assert.
+        self.assertEqual(assigned_order_count + 1, Order.objects.filter(customer_account = ca).count())
+
 
 
 class LineItemTestCase(TestCase):
@@ -340,3 +360,35 @@ class ConversationTestCase(TestCase):
         self.assertEqual(message_count + 1, Message.objects.all().count())
         self.assertEqual(message.author, message_author)
         self.assertEqual(message.content, message_content)
+
+
+class CustomerAccountTestCase(TestCase):
+    """Test class for our Convesation model logic."""
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        """Arrange."""
+
+        cls.cart_count = Cart.objects.all().count()
+        cls.ca = CustomerAccount.objects.create()
+
+    def test_create_cart(self):
+        """Check if a related cart is created."""
+
+        # Act.
+        self.ca.create_cart()
+
+        # Assert.
+        self.assertEqual(self.cart_count + 1, Cart.objects.all().count())
+        self.assertEqual(self.ca.cart.customer_account.pk, self.ca.pk)
+    
+    def test_create_cart_called_twice_does_not_create_second_cart(self):
+        """Check if no second cart is created if method is called twice."""
+
+        # Act.
+        self.ca.create_cart()
+        self.ca.create_cart()
+
+        # Assert.
+        self.assertEqual(self.cart_count + 1, Cart.objects.all().count())
+        self.assertEqual(self.ca.cart.customer_account.pk, self.ca.pk)

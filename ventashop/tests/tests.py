@@ -36,7 +36,7 @@ class StaticViewsTestCase(TestCase):
     #     self.assertContains(response, "")
 
 
-class CategoryFormTestCase(TestCase):
+class CategoryFormViewTestCase(TestCase):
     """Test class for our Category form."""
 
     def setUp(self) -> None:
