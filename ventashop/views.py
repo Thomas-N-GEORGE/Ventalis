@@ -1,12 +1,15 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 
-from django.views.generic import TemplateView, ListView, DetailView, RedirectView, FormView
+
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.views import LoginView, LogoutView
+from django.views.generic import TemplateView, ListView, DetailView, RedirectView, FormView, View
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 
 from ventashop.models import Category, Product, Cart, LineItem, Order
-from ventashop.forms import ContactForm
+from ventashop.forms import ContactForm, LoginForm
 
 
 class HomeView(TemplateView):
@@ -18,6 +21,8 @@ class AboutView(TemplateView):
 
 
 class ContactFormView(FormView):
+    """Our contact page form view."""
+
     template_name = "ventashop/contact.html"
     form_class = ContactForm
     success_url = "/"
@@ -29,12 +34,39 @@ class ContactFormView(FormView):
         return super().form_valid(form)
 
 
+class LoginPageView(View):
+    """Our login page form view."""
+
+    # template_name = "ventashop/login.html"
+    # authentication_form = LoginForm
+    # success_url = "ventashop:home"
+
+    template_name = 'ventashop/login.html'
+    form_class = LoginForm
+    
+    def get(self, request):
+        form = self.form_class()
+        message = ''
+        return render(request, self.template_name, context={'form': form, 'message': message})
+        
+    def post(self, request):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            user = authenticate(
+                email=form.cleaned_data['email'],
+                password=form.cleaned_data['password'],
+            )
+            if user is not None:
+                login(request, user)
+                return redirect(reverse("ventashop:home"))
+        message = 'Login failed!'
+        return render(request, self.template_name, context={'form': form, 'message': message})
+
+
+
+
 class ProductView(TemplateView):
     template_name = "ventashop/products.html"
-
-
-class LoginView(TemplateView):
-    template_name = "ventashop/login.html"
 
 
 class CategoryListView(ListView):

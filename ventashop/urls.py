@@ -1,6 +1,8 @@
+
+from django.contrib.auth.views import LogoutView
 from django.urls import path
 
-from ventashop.views import AboutView, ContactFormView, HomeView, LoginView, ProductView, CategoryCreateView, CategoryListView, ProductDetailView, ProductListView, ProductCreateView, CartView, CartEmptyView, ProductAddToCartView, LineItemRemoveFromCartView, LineItemUpdateView, OrderListView, OrderDetailView, MakeOrderView
+from ventashop.views import AboutView, ContactFormView, HomeView, LoginPageView , CategoryCreateView, CategoryListView, ProductDetailView, ProductListView, ProductCreateView, CartView, CartEmptyView, ProductAddToCartView, LineItemRemoveFromCartView, LineItemUpdateView, OrderListView, OrderDetailView, MakeOrderView
 
 from ventashop.message_views import MessageListView, ConversationListView
 
@@ -17,9 +19,6 @@ urlpatterns = [
     # /contact
     path("contact/", ContactFormView.as_view(), name="contact"),
     
-    # /login
-    path("login/", LoginView.as_view(), name="login"),
-
     ###################################
     ##### PRODUCTS AND CATEGORIES #####
     ###################################
@@ -86,4 +85,20 @@ urlpatterns = [
     
     # /3/messages/5 for 5 last messages
     path("<int:pk>/messages/<int:last>", MessageListView.as_view(), name="messages-last"),
+
+    ##########################
+    ##### login / logout #####
+    ##########################
+
+    # /login
+    path("login/", LoginPageView.as_view(), name="login"),
+    
+    # /logout
+    path("logout/", 
+         LogoutView.as_view(
+            template_name='ventashop/logout.html',
+            next_page=None
+        ),
+        name = 'logout',
+    ),
 ]

@@ -77,3 +77,9 @@ class ContactForm(forms.Form):
             recipient_list=[VENTALIS_EMAIL],
             fail_silently=False,
         )
+
+
+class LoginForm(forms.Form):
+    email = forms.EmailField()
+    password = forms.CharField(max_length=100, widget=forms.PasswordInput)
+
