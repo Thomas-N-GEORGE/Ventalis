@@ -3,12 +3,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView
 from django.views.generic import TemplateView, ListView, DetailView, RedirectView, FormView, View
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 
-from ventashop.models import Category, Product, Cart, LineItem, Order
+from ventashop.models import Category, Product, Cart, LineItem, Order, User
 from ventashop.forms import ContactForm, LoginForm
 
 
@@ -33,7 +33,7 @@ class ContactFormView(FormView):
         form.send_email()
         return super().form_valid(form)
 
-
+######### NOT USED #############
 class LoginPageView(View):
     """Our login page form view."""
 
@@ -61,8 +61,31 @@ class LoginPageView(View):
                 return redirect(reverse("ventashop:home"))
         message = 'Login failed!'
         return render(request, self.template_name, context={'form': form, 'message': message})
+######### NOT USED #############
 
+class CustomerPasswordResetView(PasswordResetView):
+    """Our Customer Reset password class."""
 
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            email=form.cleaned_data['email'],
+            print ("cleaned_email : ", email)
+            user = User.objects.filter(email=email[0])
+            test = User.objects.all()
+            for t in test:
+                print(t, "email = ", t.email)
+            
+            if user.count() > 0:
+                # Password change available only to registrated Customers.
+                print (user)
+                if user[0].role == "CUSTOMER" :
+                    return super().post(request, *args, **kwargs)
+            else:
+                # Redirect here anyway to avoid leaking info about registered emails.
+                return HttpResponseRedirect(reverse('ventashop:password_reset_done'))
+
+            
 
 
 class ProductView(TemplateView):
