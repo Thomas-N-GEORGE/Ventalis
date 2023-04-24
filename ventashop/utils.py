@@ -40,7 +40,7 @@ def unique_reg_number_generator(instance):
 
     Klass= instance.__class__
 
-    qs_exists= Klass.objects.filter(ref_number=reg_number).exists()
+    qs_exists= Klass.objects.filter(reg_number=reg_number).exists()
     if qs_exists:
         return unique_reg_number_generator(instance)
     return reg_number

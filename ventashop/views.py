@@ -9,7 +9,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 
 from ventashop.models import Category, Product, Cart, LineItem, Order, User
-from ventashop.forms import ContactForm, LoginForm
+from ventashop.forms import ContactForm, LoginForm, UserForm
 
 
 class HomeView(TemplateView):
@@ -85,10 +85,38 @@ class CustomerPasswordResetView(PasswordResetView):
                 # Redirect here anyway to avoid leaking info about registered emails.
                 return HttpResponseRedirect(reverse('ventashop:password_reset_done'))
 
-            
+
+class UserSignInFormView(FormView):
+    """Our user sing in view."""
+
+    template_name="auth/sign-in.html"
+    form_class=UserForm
+    success_url = "/login"
+
+    def form_valid(self, form):
+        """Process to create a new "customer"."""
+
+        form.create_user(role = "CUSTOMER")
+        return super().form_valid(form)
+
+
+class EmployeeCreateFormView(FormView):
+    """Our employee form view, for administrator."""
+
+    template_name="administration/employee_form.html"
+    form_class=UserForm
+    success_url = "/"
+
+    def form_valid(self, form):
+        """Process to create a new "employee"."""
+
+        form.create_user(role = "EMPLOYEE")
+        return super().form_valid(form)
+
 
 
 class ProductView(TemplateView):
+    """Our product view."""
     template_name = "ventashop/products.html"
 
 

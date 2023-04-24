@@ -1,4 +1,4 @@
-<!-- log in / sign in page, "connexion". -->
+<!-- log in page, "connexion". -->
 
 {% extends 'ventashop/base.html' %}
 
@@ -13,5 +13,6 @@
     </form>
 
     <a href="{% url 'ventashop:password_reset' %}">Mot de passe oublié ?</a>
+    <a href="{% url 'ventashop:sign-in' %}">Créer un compte</a>
 
 {% endblock content %}

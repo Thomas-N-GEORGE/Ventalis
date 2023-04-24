@@ -20,6 +20,8 @@ from ventashop.views import (
                             OrderListView, 
                             OrderDetailView, 
                             MakeOrderView,
+                            UserSignInFormView,
+                            EmployeeCreateFormView,
                             )
 
 from ventashop.message_views import MessageListView, ConversationListView
@@ -186,5 +188,16 @@ urlpatterns = [
             ),
         name = 'password_reset_complete',
     ),
+
+    # sign-in
+    path("sign-in/", UserSignInFormView.as_view(), name="sign-in"),
+
+    #########################
+    ##### Administrator #####
+    #########################
+
+    # employee_create
+    path("administration/employee_create/", EmployeeCreateFormView.as_view(), name="employee_create"),
+
 
 ]
