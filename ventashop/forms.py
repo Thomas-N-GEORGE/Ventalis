@@ -118,11 +118,12 @@ class UserForm(forms.ModelForm):
                 user.save()
             
             else:
-                # create customer account, related cart and assign employee reg number.
+                # create customer account, assign its employee reg number, related cart, and a related conversation.
                 customer_account = CustomerAccount.objects.create(
                     customer=user, 
                     employee_reg = self.get_employee_reg_number())
                 customer_account.create_cart()
+                customer_account.create_conversation(subject="Échanges avec mon conseiller")
         
         return user
 

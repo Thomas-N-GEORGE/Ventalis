@@ -20,12 +20,16 @@ class MessageListView(ListView, FormMixin):
     def get_queryset(self, *args, **kwargs):
         """Conversation message list to be displayed."""
 
+        user = self.request.user
+
         if "last" in self.kwargs:   # n last messages
             last = int(self.kwargs["last"])
-            m_set = list(Message.objects.filter(conversation__id=self.kwargs["pk"]))[-last:]
+            # m_set = list(Message.objects.filter(conversation__id=self.kwargs["pk"]))[-last:]
+            m_set = list(Message.objects.filter(conversation__customer_account=user.customeraccount))[-last:]
         
         else:                       # all messages
-            m_set = Message.objects.filter(conversation__id=self.kwargs["pk"])
+            # m_set = Message.objects.filter(conversation__id=self.kwargs["pk"])
+            m_set = Message.objects.filter(conversation__customer_account=user.customeraccount)
 
         return m_set
 
@@ -36,7 +40,8 @@ class MessageListView(ListView, FormMixin):
         conversation = get_object_or_404(Conversation, pk=self.kwargs["pk"])
         
         if form.is_valid():
-            author = "Tom"      # Hardcoded for now, user mechanism is not yet implemented.
+            # author = "Tom"      # Hardcoded for now, user mechanism is not yet implemented.
+            author = author = self.request.user.first_name
             content = form.cleaned_data["content"]
 
             conversation.add_message(author=author, content=content)
@@ -47,7 +52,8 @@ class MessageListView(ListView, FormMixin):
         """Related conversation and new message form to be displayed."""
 
         context = super().get_context_data(**kwargs)
-        context["conversation"] = get_object_or_404(Conversation, pk=self.kwargs["pk"])
+        # context["conversation"] = get_object_or_404(Conversation, pk=self.kwargs["pk"])
+        context["conversation"] = get_object_or_404(Conversation, customer_account=self.request.user.customeraccount)
         context["form"] = self.get_form(self.form_class)
         return context
 

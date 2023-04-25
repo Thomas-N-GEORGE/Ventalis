@@ -1,0 +1,15 @@
+<!-- Employee create page, "Créer un employé". -->
+
+{% extends 'ventashop/base.html' %}
+
+{% block title %}Créer un employé{% endblock title %}
+
+{% block content %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" >Submit</button>
+    </form>
+
+{% endblock content %}

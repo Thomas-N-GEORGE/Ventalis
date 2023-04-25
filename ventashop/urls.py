@@ -22,6 +22,7 @@ from ventashop.views import (
                             MakeOrderView,
                             UserSignInFormView,
                             EmployeeCreateFormView,
+                            MySpaceView,
                             )
 
 from ventashop.message_views import MessageListView, ConversationListView
@@ -102,22 +103,22 @@ urlpatterns = [
     
     # /3/messages
     path("<int:pk>/messages/", MessageListView.as_view(), name="messages"),
+
+    # /messages
+    path("messages/", MessageListView.as_view(), name="messages"),
     
-    # /3/messages/5 for 5 last messages
+    # /3/messages/5 for 5 last messages of conversation #3
     path("<int:pk>/messages/<int:last>", MessageListView.as_view(), name="messages-last"),
-
+    
     ##########################
-    ##### login / logout #####
+    ##### AUTHENTICATION #####
     ##########################
-
-    # /login
-    # path("login/", LoginPageView.as_view(), name="login"),
 
     # /login
     path(
         'login/', 
         LoginView.as_view(
-            template_name='auth/login.html',
+            template_name='ventashop/auth/login.html',
             # redirect_authenticated_user=True,
             next_page="/"),
         name='login',
@@ -127,7 +128,7 @@ urlpatterns = [
     path(
         "logout/", 
         LogoutView.as_view(
-            template_name='auth/logout.html',
+            template_name='ventashop/auth/logout.html',
             next_page=None),
         name = 'logout',
     ),
@@ -145,7 +146,7 @@ urlpatterns = [
     path(
         "password_change_done/", 
        PasswordChangeDoneView.as_view(
-            template_name='auth/password_change_done.html',
+            template_name='ventashop/auth/password_change_done.html',
             ),
         name = 'password_change_done',
     ),
@@ -154,8 +155,8 @@ urlpatterns = [
     path(
         "password_reset/", 
         CustomerPasswordResetView.as_view(
-            template_name='auth/password_reset_form.html',
-            email_template_name='auth/password_reset_email.html',
+            template_name='ventashop/auth/password_reset_form.html',
+            email_template_name='ventashop/auth/password_reset_email.html',
             success_url = "/password_reset_done/",
             ),
         name = 'password_reset',
@@ -165,7 +166,7 @@ urlpatterns = [
     path(
         "password_reset_done/", 
        PasswordResetDoneView.as_view(
-            template_name='auth/password_reset_done.html',
+            template_name='ventashop/auth/password_reset_done.html',
             ),
         name = 'password_reset_done',
     ),
@@ -174,7 +175,7 @@ urlpatterns = [
     path(
         "reset/<uidb64>/<token>", 
        PasswordResetConfirmView.as_view(
-            template_name='auth/password_reset_confirm.html',
+            template_name='ventashop/auth/password_reset_confirm.html',
             success_url="/reset/done",
             ),
         name = 'password_reset_confirm',
@@ -184,7 +185,7 @@ urlpatterns = [
     path(
         "reset/done", 
        PasswordResetCompleteView.as_view(
-            template_name='auth/password_reset_complete.html',
+            template_name='ventashop/auth/password_reset_complete.html',
             ),
         name = 'password_reset_complete',
     ),
@@ -199,5 +200,14 @@ urlpatterns = [
     # employee_create
     path("administration/employee_create/", EmployeeCreateFormView.as_view(), name="employee_create"),
 
+    ####################
+    ##### CUSTOMER #####
+    ####################
+    # /myspace
+    path("my_space/", MySpaceView.as_view(), name="my_space"),
+
+    ####################
+    ##### EMPLOYEE #####
+    ####################
 
 ]

@@ -87,6 +87,13 @@ class CustomerAccount(models.Model):
         except ObjectDoesNotExist:
             Cart.objects.create(customer_account=self)
 
+    def create_conversation(self, subject):
+        """Assign a conversation to customer account"""
+
+        Conversation.objects.create(customer_account=self, subject=subject)
+
+
+
 
 class Category(models.Model):
     """This is our Category model, aimed to group and filter Products."""

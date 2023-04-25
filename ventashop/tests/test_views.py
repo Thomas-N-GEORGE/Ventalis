@@ -4,6 +4,7 @@ from django.core import mail
 from django.test import Client, TestCase
 from django.urls import reverse
 
+from ventashop.forms import UserForm
 from ventashop.models import (Category, Product, LineItem, 
                               Cart, Order, Comment, 
                               Conversation, Message,
@@ -474,9 +475,28 @@ class MessageListViewTestCase(TestCase):
     def setUpTestData(cls) -> None:
         """Arrange."""
 
+        cls.user_form = UserForm()
+        cls.user_form.cleaned_data = {
+            "email": "employee1@ventalis.com",
+            "password": "12345678&",
+            "first_name": "emp1_first_name",
+            "last_name": "emp1_last_name", 
+        }
+        cls.employee1 = cls.user_form.create_user(role="EMPLOYEE")
+        cls.user_form.cleaned_data = {
+            "email": "customer1@test.com",
+            "password": "12345678&",
+            "first_name": "cust1_first_name",
+            "last_name": "cust1_last_name", 
+        }
+        cls.customer1 = cls.user_form.create_user(role="CUSTOMER")
+        
         cls.c = Client()
-        cls.conversation = Conversation.objects.create(subject="test")
+        cls.c.login(email='customer1@test.com', password='12345678&')
+        # cls.conversation = Conversation.objects.get(subject="test")
+        cls.conversation = Conversation.objects.get(customer_account=cls.customer1.customeraccount)
         cls.conv_id = cls.conversation.pk
+
         
         # create 10 messages in cls.conversation
         for i in range(0, 10):
@@ -523,9 +543,6 @@ class MessageListViewTestCase(TestCase):
         and redirection to url "ventashop:messages".
         """
 
-        # Arrange.
-        # url = "/" + str(self.conv_id) + "/messages/" + str(n)
-
         # Act.
         response = self.c.post(
             reverse(
@@ -537,8 +554,8 @@ class MessageListViewTestCase(TestCase):
 
         # Assert.
         last_message = list(self.conversation.message_set.all())[-1]
-        self.assertEqual(last_message.author, "Tom")     # "Tom" as hardcoded author for now in view.
-        # self.assertEqual(last_message.author, "author11")     # Needs user mechanism, not yet implemented.
+        # self.assertEqual(last_message.author, "Tom")     # "Tom" as hardcoded author for now in view.
+        self.assertEqual(last_message.author, "cust1_first_name")     # Needs user mechanism, not yet implemented.
         self.assertEqual(last_message.content, "content11")
 
         self.assertRedirects(response=response,

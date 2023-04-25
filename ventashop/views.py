@@ -89,7 +89,7 @@ class CustomerPasswordResetView(PasswordResetView):
 class UserSignInFormView(FormView):
     """Our user sing in view."""
 
-    template_name="auth/sign-in.html"
+    template_name="ventashop/auth/sign-in.html"
     form_class=UserForm
     success_url = "/login"
 
@@ -103,7 +103,7 @@ class UserSignInFormView(FormView):
 class EmployeeCreateFormView(FormView):
     """Our employee form view, for administrator."""
 
-    template_name="administration/employee_form.html"
+    template_name="ventashop/administration/employee_form.html"
     form_class=UserForm
     success_url = "/"
 
@@ -113,6 +113,32 @@ class EmployeeCreateFormView(FormView):
         form.create_user(role = "EMPLOYEE")
         return super().form_valid(form)
 
+
+class MySpaceView(ListView):
+    """Main page for "my space"."""
+    
+    template_name = "ventashop/customer/my_space.html"
+    model = Order
+    paginate_by = 100  # if pagination is desired
+    context_object_name = 'order_list'
+
+    def get_queryset(self):
+        """
+        Return all orders (ordered in model by date_created),
+        for an owner (aka CustomerAccount)
+        """
+        return Order.objects.filter(customer_account=self.request.user.customeraccount)
+    
+    def get_context_data(self, **kwargs):
+        """Objects to be displayed"""
+
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        related_employee = get_object_or_404(User, reg_number = user.customeraccount.employee_reg)
+        context["related_employee"] = related_employee
+        
+        return context
 
 
 class ProductView(TemplateView):
@@ -354,15 +380,3 @@ class ProductCreateView(CreateView):
     model = Product
     fields = ["name", "image", "description", "price", "category"]
     success_url = "/products/"
-
-
-# We could add classes to update and/or delete Categories and Products.
-
-
-# For the desktop app, for now !
-# class OrderUpdateView(UpdateView):
-#     """Our view to update an odrer."""
-
-#     model = Order
-#     fields = ["status",]
-#     success_url = "/orders/"
