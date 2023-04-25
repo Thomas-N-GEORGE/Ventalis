@@ -51,8 +51,8 @@ class ContactFormViewTestCase(TestCase):
             "/contact/",
             {
                 "company": "test_company",
-                "name": "test_name", 
-                "forename": "test_forename",
+                "last_name": "test_last_name", 
+                "first_name": "test_first_name",
                 "from_email": "test_from_email@test.com",
                 "subject": "test_subject",
                 "content": "test_content",

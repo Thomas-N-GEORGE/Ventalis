@@ -1,0 +1,18 @@
+<!-- log in page, "connexion". -->
+
+{% extends 'ventashop/base.html' %}
+
+{% block title %}Connexion{% endblock title %}
+
+{% block content %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" >Submit</button>
+    </form>
+
+    <a href="{% url 'ventashop:password_reset' %}">Mot de passe oublié ?</a>
+    <a href="{% url 'ventashop:sign-in' %}">Créer un compte</a>
+
+{% endblock content %}

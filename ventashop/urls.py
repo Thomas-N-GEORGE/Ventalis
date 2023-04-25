@@ -1,6 +1,28 @@
-from django.urls import path
 
-from ventashop.views import AboutView, ContactFormView, HomeView, LoginView, ProductView, CategoryCreateView, CategoryListView, ProductDetailView, ProductListView, ProductCreateView, CartView, CartEmptyView, ProductAddToCartView, LineItemRemoveFromCartView, LineItemUpdateView, OrderListView, OrderDetailView, MakeOrderView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordResetConfirmView, PasswordResetCompleteView, PasswordResetView, PasswordResetDoneView, PasswordChangeView, PasswordChangeDoneView
+from django.urls import path, include, reverse
+
+from ventashop.views import (
+                            AboutView, 
+                            ContactFormView,
+                            HomeView,
+                            CustomerPasswordResetView,
+                            CategoryCreateView, 
+                            CategoryListView, 
+                            ProductDetailView, 
+                            ProductListView, 
+                            ProductCreateView, 
+                            CartView, 
+                            CartEmptyView, 
+                            ProductAddToCartView, 
+                            LineItemRemoveFromCartView, 
+                            LineItemUpdateView, 
+                            OrderListView, 
+                            OrderDetailView, 
+                            MakeOrderView,
+                            UserSignInFormView,
+                            EmployeeCreateFormView,
+                            )
 
 from ventashop.message_views import MessageListView, ConversationListView
 
@@ -17,9 +39,6 @@ urlpatterns = [
     # /contact
     path("contact/", ContactFormView.as_view(), name="contact"),
     
-    # /login
-    path("login/", LoginView.as_view(), name="login"),
-
     ###################################
     ##### PRODUCTS AND CATEGORIES #####
     ###################################
@@ -86,4 +105,99 @@ urlpatterns = [
     
     # /3/messages/5 for 5 last messages
     path("<int:pk>/messages/<int:last>", MessageListView.as_view(), name="messages-last"),
+
+    ##########################
+    ##### login / logout #####
+    ##########################
+
+    # /login
+    # path("login/", LoginPageView.as_view(), name="login"),
+
+    # /login
+    path(
+        'login/', 
+        LoginView.as_view(
+            template_name='auth/login.html',
+            # redirect_authenticated_user=True,
+            next_page="/"),
+        name='login',
+    ),
+    
+    # /logout
+    path(
+        "logout/", 
+        LogoutView.as_view(
+            template_name='auth/logout.html',
+            next_page=None),
+        name = 'logout',
+    ),
+    
+    # # /password_change
+    # path(
+    #     "password_change/", 
+    #     PasswordChangeView.as_view(
+    #         template_name='auth/password_change_form.html',
+    #         ),
+    #     name = 'password_change',
+    # ),
+    
+    # /password_change_done
+    path(
+        "password_change_done/", 
+       PasswordChangeDoneView.as_view(
+            template_name='auth/password_change_done.html',
+            ),
+        name = 'password_change_done',
+    ),
+
+    # /password_reset
+    path(
+        "password_reset/", 
+        CustomerPasswordResetView.as_view(
+            template_name='auth/password_reset_form.html',
+            email_template_name='auth/password_reset_email.html',
+            success_url = "/password_reset_done/",
+            ),
+        name = 'password_reset',
+    ),
+
+    # /password_reset_done
+    path(
+        "password_reset_done/", 
+       PasswordResetDoneView.as_view(
+            template_name='auth/password_reset_done.html',
+            ),
+        name = 'password_reset_done',
+    ),
+
+    # /password_reset_confirm_view
+    path(
+        "reset/<uidb64>/<token>", 
+       PasswordResetConfirmView.as_view(
+            template_name='auth/password_reset_confirm.html',
+            success_url="/reset/done",
+            ),
+        name = 'password_reset_confirm',
+    ),
+    
+    # /password_reset_complete
+    path(
+        "reset/done", 
+       PasswordResetCompleteView.as_view(
+            template_name='auth/password_reset_complete.html',
+            ),
+        name = 'password_reset_complete',
+    ),
+
+    # sign-in
+    path("sign-in/", UserSignInFormView.as_view(), name="sign-in"),
+
+    #########################
+    ##### Administrator #####
+    #########################
+
+    # employee_create
+    path("administration/employee_create/", EmployeeCreateFormView.as_view(), name="employee_create"),
+
+
 ]

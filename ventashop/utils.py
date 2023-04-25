@@ -5,11 +5,14 @@ from decimal import Decimal
 
 VAT_FRANCE = 0.2
 
+############################
+##### Reference number #####
+############################
+
 def random_string_generator(size=10, chars=string.ascii_lowercase + string.digits):
     """Generate a random string of 10 characters"""
 
     return "".join(random.choice(chars) for i in range(size))
-
 
 def unique_ref_number_generator(instance):
     """Make unique reference number."""
@@ -21,6 +24,29 @@ def unique_ref_number_generator(instance):
     if qs_exists:
         return unique_ref_number_generator(instance)
     return ref_number
+
+###############################
+##### Registration number #####
+###############################
+
+def random_reg_number_generator(size=4, chars=string.digits):
+    """Generate a random string of 4 digits"""
+
+    return "".join(random.choice(chars) for i in range(size))
+
+def unique_reg_number_generator(instance):
+    """Make unique registration number."""
+    reg_number= random_reg_number_generator()
+
+    Klass= instance.__class__
+
+    qs_exists= Klass.objects.filter(reg_number=reg_number).exists()
+    if qs_exists:
+        return unique_reg_number_generator(instance)
+    return reg_number
+
+#######################
+#######################
 
 def get_VAT_prices(price):
     """
