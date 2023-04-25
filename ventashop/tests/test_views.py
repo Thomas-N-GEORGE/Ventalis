@@ -255,7 +255,26 @@ class CartEditingViewsTestCase(TestCase):
     def setUpTestData(cls) -> None:
         """Arrange."""
 
+        cls.user_form = UserForm()
+        cls.user_form.cleaned_data = {
+            "email": "employee1@ventalis.com",
+            "password": "12345678&",
+            "first_name": "emp1_first_name",
+            "last_name": "emp1_last_name", 
+        }
+        cls.employee1 = cls.user_form.create_user(role="EMPLOYEE")
+        cls.user_form.cleaned_data = {
+            "email": "customer1@test.com",
+            "password": "12345678&",
+            "first_name": "cust1_first_name",
+            "last_name": "cust1_last_name", 
+        }
+        cls.customer1 = cls.user_form.create_user(role="CUSTOMER")
+
         cls.c = Client()
+
+        cls.c.login(email='customer1@test.com', password='12345678&')
+
         cls.category = Category.objects.create(name="test_cat")
         cls.product1 = Product.objects.create(
             name="product1", 
@@ -263,11 +282,12 @@ class CartEditingViewsTestCase(TestCase):
             price=4242, 
             category=cls.category 
         )
-        cls.cart = Cart.objects.create()
-
+        cls.product1_id = str(cls.product1.pk)
+        
+        # cls.cart = Cart.objects.create()
+        cls.cart = Cart.objects.get(customer_account=cls.customer1.customeraccount)
         cls.li_count = cls.cart.lineitem_set.filter(cart=cls.cart).count()
         cls.cart_id = str(cls.cart.pk)
-        cls.product1_id = str(cls.product1.pk)
 
     def test_product_add_to_cart_view(self):
         """Check if product is added to cart and redirection to "product-detail" page afterwards."""
@@ -277,7 +297,8 @@ class CartEditingViewsTestCase(TestCase):
 
         # Act.
         response = self.c.post(reverse("ventashop:product-add-to-cart",
-                                        kwargs={'cart_id': self.cart_id, 'product_id': self.product1_id})) 
+                                        # kwargs={'cart_id': self.cart_id, 'product_id': self.product1_id})) 
+                                        kwargs={'product_id': self.product1_id})) 
 
         # Assert
         self.assertEqual(self.li_count + 1, self.cart.lineitem_set.filter(cart=self.cart).count())

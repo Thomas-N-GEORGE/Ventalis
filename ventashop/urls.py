@@ -68,12 +68,16 @@ urlpatterns = [
     
     # /5/cart/
     path("<int:pk>/cart/", CartView.as_view(), name="cart"),
+    # /cart/
+    path("cart/", CartView.as_view(), name="cart"),
 
     # Redirect CartEmptyView
     path("<int:pk>/cart_empty/", CartEmptyView.as_view(), name="cart-empty"),
 
     # Redirect ProductAddToCartView
-    path("product_add/<int:cart_id>/<int:product_id>/", ProductAddToCartView.as_view(), name="product-add-to-cart"),
+    # path("product_add/<int:cart_id>/<int:product_id>/", ProductAddToCartView.as_view(), name="product-add-to-cart"),
+    # Redirect ProductAddToCartView
+    path("product_add/<int:product_id>/", ProductAddToCartView.as_view(), name="product-add-to-cart"),
     
     # Redirect LineItemUpdateCartView
     path("line_item_update/<int:cart_id>/<int:line_item_id>/", LineItemUpdateView.as_view(), name="line-item-update"),

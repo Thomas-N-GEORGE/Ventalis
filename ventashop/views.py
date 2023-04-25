@@ -200,18 +200,19 @@ class ProductDetailView(DetailView):
     template_name = 'ventashop/product_detail.html'
 
 
-class CartView(DetailView):
+class CartView(TemplateView):
     """The owner's cart view."""
 
-    model = Cart
     template_name = 'ventashop/cart.html'
-    context_object_name = "cart"
 
     def get_context_data(self, **kwargs):
-        """Line item list and VAT calulations to be displayed."""
+        """Cart with line item list to be displayed."""
 
         context =  super().get_context_data(**kwargs)
-        context["line_item_list"] = self.get_object().lineitem_set.all()
+        cart = get_object_or_404(Cart, customer_account=self.request.user.customeraccount)
+
+        context["cart"] = cart
+        context["line_item_list"] = cart.lineitem_set.all()
         return context
 
 
@@ -224,7 +225,8 @@ class ProductAddToCartView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         """Add product to cart and redirect"""
 
-        cart = get_object_or_404(Cart, pk=kwargs["cart_id"])
+        # cart = get_object_or_404(Cart, pk=kwargs["cart_id"])
+        cart = get_object_or_404(Cart, customer_account=self.request.user.customeraccount)
         product = get_object_or_404(Product, pk=kwargs["product_id"])
         cart.add_line_item(product, 1000)
         
