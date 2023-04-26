@@ -2,14 +2,14 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 
 
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, password_validation
 from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView
 from django.views.generic import TemplateView, ListView, DetailView, RedirectView, FormView, View
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 
 from ventashop.models import Category, Product, Cart, LineItem, Order, User
-from ventashop.forms import ContactForm, LoginForm, UserForm
+from ventashop.forms import ContactForm, LoginForm, UserForm, EmployeePwdUpdateForm
 
 
 class HomeView(TemplateView):
@@ -105,17 +105,59 @@ class UserSignInFormView(FormView):
 
 
 class EmployeeCreateFormView(FormView):
-    """Our employee form view, for administrator."""
+    """Our employee creation form view, for administrator."""
 
-    template_name="ventashop/administration/employee_form.html"
     form_class=UserForm
+    template_name="ventashop/administration/employee_form.html"
     success_url = "/"
 
     def form_valid(self, form):
         """Process to create a new "employee"."""
-
+        
         form.create_user(role = "EMPLOYEE")
         return super().form_valid(form)
+
+
+class EmployeePwdUpdateView(FormView):
+    """
+    Our employee password update view, for administrator.
+    """
+
+    form_class=EmployeePwdUpdateForm
+    template_name="ventashop/administration/employee_update_form.html"
+    success_url="/administration/employees"
+
+    def form_valid(self, form) :
+        """Process to update employee's password."""
+
+        # !!!! password_validation.validate_password ???!!!
+        # For all forms !!!!
+
+        form.update_employee_pwd(user_id=self.kwargs["pk"])
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        """Employee details and old password to be displayed."""
+        
+        context = super().get_context_data(**kwargs)
+        employee = get_object_or_404(User, pk=self.kwargs["pk"])
+
+        context["employee"] = employee
+        return context
+    
+
+class EmployeeListView(ListView):
+    """Our employee list view."""
+
+    model = User
+    template_name="ventashop/administration/employees.html"
+    context_object_name = "employee_list"
+
+    def get_queryset(self):
+        """Get employee list."""
+
+        employee_list = User.objects.filter(role="EMPLOYEE").order_by("date_joined")
+        return employee_list
 
 
 class MySpaceView(ListView):

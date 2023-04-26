@@ -86,10 +86,32 @@ class LoginForm(forms.Form):
     password = forms.CharField(max_length=100, widget=forms.PasswordInput)
 
 
-class UserForm(forms.ModelForm):
+class EmployeePwdUpdateForm(forms.Form):
+    """Our employee update form, for updating an employee's password as administrator."""
 
-    password = forms.CharField(max_length=100, widget=forms.PasswordInput)
-    company = forms.CharField(max_length=200, required=False)
+    password = forms.CharField(max_length=100, widget=forms.PasswordInput, label="Nouveau mot de passe")
+
+    def update_employee_pwd(self, user_id):
+        """Update employee's password"""
+
+        user, created = User.objects.get_or_create(id=user_id)
+
+        if created:     # abort if we're not simply updating
+            user.delete()
+            return
+        
+        user.password = make_password(self.cleaned_data["password"])
+        user.save()
+
+
+class UserForm(forms.ModelForm):
+    """Our user "creation" form, for signing in as customer, and adding an employee as administrator."""
+
+    email = forms.EmailField(max_length=255, widget=forms.EmailInput, label="Login : adresse mail")
+    password = forms.CharField(max_length=100, widget=forms.PasswordInput, label="Mot de passe")
+    first_name = forms.CharField(max_length=255, label="Prénom")
+    last_name = forms.CharField(max_length=255, label="Nom")
+    company = forms.CharField(max_length=200, required=False, label="Votre société")
 
     class Meta:
         model = User

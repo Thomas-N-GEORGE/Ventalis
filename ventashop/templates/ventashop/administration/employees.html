@@ -1,0 +1,27 @@
+<!-- employee list page, "employés". -->
+
+{% extends 'ventashop/base.html' %}
+
+{% block title %}Employés{% endblock title %}
+
+{% block content %}
+
+    <h2>Employé(e)s</h2>
+    <div>
+        <a href="{% url 'ventashop:employee_create' %}">Créer un(e) employé(e)</a>
+    </div>
+    <div>
+        <ul>
+            {% for employee in employee_list %}
+                <li>
+                    <a href="{% url 'ventashop:employee_update' employee.pk %}">
+                        {{ employee.first_name|title }} {{ employee.last_name|upper }} mat. {{ employee.reg_number }} 
+                    </a> 
+                </li>
+            {% empty %}
+                <li>Pas encore d'employé(e).</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+{% endblock content %}

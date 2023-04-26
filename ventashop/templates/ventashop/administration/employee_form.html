@@ -6,10 +6,25 @@
 
 {% block content %}
 
+    <h2>Créer un employé Ventalis</h2>
+
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {% for field in form %}
+            {% if field.name != "company" %}
+                <p class="">
+                    {{ field.errors }}
+                    {{ field.label_tag }} {{ field }}
+                </p>
+            {% endif %}
+        {% endfor %}
         <button type="submit" >Submit</button>
     </form>
+
+    <div>
+        <a href="{% url 'ventashop:employees' %}">Voir tous les employés</a>
+    </div>
+    
+
 
 {% endblock content %}

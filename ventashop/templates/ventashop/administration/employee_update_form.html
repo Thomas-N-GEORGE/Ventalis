@@ -1,0 +1,17 @@
+<!-- Employee update page, "Mot de passe employé". -->
+
+{% extends 'ventashop/base.html' %}
+
+{% block title %}Mot de passe employé{% endblock title %}
+
+{% block content %}
+
+    <p>Employé :
+        {{ employee.first_name|title }} {{ employee.last_name|upper }}
+    </p>
+    <form method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Update">
+    </form>
+
+{% endblock content %}

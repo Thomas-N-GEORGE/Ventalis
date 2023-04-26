@@ -22,6 +22,8 @@ from ventashop.views import (
                             MakeOrderView,
                             UserSignInFormView,
                             EmployeeCreateFormView,
+                            EmployeePwdUpdateView,
+                            EmployeeListView,
                             MySpaceView,
                             IntranetView,
                             CustomerListView,
@@ -194,8 +196,14 @@ urlpatterns = [
     ##### Administrator #####
     #########################
 
+    # employees
+    path("administration/employees/", EmployeeListView.as_view(), name="employees"),
+    
     # employee_create
     path("administration/employee_create/", EmployeeCreateFormView.as_view(), name="employee_create"),
+    
+    # employee_update
+    path("administration/<int:pk>/employee_update/", EmployeePwdUpdateView.as_view(), name="employee_update"),
 
     ####################
     ##### CUSTOMER #####
