@@ -79,7 +79,7 @@ class CustomerAccount(models.Model):
     customer = models.OneToOneField(User, null=True, on_delete=models.SET_NULL)
     employee_reg = models.CharField(max_length=4, null=True)
 
-    def create_cart(self):
+    def set_cart(self):
         """Assign a cart to customer account"""
 
         try:
@@ -87,10 +87,37 @@ class CustomerAccount(models.Model):
         except ObjectDoesNotExist:
             Cart.objects.create(customer_account=self)
 
-    def create_conversation(self, subject):
+    def set_conversation(self, subject):
         """Assign a conversation to customer account"""
 
-        Conversation.objects.create(customer_account=self, subject=subject)
+        if not self.conversation_set.all().exists():
+            Conversation.objects.create(customer_account=self, subject=subject)
+
+    def set_employee_reg_number(self):
+        """Assign related employee by his reg_nubmer."""
+
+        employees = User.objects.filter(role="EMPLOYEE")
+
+        if employees.count() == 0:  # Abort if no employee exists.
+            return
+        
+        employee = employees[0]
+        count = CustomerAccount.objects.filter(employee_reg=employee.reg_number).count()
+        
+        for e in employees:
+            # Checking for reg_number should be usefull only at dev time. In production, every employee should have a reg_number.
+            if e.reg_number is None: 
+                e.reg_number = unique_reg_number_generator(e)
+                e.save()
+                return e.reg_number
+            
+            customers_count = CustomerAccount.objects.filter(employee_reg=e.reg_number).count()
+            if customers_count < count:
+                count = customers_count
+                employee = e
+
+        self.employee_reg = employee.reg_number
+        self.save()
 
 
 class Category(models.Model):

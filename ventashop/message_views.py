@@ -18,7 +18,7 @@ class MessageListView(ListView, FormMixin):
     form_class = MessageForm
 
     def get_queryset(self, *args, **kwargs):
-        """Message list (aka conversation) to be displayed."""
+        """Message list (aka one conversation) to be displayed."""
 
         user = self.request.user
 
@@ -28,16 +28,14 @@ class MessageListView(ListView, FormMixin):
             if user.role == "CUSTOMER":
                 m_set = list(Message.objects.filter(conversation__customer_account=user.customeraccount))[-last:]
             else:
-                m_set = list(Message.objects.filter(
-                    conversation__customer_account__employee_reg=user.reg_number))[-last:]
+                m_set = list(Message.objects.filter(conversation__id=self.kwargs["pk"]))[-last:]
         
         # all messages to be displayed.
         else:                       
             if user.role == "CUSTOMER":
                 m_set = Message.objects.filter(conversation__customer_account=user.customeraccount)
             else:
-                m_set = Message.objects.filter(
-                    conversation__customer_account__employee_reg=user.reg_number)
+                m_set = Message.objects.filter(conversation__id=self.kwargs["pk"])
 
         return m_set
 
@@ -64,7 +62,8 @@ class MessageListView(ListView, FormMixin):
         if user.role == "CUSTOMER":
             context["conversation"] = get_object_or_404(Conversation, customer_account=user.customeraccount)
         else:
-            context["conversation"] = get_object_or_404(Conversation, customer_account__employee_reg=user.reg_number)
+            # context["conversation"] = get_object_or_404(Conversation, customer_account__employee_reg=user.reg_number)
+            context["conversation"] = get_object_or_404(Conversation, pk=self.kwargs["pk"])
 
         context["form"] = self.get_form(self.form_class)
 

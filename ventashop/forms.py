@@ -117,45 +117,12 @@ class UserForm(forms.ModelForm):
                 user.company = "Ventalis"
                 user.save()
             
-            else:
-                # create customer account, assign its employee reg number, related cart, and a related conversation.
-                customer_account = CustomerAccount.objects.create(
-                    customer=user, 
-                    employee_reg = self.get_employee_reg_number())
-                customer_account.create_cart()
-                customer_account.create_conversation(subject="Échanges avec mon conseiller")
+            else:   
+                # Case role == CUSTOMER
+                # Create customer account, assign its employee reg number, related cart, and a related conversation.
+                customer_account = CustomerAccount.objects.create(customer=user)
+                customer_account.set_cart()
+                customer_account.set_conversation(subject="Échanges avec mon conseiller")
+                customer_account.set_employee_reg_number()
         
         return user
-
-    def get_employee_reg_number(self):
-        """
-        A utility routine to get reg_number of the employee 
-        having the least "assigned" customers.
-        """
-
-        employees = User.objects.filter(role="EMPLOYEE")
-        
-        # TODO
-        # if employees.count() == 0:
-        #     raise NoEmployeeError
-        
-        employee = employees[0]
-        # count = 999999
-        count = CustomerAccount.objects.filter(employee_reg=employee.reg_number).count()
-
-        
-        for e in employees:
-            # Checking for reg_number should be usefull only at dev time. In production, every employee should have a reg_number.
-            if e.reg_number is None: 
-                e.reg_number = unique_reg_number_generator(e)
-                e.save()
-                return e.reg_number
-            
-            customers_count = CustomerAccount.objects.filter(employee_reg=e.reg_number).count()
-            if customers_count < count:
-                count = customers_count
-                employee = e
-
-        return employee.reg_number
-
-

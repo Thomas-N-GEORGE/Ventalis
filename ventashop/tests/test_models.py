@@ -295,7 +295,7 @@ class CartTestCase(TestCase):
 
         # Arrange.
         ca = CustomerAccount.objects.create()
-        ca.create_cart()
+        ca.set_cart()
         cart = ca.cart
         cart.add_line_item(self.product1, 1000)
         assigned_order_count = Order.objects.filter(customer_account = ca).count()
@@ -370,25 +370,45 @@ class CustomerAccountTestCase(TestCase):
         """Arrange."""
 
         cls.cart_count = Cart.objects.all().count()
+        cls.conversation_count = Conversation.objects.all().count()
         cls.ca = CustomerAccount.objects.create()
 
-    def test_create_cart(self):
+    def test_set_cart(self):
         """Check if a related cart is created."""
 
         # Act.
-        self.ca.create_cart()
+        self.ca.set_cart()
 
         # Assert.
         self.assertEqual(self.cart_count + 1, Cart.objects.all().count())
         self.assertEqual(self.ca.cart.customer_account.pk, self.ca.pk)
     
-    def test_create_cart_called_twice_does_not_create_second_cart(self):
+    def test_set_cart_called_twice_does_not_create_second_cart(self):
         """Check if no second cart is created if method is called twice."""
 
         # Act.
-        self.ca.create_cart()
-        self.ca.create_cart()
+        self.ca.set_cart()
+        self.ca.set_cart()
 
         # Assert.
         self.assertEqual(self.cart_count + 1, Cart.objects.all().count())
         self.assertEqual(self.ca.cart.customer_account.pk, self.ca.pk)
+    
+    def test_set_conversation(self):
+        """Check if a related conversation is created."""
+
+        # Act.
+        self.ca.set_conversation("test")
+
+        # Assert.
+        self.assertEqual(self.conversation_count + 1, Conversation.objects.all().count())
+    
+    def test_set_conversation_called_twice_does_not_create_second_conversation(self):
+        """Check if no second conversation is created if method is called twice."""
+
+        # Act.
+        self.ca.set_conversation("test")
+        self.ca.set_conversation("test")
+
+        # Assert.
+        self.assertEqual(self.conversation_count + 1, Conversation.objects.all().count())
