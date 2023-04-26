@@ -23,6 +23,8 @@ from ventashop.views import (
                             UserSignInFormView,
                             EmployeeCreateFormView,
                             MySpaceView,
+                            IntranetView,
+                            CustomerListView,
                             )
 
 from ventashop.message_views import MessageListView, ConversationListView
@@ -102,16 +104,16 @@ urlpatterns = [
     ##### MESSAGES #####
     ####################
 
-    # /conversations
+    # /conversations --> all conversations for employee.
     path("conversations/", ConversationListView.as_view(), name="conversations"),
     
-    # /3/messages
+    # /3/messages --> all messages, employee.
     path("<int:pk>/messages/", MessageListView.as_view(), name="messages"),
 
-    # /messages
+    # /messages --> all messages, customer.
     path("messages/", MessageListView.as_view(), name="messages"),
     
-    # /3/messages/5 for 5 last messages of conversation #3
+    # /3/messages/5  --> 5 last messages of conversation #3.
     path("<int:pk>/messages/<int:last>", MessageListView.as_view(), name="messages-last"),
     
     ##########################
@@ -136,15 +138,6 @@ urlpatterns = [
             next_page=None),
         name = 'logout',
     ),
-    
-    # # /password_change
-    # path(
-    #     "password_change/", 
-    #     PasswordChangeView.as_view(
-    #         template_name='auth/password_change_form.html',
-    #         ),
-    #     name = 'password_change',
-    # ),
     
     # /password_change_done
     path(
@@ -213,5 +206,9 @@ urlpatterns = [
     ####################
     ##### EMPLOYEE #####
     ####################
+    #/intranet
+    path("intranet/", IntranetView.as_view(), name="intranet"),
 
+    #/customers
+    path("customers/", CustomerListView.as_view(), name="customers"),
 ]

@@ -1,7 +1,15 @@
 <!-- Our form to create a new category of products -->
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.name }}
-    <input type="submit" value="Save">
-</form>
+{% extends 'ventashop/base.html' %}
+
+{% block title %}intranet{% endblock title %}
+
+{% block content %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Save">
+    </form>
+
+{% endblock %}

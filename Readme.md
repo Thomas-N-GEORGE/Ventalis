@@ -46,20 +46,21 @@ $ source env\bin\activate.bat
 (env) $ pip install -r requirements.txt
 ````
 
-5. Créer la Base De Données PostgreSQL : 
+5. Base de données : on peut installer rapidemnt une bdd postgresql .
 
-A l'aide de SQLShell :
+6. settings.py : accorder le dictionnaire DATABASES avec vos propres clés NAME et USER 
 ````
-CREATE DATABASE dbname;
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'username',
+        'USER': 'username',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
 ````
- 
-ou à l'aide d'un utlilitaire comme createdb :
-````
-createdb -h localhost -p 5432 -U postgres testdb
-````
-
-6. Adapter les settings.py de Django :  
-
 
 7. Jouer les migrations pour créer les tables dans la BDD : 
 ````
@@ -72,7 +73,7 @@ createdb -h localhost -p 5432 -U postgres testdb
 (env) $ python manage.py ventashop
 ````
 
-Ainsi l'application doit se lancer et on peut retrouver la page d'ouverture à l'adresse locale : 
+Si tout se passe bien on peut retrouver la page d'ouverture à l'adresse locale : 
 ````
 http://127.0.0.1:8000/
 ````
@@ -81,24 +82,34 @@ http://127.0.0.1:8000/
 ## Utilisation : 
 ---
 
-Créer un superuser Django avec la commande : 
+On peut peupler la BDD à l'aide de la **fixture** se trouvant dans le dossier **ventashop/fixtures**.
+
+Pour intégrer des données, utiliser la commande **loaddata** (Django trouve le fichier tout seul en principe):
 ````
-$ python manage.py createsuperuser
+(env) $ python manage.py loaddata ventadata.json
+````
+---
+Et sinon, en partant de zéro, on effectue ces étapes dans l'ordre : 
+
+1. Créer un superuser Django avec la commande : 
+````
+(env) $ python manage.py createsuperuser
 ````
 
-Et ensuite, avec ce super utilisateur, on accède à la partie admin/Webmaster de Django :
+2. Ensuite, avec ce super utilisateur, on accède à la partie admin de Django ici http://127.0.0.1:8000/admin
+
+    Ceci nous permet de créer un compte adminisrateur pour l'application.
+
+3. En se connectant avec ce compte administrateur dans l'application, on accède à l'Espace Administrateur pour créer un/des Employé(s).
+
+4. Ensuite le compte Employé quant à lui permet de créer et gérer produits, commandes, etc. à partir de son espace "Intranet"
+
+Se référer au mode d'emploi SVP pour retrouver ces étapes à l'utilisation en détail, y compris en tant que Visiteur / Utilisateur.
+
+---
+Pour créer des fixtures avec **dumpdata**, un exemple : 
 ````
-http://127.0.0.1:8000/admin
+python manage.py dumpdata ventashop.product --indent 4 > ventashop/fixtures/product.json
 ````
 
-qui nous permet ainsi la création d'un compte admin pour l'application.
 
-Ainsi on pourra à l'aide de ce compte accéder à l'Espace Administrateur et créer un/des Employé(s).
-
-L'Espace Emplyé quant à lui permet de gérer produits, commandes, etc.
-
-Se référer au mode d'emploi SVP pour retrouver ces étapes en détail, y compris l'utilisation en tant que Visiteur / Utilisateur.
-
-
- - A moins que je ne fasse ça dans un script !!! Comme c'était le cas avec changelog.
-Je ne sais plus quelle classe il faut utiliser mais c'est un truc du genre Command.

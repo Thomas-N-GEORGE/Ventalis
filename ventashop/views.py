@@ -63,6 +63,10 @@ class LoginPageView(View):
         return render(request, self.template_name, context={'form': form, 'message': message})
 ######### NOT USED #############
 
+#########################
+##### USER SPECIFIC #####
+#########################
+
 class CustomerPasswordResetView(PasswordResetView):
     """Our Customer Reset password class."""
 
@@ -115,7 +119,7 @@ class EmployeeCreateFormView(FormView):
 
 
 class MySpaceView(ListView):
-    """Main page for "my space"."""
+    """Main view for customer's "my space"."""
     
     template_name = "ventashop/customer/my_space.html"
     model = Order
@@ -141,17 +145,46 @@ class MySpaceView(ListView):
         return context
 
 
+class IntranetView(TemplateView):
+    """Main view for employee's Intranet."""
+
+    template_name = "ventashop/employee/intranet.html"
+
+
+class CustomerListView(ListView):
+    """Employee's related customer list view."""
+
+    model = User
+    template_name = "ventashop/employee/customers.html"
+    context_object_name = "customer_list"
+
+    def get_queryset(self):
+        """Get employee's related customer list."""
+
+        user = self.request.user
+        customer_list = User.objects.filter(
+            role="CUSTOMER", customeraccount__employee_reg=user.reg_number).order_by("date_joined")
+        
+        return customer_list
+    
+
+###################################
+##### PRODUCTS AND CATEGORIES #####
+###################################
+
+class ProductCreateView(CreateView):
+    """Our view to create a new product."""
+    
+    model = Product
+    fields = ["name", "image", "description", "price", "category"]
+    success_url = "/products/"
+
+
 class ProductView(TemplateView):
     """Our product view."""
     template_name = "ventashop/products.html"
 
 
-class CategoryListView(ListView):
-    """Our category list view."""
-
-    model = Category
-    paginate_by = 100  # if pagination is desired
-    template_name = 'ventashop/categories.html'
 
     def get_queryset(self):
         """
@@ -164,7 +197,7 @@ class ProductListView(ListView):
     """Our product-by-category list view."""
 
     model = Product
-    paginate_by = 100  # if pagination is desired
+    # paginate_by = 100  # if pagination is desired
     template_name = 'ventashop/products.html'
     context_object_name = 'product_list'
 
@@ -199,6 +232,26 @@ class ProductDetailView(DetailView):
     model = Product
     template_name = 'ventashop/product_detail.html'
 
+
+class CategoryCreateView(CreateView):
+    """Our view to create a new category."""
+    
+    model = Category
+    fields = ["name"]
+    success_url = "/products/"
+
+
+class CategoryListView(ListView):
+    """Our category list view."""
+
+    model = Category
+    paginate_by = 100  # if pagination is desired
+    template_name = 'ventashop/categories.html'
+
+
+################
+##### CART #####
+################
 
 class CartView(TemplateView):
     """The owner's cart view."""
@@ -300,9 +353,9 @@ class CartEmptyView(RedirectView):
         return super().get_redirect_url(*args, **kwargs)
 
 
-#######################
-##### ORDER Views #####
-#######################
+#################
+##### ORDER #####
+#################
 
 
 class MakeOrderView(RedirectView):
@@ -362,23 +415,3 @@ class OrderDetailView(DetailView):
         context["status"] = status_tuple_list[0][1]
 
         return context
-
-
-######################
-##### CRUD Views #####
-######################
-
-class CategoryCreateView(CreateView):
-    """Our view to create a new category."""
-    
-    model = Category
-    fields = ["name"]
-    success_url = "/products/"
-
-
-class ProductCreateView(CreateView):
-    """Our view to create a new product."""
-    
-    model = Product
-    fields = ["name", "image", "description", "price", "category"]
-    success_url = "/products/"

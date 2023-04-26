@@ -473,20 +473,46 @@ class CartViewTestCase(TestCase):
 class ConversationListViewTestCase(TestCase):
     """Test class for our conversation list view."""
 
+    @classmethod
+    def setUpTestData(cls) -> None:
+        """Arrange."""
+
+        cls.user_form = UserForm()
+        cls.user_form.cleaned_data = {
+            "email": "employee1@ventalis.com",
+            "password": "12345678&",
+            "first_name": "emp1_first_name",
+            "last_name": "emp1_last_name", 
+        }
+        cls.employee1 = cls.user_form.create_user(role="EMPLOYEE")
+        cls.user_form.cleaned_data = {
+            "email": "customer1@test.com",
+            "password": "12345678&",
+            "first_name": "cust1_first_name",
+            "last_name": "cust1_last_name", 
+        }
+        cls.customer1 = cls.user_form.create_user(role="CUSTOMER")
+        cls.user_form.cleaned_data = {
+            "email": "customer2@test.com",
+            "password": "12345678&",
+            "first_name": "cust2_first_name",
+            "last_name": "cust2_last_name", 
+        }
+        cls.customer2 = cls.user_form.create_user(role="CUSTOMER")
+        
+        cls.c = Client()
+        cls.c.login(email='employee1@ventalis.com', password='12345678&')
+        # cls.conversation = Conversation.objects.get(customer_account=cls.customer1.customeraccount)
+        # cls.conv_id = cls.conversation.pk
+
     def test_conversation_list_view(self):
         """Check if conversations are displayed in view."""
 
-        # Arrange.
-        c = Client()
-        conv1 = Conversation.objects.create(subject="test1")
-        conv2 = Conversation.objects.create(subject="test2")
-
         # Act.
-        response = c.get("/conversations/")
+        response = self.c.get("/conversations/")
 
         # Assert.
-        self.assertContains(response, "test1")
-        self.assertContains(response, "test2")
+        self.assertContains(response, "Échanges avec mon conseiller")
 
 
 class MessageListViewTestCase(TestCase):

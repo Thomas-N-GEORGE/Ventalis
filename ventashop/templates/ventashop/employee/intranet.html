@@ -1,0 +1,26 @@
+<!-- This is employee's intranet page. -->
+
+{% extends 'ventashop/base.html' %}
+
+{% block title %}intranet{% endblock title %}
+
+{% block content %}
+
+
+    <!-- To conversations. -->
+    <div>
+        <a href="{% url 'ventashop:conversations' %}">Voir mes conversations.</a>
+    </div>
+    <!-- To related customers. -->
+    <div>
+        <a href="{% url 'ventashop:customers' %}">Visionner les clients qui me sont attribués.</a>
+    </div>
+
+    <!-- To categories and products. -->
+    <div>
+        <a href="{% url 'ventashop:product-create' %}">Créer un produit</a> 
+    <div></div>
+        <a href="{% url 'ventashop:category-create' %}">Créer une catégorie</a>
+    </div>
+
+{% endblock %}

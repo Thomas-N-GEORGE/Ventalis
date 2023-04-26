@@ -47,7 +47,7 @@
           {% else %}
             {% if user.role == "EMPLOYEE" %}
             <li class="nav-item">
-              <a class="nav-link" href="#">Intranet</a>
+              <a class="nav-link" href="{% url 'ventashop:intranet' %}">Intranet</a>
             </li>
             {% else %}
               <li class="nav-item">

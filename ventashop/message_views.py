@@ -18,32 +18,38 @@ class MessageListView(ListView, FormMixin):
     form_class = MessageForm
 
     def get_queryset(self, *args, **kwargs):
-        """Conversation message list to be displayed."""
+        """Message list (aka conversation) to be displayed."""
 
         user = self.request.user
 
-        if "last" in self.kwargs:   # n last messages
+        # n last messages to be displayed.
+        if "last" in self.kwargs:   
             last = int(self.kwargs["last"])
-            # m_set = list(Message.objects.filter(conversation__id=self.kwargs["pk"]))[-last:]
-            m_set = list(Message.objects.filter(conversation__customer_account=user.customeraccount))[-last:]
+            if user.role == "CUSTOMER":
+                m_set = list(Message.objects.filter(conversation__customer_account=user.customeraccount))[-last:]
+            else:
+                m_set = list(Message.objects.filter(
+                    conversation__customer_account__employee_reg=user.reg_number))[-last:]
         
-        else:                       # all messages
-            # m_set = Message.objects.filter(conversation__id=self.kwargs["pk"])
-            m_set = Message.objects.filter(conversation__customer_account=user.customeraccount)
+        # all messages to be displayed.
+        else:                       
+            if user.role == "CUSTOMER":
+                m_set = Message.objects.filter(conversation__customer_account=user.customeraccount)
+            else:
+                m_set = Message.objects.filter(
+                    conversation__customer_account__employee_reg=user.reg_number)
 
         return m_set
 
     def post(self, request, *args, **kwargs):
-        """handle new message POST request."""
+        """Handle new message POST request."""
         
         form = self.form_class(request.POST)
         conversation = get_object_or_404(Conversation, pk=self.kwargs["pk"])
         
         if form.is_valid():
-            # author = "Tom"      # Hardcoded for now, user mechanism is not yet implemented.
-            author = author = self.request.user.first_name
+            author = self.request.user.first_name
             content = form.cleaned_data["content"]
-
             conversation.add_message(author=author, content=content)
 
         return HttpResponseRedirect(reverse('ventashop:messages-last', args=(conversation.id, 5)))
@@ -52,9 +58,16 @@ class MessageListView(ListView, FormMixin):
         """Related conversation and new message form to be displayed."""
 
         context = super().get_context_data(**kwargs)
+        user = self.request.user
+
         # context["conversation"] = get_object_or_404(Conversation, pk=self.kwargs["pk"])
-        context["conversation"] = get_object_or_404(Conversation, customer_account=self.request.user.customeraccount)
+        if user.role == "CUSTOMER":
+            context["conversation"] = get_object_or_404(Conversation, customer_account=user.customeraccount)
+        else:
+            context["conversation"] = get_object_or_404(Conversation, customer_account__employee_reg=user.reg_number)
+
         context["form"] = self.get_form(self.form_class)
+
         return context
 
 
@@ -65,3 +78,9 @@ class ConversationListView(ListView):
     # paginate_by = 5  # if pagination is desired
     template_name = 'ventashop/conversations.html'
     context_object_name = "conversation_list"
+
+    def get_queryset(self):
+        conversation_list = Conversation.objects.filter(
+            customer_account__employee_reg=self.request.user.reg_number
+        ).order_by("date_created")
+        return conversation_list

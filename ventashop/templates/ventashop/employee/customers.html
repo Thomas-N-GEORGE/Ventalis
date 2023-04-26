@@ -1,0 +1,30 @@
+<!-- This is employee's related customer list page. -->
+
+{% extends 'ventashop/base.html' %}
+
+{% block title %}customers{% endblock title %}
+
+{% block content %}
+
+<h2>Mes clients</h2>
+
+<ul>
+    {% for customer in customer_list %}
+        <li>
+            <p>
+                {{ customer.first_name|title }} {{ customer.last_name|upper }}, inscrit le {{ customer.date_joined|date:"D d M Y" }}
+            </p>
+            <p>  customer  </p>
+        </li>
+    {% empty %}
+        <p>Vous n'avez pas encore de client attribué.</p>
+    {% endfor %}
+</ul>
+
+
+
+    <!-- To Intranet -->
+    <a href="{% url 'ventashop:intranet' %}">Retour à Intranet</a>
+
+
+{% endblock %}

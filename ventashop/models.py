@@ -93,8 +93,6 @@ class CustomerAccount(models.Model):
         Conversation.objects.create(customer_account=self, subject=subject)
 
 
-
-
 class Category(models.Model):
     """This is our Category model, aimed to group and filter Products."""
 
@@ -350,15 +348,18 @@ class Conversation(models.Model):
 
     subject = models.CharField(max_length=300)
     date_created = models.DateTimeField(default=timezone.now)
+    date_modified = models.DateTimeField(default=timezone.now)
     customer_account = models.ForeignKey(CustomerAccount, on_delete=models.PROTECT, null=True)
 
     def __str__(self) -> str:
         return self.subject
     
     def add_message(self, author, content):
-        """Add a message to conversation."""
+        """Add a message to conversation, update date_modified field."""
 
         Message.objects.create(author=author, content=content, conversation=self)
+        self.date_modified = timezone.now()
+        self.save()
 
 
 class Message(models.Model):
