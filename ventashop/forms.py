@@ -9,26 +9,21 @@ from django.core.mail import send_mail
 from django.forms import ModelForm
 
 from ventashop.models import Category, User, Cart, CustomerAccount
-from ventashop.utils import unique_reg_number_generator
 from ventasite.settings import VENTALIS_EMAIL
+from ventashop.utils import (
+                            unique_reg_number_generator, 
+                            contains_min_one_upper,
+                            contains_min_one_lower, 
+                            min_length_8,
+                            contains_min_one_digit,
+                            contains_min_one_spec_char,
+                            )
 
 
-# class CategoryForm(forms.Form):
-#     name = forms.CharField(label="Nom de la catégorie", max_length=200)
-
-
-# Will display an automatic message if failed to create object.
-# 
-# class CategoryForm(ModelForm):
+# class Form(ModelForm):
 #     class Meta:
 #         model = Category
 #         fields = ["name"]
-
-
-class Form(ModelForm):
-    class Meta:
-        model = Category
-        fields = ["name"]
 
 
 class MessageForm(forms.Form):
@@ -89,7 +84,18 @@ class LoginForm(forms.Form):
 class EmployeePwdUpdateForm(forms.Form):
     """Our employee update form, for updating an employee's password as administrator."""
 
-    password = forms.CharField(max_length=100, widget=forms.PasswordInput, label="Nouveau mot de passe")
+    password = forms.CharField(
+        max_length=100, 
+        widget=forms.PasswordInput, 
+        label="Nouveau mot de passe", 
+        validators=[
+            min_length_8,
+            contains_min_one_upper,
+            contains_min_one_lower,
+            contains_min_one_digit,
+            contains_min_one_spec_char,
+        ]
+    )
 
     def update_employee_pwd(self, user_id):
         """Update employee's password"""
@@ -108,7 +114,18 @@ class UserForm(forms.ModelForm):
     """Our user "creation" form, for signing in as customer, and adding an employee as administrator."""
 
     email = forms.EmailField(max_length=255, widget=forms.EmailInput, label="Login : adresse mail")
-    password = forms.CharField(max_length=100, widget=forms.PasswordInput, label="Mot de passe")
+    password = forms.CharField(
+        max_length=100, 
+        widget=forms.PasswordInput, 
+        label="Mot de passe",
+        validators=[
+            min_length_8,
+            contains_min_one_upper,
+            contains_min_one_lower,
+            contains_min_one_digit,
+            contains_min_one_spec_char,
+        ],
+    )
     first_name = forms.CharField(max_length=255, label="Prénom")
     last_name = forms.CharField(max_length=255, label="Nom")
     company = forms.CharField(max_length=200, required=False, label="Votre société")

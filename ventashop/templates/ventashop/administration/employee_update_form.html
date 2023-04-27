@@ -10,7 +10,12 @@
         {{ employee.first_name|title }} {{ employee.last_name|upper }}
     </p>
     <form method="post">{% csrf_token %}
-        {{ form.as_p }}
+        {% for field in form %}
+                <p class="">
+                    {{ field.label_tag }} {{ field }}
+                    {{ field.errors }}
+                </p>
+        {% endfor %}
         <input type="submit" value="Update">
     </form>
 

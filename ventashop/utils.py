@@ -1,7 +1,10 @@
 """A utility module for ventashop app"""
 
-import string, random
+import string, random, re
 from decimal import Decimal
+
+from django import forms
+
 
 VAT_FRANCE = 0.2
 
@@ -46,7 +49,6 @@ def unique_reg_number_generator(instance):
     return reg_number
 
 #######################
-#######################
 
 def get_VAT_prices(price):
     """
@@ -65,3 +67,51 @@ def get_VAT_prices(price):
     incl_vat_price = ((1 + vat) * price)
 
     return vat_amount, incl_vat_price
+
+######################################
+##### CUSTOM PASSWORD VALIDATORS #####
+######################################
+
+def min_length_8(value):
+    """Check if value has min length of 8 characters."""
+
+    if len(value) < 8:
+        raise forms.ValidationError("Doit avoir au moins 8 caractères.")
+
+def contains_min_one_upper(value):
+    """Check if value contains at least one upper case character."""
+
+    for char in value:
+        if char.isupper():
+            return
+  
+    raise forms.ValidationError("Doit contenir au moins une majuscule.")
+
+def contains_min_one_lower(value):
+    """Check if value contains at least one lower case character."""
+
+    for char in value:
+        if char.islower():
+            return
+  
+    raise forms.ValidationError("Doit contenir au moins une minuscule.")
+
+def contains_min_one_digit(value):
+    """Check if value contains at least one digit character."""
+
+    for char in value:
+        if char.isdigit():
+            return
+  
+    raise forms.ValidationError("Doit contenir au moins un chiffre.")
+
+def contains_min_one_spec_char(value):
+    """Check if value contains at least one special character."""
+
+    p = re.compile(r"[@#&§!?_$£€%*^~()<>{}]")
+    if p.search(value):
+        return
+    
+    raise forms.ValidationError(
+        "Doit contenir au moins un caractère spécial parmi : @#&§!?_$£€%*^~()<>{}"
+    )

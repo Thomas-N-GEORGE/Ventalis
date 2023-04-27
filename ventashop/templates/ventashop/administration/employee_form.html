@@ -13,8 +13,8 @@
         {% for field in form %}
             {% if field.name != "company" %}
                 <p class="">
-                    {{ field.errors }}
                     {{ field.label_tag }} {{ field }}
+                    {{ field.errors }}
                 </p>
             {% endif %}
         {% endfor %}
