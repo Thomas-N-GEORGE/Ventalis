@@ -307,7 +307,6 @@ class CartTestCase(TestCase):
         self.assertEqual(assigned_order_count + 1, Order.objects.filter(customer_account = ca).count())
 
 
-
 class LineItemTestCase(TestCase):
     """Test class for our Line Item model logic."""
 

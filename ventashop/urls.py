@@ -60,8 +60,10 @@ urlpatterns = [
     # /product_form
     path("product_form/", ProductCreateView.as_view() , name='product-create'),
 
+######### ??? NOT USED ??? #############
     # /categories
     path("categories/", CategoryListView.as_view(), name='categories'),
+######### ??? NOT USED ??? #############
 
     # /category_form
     path("category_form/", CategoryCreateView.as_view() , name='category-create'),
@@ -112,7 +114,7 @@ urlpatterns = [
     # /3/messages --> all messages, employee.
     path("<int:pk>/messages/", MessageListView.as_view(), name="messages"),
 
-    # /messages --> all messages, customer.
+    # /messages --> all messages, customer only.
     path("messages/", MessageListView.as_view(), name="messages"),
     
     # /3/messages/5  --> 5 last messages of conversation #3.

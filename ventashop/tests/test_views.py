@@ -1,4 +1,4 @@
-"""Our views' test file."""
+"""Our views' test module, for logic and content."""
 
 from django.core import mail
 from django.test import Client, TestCase
@@ -9,6 +9,7 @@ from ventashop.models import (Category, Product, LineItem,
                               Cart, Order, Comment, 
                               Conversation, Message,
                               )
+from ventashop.tests import utils_tests
 
 
 class StaticViewsTestCase(TestCase):
@@ -73,6 +74,8 @@ class CategoryFormViewTestCase(TestCase):
         """Arrange."""
 
         self.c = Client()
+        self.employee1 = utils_tests.create_employee1()
+        self.c.login(email='employee1@ventalis.com', password='12345678&')
         self.count = Category.objects.all().count()
 
     def test_category_created(self):
@@ -103,6 +106,8 @@ class ProductCreateViewTestCase(TestCase):
         """Arrange."""
 
         cls.c = Client()
+        cls.employee1 = utils_tests.create_employee1()
+        cls.c.login(email='employee1@ventalis.com', password='12345678&')
         cls.count = Product.objects.all().count()
         cls.category = Category.objects.create(name="test")
 
@@ -255,24 +260,10 @@ class CartEditingViewsTestCase(TestCase):
     def setUpTestData(cls) -> None:
         """Arrange."""
 
-        cls.user_form = UserForm()
-        cls.user_form.cleaned_data = {
-            "email": "employee1@ventalis.com",
-            "password": "12345678&",
-            "first_name": "emp1_first_name",
-            "last_name": "emp1_last_name", 
-        }
-        cls.employee1 = cls.user_form.create_user(role="EMPLOYEE")
-        cls.user_form.cleaned_data = {
-            "email": "customer1@test.com",
-            "password": "12345678&",
-            "first_name": "cust1_first_name",
-            "last_name": "cust1_last_name", 
-        }
-        cls.customer1 = cls.user_form.create_user(role="CUSTOMER")
+        cls.employee1 = utils_tests.create_employee1()
+        cls.customer1 = utils_tests.create_customer1()
 
         cls.c = Client()
-
         cls.c.login(email='customer1@test.com', password='12345678&')
 
         cls.category = Category.objects.create(name="test_cat")
@@ -284,7 +275,6 @@ class CartEditingViewsTestCase(TestCase):
         )
         cls.product1_id = str(cls.product1.pk)
         
-        # cls.cart = Cart.objects.create()
         cls.cart = Cart.objects.get(customer_account=cls.customer1.customeraccount)
         cls.li_count = cls.cart.lineitem_set.filter(cart=cls.cart).count()
         cls.cart_id = str(cls.cart.pk)
@@ -477,33 +467,12 @@ class ConversationListViewTestCase(TestCase):
     def setUpTestData(cls) -> None:
         """Arrange."""
 
-        cls.user_form = UserForm()
-        cls.user_form.cleaned_data = {
-            "email": "employee1@ventalis.com",
-            "password": "12345678&",
-            "first_name": "emp1_first_name",
-            "last_name": "emp1_last_name", 
-        }
-        cls.employee1 = cls.user_form.create_user(role="EMPLOYEE")
-        cls.user_form.cleaned_data = {
-            "email": "customer1@test.com",
-            "password": "12345678&",
-            "first_name": "cust1_first_name",
-            "last_name": "cust1_last_name", 
-        }
-        cls.customer1 = cls.user_form.create_user(role="CUSTOMER")
-        cls.user_form.cleaned_data = {
-            "email": "customer2@test.com",
-            "password": "12345678&",
-            "first_name": "cust2_first_name",
-            "last_name": "cust2_last_name", 
-        }
-        cls.customer2 = cls.user_form.create_user(role="CUSTOMER")
+        cls.employee1 = utils_tests.create_employee1()
+        cls.customer1 = utils_tests.create_customer1()
+        cls.customer2 = utils_tests.create_customer2()
         
         cls.c = Client()
         cls.c.login(email='employee1@ventalis.com', password='12345678&')
-        # cls.conversation = Conversation.objects.get(customer_account=cls.customer1.customeraccount)
-        # cls.conv_id = cls.conversation.pk
 
     def test_conversation_list_view(self):
         """Check if conversations are displayed in view."""
@@ -522,28 +491,14 @@ class MessageListViewTestCase(TestCase):
     def setUpTestData(cls) -> None:
         """Arrange."""
 
-        cls.user_form = UserForm()
-        cls.user_form.cleaned_data = {
-            "email": "employee1@ventalis.com",
-            "password": "12345678&",
-            "first_name": "emp1_first_name",
-            "last_name": "emp1_last_name", 
-        }
-        cls.employee1 = cls.user_form.create_user(role="EMPLOYEE")
-        cls.user_form.cleaned_data = {
-            "email": "customer1@test.com",
-            "password": "12345678&",
-            "first_name": "cust1_first_name",
-            "last_name": "cust1_last_name", 
-        }
-        cls.customer1 = cls.user_form.create_user(role="CUSTOMER")
+        cls.employee1 = utils_tests.create_employee1()
+        cls.customer1 = utils_tests.create_customer1()
         
         cls.c = Client()
         cls.c.login(email='customer1@test.com', password='12345678&')
-        # cls.conversation = Conversation.objects.get(subject="test")
+
         cls.conversation = Conversation.objects.get(customer_account=cls.customer1.customeraccount)
         cls.conv_id = cls.conversation.pk
-
         
         # create 10 messages in cls.conversation
         for i in range(0, 10):
@@ -601,10 +556,9 @@ class MessageListViewTestCase(TestCase):
 
         # Assert.
         last_message = list(self.conversation.message_set.all())[-1]
-        # self.assertEqual(last_message.author, "Tom")     # "Tom" as hardcoded author for now in view.
-        self.assertEqual(last_message.author, "cust1_first_name")     # Needs user mechanism, not yet implemented.
-        self.assertEqual(last_message.content, "content11")
 
+        self.assertEqual(last_message.author, "cust1_first_name")
+        self.assertEqual(last_message.content, "content11")
         self.assertRedirects(response=response,
                              expected_url=reverse("ventashop:messages-last", args=(self.conv_id, 5,))
         )

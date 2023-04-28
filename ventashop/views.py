@@ -2,7 +2,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 
 
-from django.contrib.auth import authenticate, login, logout, password_validation
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView
 from django.views.generic import TemplateView, ListView, DetailView, RedirectView, FormView, View
 from django.views.generic.edit import CreateView, UpdateView
@@ -10,6 +11,7 @@ from django.urls import reverse
 
 from ventashop.models import Category, Product, Cart, LineItem, Order, User
 from ventashop.forms import ContactForm, LoginForm, UserForm, EmployeePwdUpdateForm
+from ventashop.auth_utils import TestIsCustomerMixin, TestIsEmployeeMixin, TestIsAdministratorMixin
 
 
 class HomeView(TemplateView):
@@ -104,9 +106,10 @@ class UserSignInFormView(FormView):
         return super().form_valid(form)
 
 
-class EmployeeCreateFormView(FormView):
+class EmployeeCreateFormView(LoginRequiredMixin, TestIsAdministratorMixin, FormView):
     """Our employee creation form view, for administrator."""
 
+    login_url = "/login/"
     form_class=UserForm
     template_name="ventashop/administration/employee_form.html"
     success_url = "/"
@@ -118,11 +121,12 @@ class EmployeeCreateFormView(FormView):
         return super().form_valid(form)
 
 
-class EmployeePwdUpdateView(FormView):
+class EmployeePwdUpdateView(LoginRequiredMixin, TestIsAdministratorMixin, FormView):
     """
     Our employee password update view, for administrator.
     """
 
+    login_url = "/login/"
     form_class=EmployeePwdUpdateForm
     template_name="ventashop/administration/employee_update_form.html"
     success_url="/administration/employees"
@@ -146,9 +150,10 @@ class EmployeePwdUpdateView(FormView):
         return context
     
 
-class EmployeeListView(ListView):
+class EmployeeListView(LoginRequiredMixin, TestIsAdministratorMixin, ListView):
     """Our employee list view."""
 
+    login_url = "/login/"
     model = User
     template_name="ventashop/administration/employees.html"
     context_object_name = "employee_list"
@@ -160,9 +165,10 @@ class EmployeeListView(ListView):
         return employee_list
 
 
-class MySpaceView(ListView):
+class MySpaceView(LoginRequiredMixin, TestIsCustomerMixin, ListView):
     """Main view for customer's "my space"."""
     
+    login_url = "/login/"
     template_name = "ventashop/customer/my_space.html"
     model = Order
     paginate_by = 100  # if pagination is desired
@@ -187,15 +193,17 @@ class MySpaceView(ListView):
         return context
 
 
-class IntranetView(TemplateView):
+class IntranetView(LoginRequiredMixin, TestIsEmployeeMixin, TemplateView):
     """Main view for employee's Intranet."""
 
+    login_url = "/login/"
     template_name = "ventashop/employee/intranet.html"
 
 
-class CustomerListView(ListView):
+class CustomerListView(LoginRequiredMixin, TestIsEmployeeMixin, ListView):
     """Employee's related customer list view."""
 
+    login_url = "/login/"
     model = User
     template_name = "ventashop/employee/customers.html"
     context_object_name = "customer_list"
@@ -214,9 +222,10 @@ class CustomerListView(ListView):
 ##### PRODUCTS AND CATEGORIES #####
 ###################################
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, TestIsEmployeeMixin, CreateView):
     """Our view to create a new product."""
     
+    login_url = "/login/"
     model = Product
     fields = ["name", "image", "description", "price", "category"]
     success_url = "/products/"
@@ -275,29 +284,33 @@ class ProductDetailView(DetailView):
     template_name = 'ventashop/product_detail.html'
 
 
-class CategoryCreateView(CreateView):
+class CategoryCreateView(LoginRequiredMixin, TestIsEmployeeMixin, CreateView):
     """Our view to create a new category."""
     
+    login_url = "/login/"
     model = Category
     fields = ["name"]
     success_url = "/products/"
 
 
+######### ??? NOT USED ??? #############
 class CategoryListView(ListView):
     """Our category list view."""
 
     model = Category
     paginate_by = 100  # if pagination is desired
     template_name = 'ventashop/categories.html'
+######### ??? NOT USED ??? #############
 
 
 ################
 ##### CART #####
 ################
 
-class CartView(TemplateView):
+class CartView(LoginRequiredMixin, TestIsCustomerMixin, TemplateView):
     """The owner's cart view."""
 
+    login_url = "/login/"
     template_name = 'ventashop/cart.html'
 
     def get_context_data(self, **kwargs):
@@ -311,9 +324,10 @@ class CartView(TemplateView):
         return context
 
 
-class ProductAddToCartView(RedirectView):
+class ProductAddToCartView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
     """Add a product (aka a line item) to cart"""
     
+    login_url = "/login/"
     http_method_names = ["post"]
     pattern_name = 'ventashop:product-detail'
 
@@ -330,9 +344,10 @@ class ProductAddToCartView(RedirectView):
         return super().get_redirect_url(*args, **kwargs)
 
 
-class LineItemUpdateView(RedirectView):
+class LineItemUpdateView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
     """Update a line item quantity in cart"""
     
+    login_url = "/login/"
     http_method_names = ["post"]
     pattern_name = 'ventashop:cart'
 
@@ -361,9 +376,10 @@ class LineItemUpdateView(RedirectView):
         return super().get_redirect_url(*args, **kwargs)
     
 
-class LineItemRemoveFromCartView(RedirectView):
+class LineItemRemoveFromCartView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
     """Remove a line item (aka a product) from cart"""
     
+    login_url = "/login/"
     http_method_names = ["post"]
     pattern_name = 'ventashop:cart'
 
@@ -380,8 +396,10 @@ class LineItemRemoveFromCartView(RedirectView):
         return super().get_redirect_url(*args, kwargs["cart_id"])
 
 
-class CartEmptyView(RedirectView):
+class CartEmptyView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
     """Remove all line items (aka products) from cart"""
+    
+    login_url = "/login/"
     http_method_names = ["post"]
     pattern_name = 'ventashop:products-all'
 
@@ -400,9 +418,10 @@ class CartEmptyView(RedirectView):
 #################
 
 
-class MakeOrderView(RedirectView):
+class MakeOrderView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
     """Make order from cart."""
 
+    login_url = "/login/"
     http_method_names = ["post"]
     pattern_name = 'ventashop:order-detail'
 
@@ -417,9 +436,10 @@ class MakeOrderView(RedirectView):
         return super().get_redirect_url(*args, **kwargs)   
 
 
-class OrderListView(ListView): 
+class OrderListView(LoginRequiredMixin, TestIsCustomerMixin, ListView): 
     """Our order list view."""
 
+    login_url = "/login/"
     model = Order
     paginate_by = 100  # if pagination is desired
     template_name = 'ventashop/orders.html'
@@ -433,9 +453,10 @@ class OrderListView(ListView):
         return Order.objects.all()
 
 
-class OrderDetailView(DetailView):
+class OrderDetailView(LoginRequiredMixin, TestIsCustomerMixin, DetailView):
     """Our order's detailed view."""
 
+    login_url = "/login/"
     model = Order
     template_name = 'ventashop/order_detail.html'
 

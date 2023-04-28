@@ -1,3 +1,6 @@
+"""Our message and conversation related views' module."""
+
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -6,10 +9,12 @@ from django.views.generic.edit import FormMixin
 
 from ventashop.forms import MessageForm
 from ventashop.models import Conversation, Message
+from ventashop.auth_utils import TestIsCustomerOrEmployeeMixin, TestIsEmployeeMixin
 
-class MessageListView(ListView, FormMixin):
+class MessageListView(LoginRequiredMixin, TestIsCustomerOrEmployeeMixin, FormMixin, ListView):
     """Our message list view (e.g. display a conversation)."""
 
+    login_url = "/login/"
     model = Message
     # paginate_by = 5  # if pagination is desired
     template_name = 'ventashop/messages.html'
@@ -70,9 +75,10 @@ class MessageListView(ListView, FormMixin):
         return context
 
 
-class ConversationListView(ListView):
+class ConversationListView(LoginRequiredMixin, TestIsEmployeeMixin, ListView):
     """Our conversation list view."""
 
+    login_url = "/login/"
     model = Conversation
     # paginate_by = 5  # if pagination is desired
     template_name = 'ventashop/conversations.html'

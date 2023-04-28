@@ -1,11 +1,10 @@
 """Our forms' test file."""
 
-from django.contrib.auth.hashers import make_password
 from django.core import mail
 from django.test import TestCase
 
 from ventashop.forms import ContactForm, UserForm
-from ventashop.models import User, CustomerAccount, Cart
+from ventashop.models import CustomerAccount, Cart
 
 
 class ContactFormTestCase(TestCase):
@@ -53,7 +52,11 @@ class UserFormTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls) -> None:
-        """Arrange."""
+        """
+        Arrange.
+        Here we don'use our utils_test functions, 
+        we "verbosily" use our UserForm class since it is being tested. 
+        """
 
         cls.user_form = UserForm()
         cls.user_form.cleaned_data = {

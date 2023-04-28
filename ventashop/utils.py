@@ -1,10 +1,9 @@
-"""A utility module for ventashop app"""
+"""A utility module for ventashop app."""
 
 import string, random, re
 from decimal import Decimal
 
 from django import forms
-
 
 VAT_FRANCE = 0.2
 
