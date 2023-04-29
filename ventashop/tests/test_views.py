@@ -405,7 +405,7 @@ class CartEditingViewsTestCase(TestCase):
 
         # Assert.
         self.assertRedirects(response=response, 
-                            expected_url=reverse("ventashop:products-all"))
+                            expected_url=reverse("ventashop:cart"))
         self.assertEqual(Cart.objects.get(pk=self.cart.pk).total_price, cart_tp_init)
 
 

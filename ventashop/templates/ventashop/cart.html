@@ -5,50 +5,73 @@
 {% block title %}Panier{% endblock title %}
 
 {% block content %}
-    <h2>Cart</h2>
-    <ul>
-        <!--  -->
-        {% if  line_item_list|length == 0 %}
-            <p>VOTRE PANIER EST VIDE</p>
-        {% else %}
-            
-        {% endif %}
 
-        <!--  -->
-        {% for line_item in line_item_list %}
-            <li>
-                {{ line_item.product }} | 
-                
-                Qty : {{ line_item.quantity }} | 
-                <!-- Edit product quantity -->
-                <form action="{% url 'ventashop:line-item-update' cart.pk line_item.pk %}" method="post">
-                    {% csrf_token %}
-                    <label for="id_quantity">Qty:</label>
-                    <input type="number" name="quantity" step="1" required="" id="id_quantity">
-                    <input type="submit" value="Actualiser">
-                </form>
+{% load myfilters %}
 
-                Price : {{ line_item.price }}
-            </li>
-            <form action="{% url 'ventashop:line-item-remove' line_item.pk %}" method="post">
-                {% csrf_token %}
-                <input type="submit" value="Retirer">
-            </form>
-        {% endfor %}
-    </ul>
-    
-    {% if  line_item_list|length > 0 %}
-        <!-- Empty cart "button" -->
-        <form action="{% url 'ventashop:cart-empty' cart.pk %}" method="post">
-            {% csrf_token %}
-            <input type="submit" value="Vider le panier">
-        </form>
+    <div class="container-sm min-vh-100 mt-4">
         
-        <!-- Make order "button" -->
-        <form action="{% url 'ventashop:make-order' cart.pk %}" method="post">
-            {% csrf_token %}
-            <input type="submit" value="Commander">
-        </form>
-    {% endif %}
+        <h1 class="fs-1 my-3">Pannier</h1>
 
+            <!-- Cart item list -->
+            <div class="list-group-flush my-3">
+                {% for line_item in line_item_list %}
+                    <div class="list-group-item list-group-item-action">
+                        <div class="row my-3">
+                            <div class="col-sm-3 fs-3 pr-3">{{ line_item.product }}</div>
+                            
+                            <!-- Edit product quantity -->
+                            <form class="col-sm-6" action="{% url 'ventashop:line-item-update' cart.pk line_item.pk %}" method="post">
+                                {% csrf_token %}
+                                <label for="id_quantity">Quantité :</label>
+                                <input type="number" name="quantity" step="1" required="" id="id_quantity" value="{{ line_item.quantity }}">
+                                <button type="submit" class="btn btn-light m-2">Actualiser</button>
+                            </form>
+
+                            <!-- Price -->
+                            <div class="col-sm-2 pl-3"> Prix : 
+                                <span class="fs-5 fw-bold">{{ line_item.price }} € HT</span>
+                            </div>
+
+                            <!-- Retrieve item -->
+                            <form class="col-sm-1" action="{% url 'ventashop:line-item-remove' line_item.pk %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-light">Retirer</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                {% empty %}
+                    <p>VOTRE PANIER EST VIDE</p>
+                {% endfor %}
+
+                <!-- Total cart price -->
+                {% if cart.total_price > 0 %}
+                    <div class="list-group-item list-group-item-action d-sm-flex justify-content-between align-items-center list-group-item-success">
+                        <div class="fs-3 pr-3">Total du pannier</div>
+                        <div class="pl-3">
+                            <span class="fs-5 fw-bold">{{ cart.total_price }} € HT</span>
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+            
+        <!-- Make order / empty cart -->
+        {% if  line_item_list|length > 0 %}
+        <div class="my-3 d-sm-flex justify-content-between align-items-top">
+
+            <!-- Make order button -->
+            <form action="{% url 'ventashop:make-order' cart.pk %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-lg btn-success my-1">Commander</button>
+            </form>
+            
+            <!-- Empty cart button -->
+            <form action="{% url 'ventashop:cart-empty' cart.pk %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-light my-1">Vider le panier</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
 {% endblock %}

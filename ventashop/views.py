@@ -8,6 +8,7 @@ from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView
 from django.views.generic import TemplateView, ListView, DetailView, RedirectView, FormView, View
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
+from django.db import IntegrityError
 
 from ventashop.models import Category, Product, Cart, LineItem, Order, User
 from ventashop.forms import ContactForm, LoginForm, UserForm, EmployeePwdUpdateForm
@@ -230,6 +231,20 @@ class ProductCreateView(LoginRequiredMixin, TestIsEmployeeMixin, CreateView):
     fields = ["name", "image", "description", "price", "category"]
     success_url = "/products/"
 
+    def form_valid(self, form):
+        try:
+            response =  super().form_valid(form)
+        except IntegrityError as err:
+            return render(
+                self.request,
+                "ventashop/product_form.html",
+                {
+                    "error_message": "Le Libellé est trop similaire à un produit existant, veuillez le changer svp.",
+                    "form": form
+                },
+            )
+        return response
+
 
 class ProductView(TemplateView):
     """Our product view."""
@@ -269,11 +284,18 @@ class ProductListView(ListView):
     
     def get_context_data(self, **kwargs):
         """
-        We also need the list of categories to build our filter.
+        We want the actual category if specified,
+        and the list of all categories to build our filter.
         """
 
         context = super().get_context_data(**kwargs)
+        
+        if "slug" in self.kwargs:
+            actual_category = Category.objects.filter(slug=self.kwargs["slug"])
+            context["actual_category"] = actual_category[0]
+
         context["category_list"] = Category.objects.all().order_by("name")
+        
         return context
 
 
@@ -291,6 +313,20 @@ class CategoryCreateView(LoginRequiredMixin, TestIsEmployeeMixin, CreateView):
     model = Category
     fields = ["name"]
     success_url = "/products/"
+
+    def form_valid(self, form):
+        try:
+            response =  super().form_valid(form)
+        except IntegrityError as err:
+            return render(
+                self.request,
+                "ventashop/category_form.html",
+                {
+                    "error_message": "Le nom est trop similaire à une catégorie existante, veuillez le modifier svp.",
+                    "form": form
+                },
+            )
+        return response
 
 
 ######### ??? NOT USED ??? #############
@@ -320,7 +356,7 @@ class CartView(LoginRequiredMixin, TestIsCustomerMixin, TemplateView):
         cart = get_object_or_404(Cart, customer_account=self.request.user.customeraccount)
 
         context["cart"] = cart
-        context["line_item_list"] = cart.lineitem_set.all()
+        context["line_item_list"] = cart.lineitem_set.all().order_by("product")
         return context
 
 
@@ -401,7 +437,7 @@ class CartEmptyView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
     
     login_url = "/login/"
     http_method_names = ["post"]
-    pattern_name = 'ventashop:products-all'
+    pattern_name = 'ventashop:cart'
 
     def get_redirect_url(self, *args, **kwargs):
         """Empty cart"""

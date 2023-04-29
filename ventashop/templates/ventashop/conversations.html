@@ -6,22 +6,27 @@
 
 {% block content %}
 
-<h2>Conversations</h2>
+{% load myfilters %}
 
-<ul>
-    {% for conversation in conversation_list %}
-        <li>
-            <a href="{% url 'ventashop:messages-last' conversation.pk 5 %}">
-                {{ conversation.subject }}
-            </a>
-            <p> du client... ...tant de message(s) non lu(s)</p>
-        </li>
-    {% empty %}
-        <p>Il n'existe pas encore de conversation.</p>
-    {% endfor %}
-</ul>
+<div class="container-sm my-3 min-vh-100">
+
+    <h1 class="fs-2 my-3">Conversations</h1>
+
+    <div class="list-group my-3">
+        {% for conversation in conversation_list %}
+                <a 
+                    href="{% url 'ventashop:messages-last' conversation.pk 5 %}"
+                    class="list-group-item list-group-item-action link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                >
+                    <p class="fs-5">"{{ conversation.subject }}"</p>
+                    <p> du client... ...tant de message(s) non lu(s)</p>
+                </a>
+        {% empty %}
+            <p>Il n'existe pas encore de conversation.</p>
+        {% endfor %}
+    </div>
 
 
-
+</div>
 
 {% endblock %}

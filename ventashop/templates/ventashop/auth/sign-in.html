@@ -6,10 +6,24 @@
 
 {% block content %}
 
+{% load myfilters %}
+
+<div class="container-sm min-vh-100">
+    <div class="fs-3 mb-3">
+        Créer un compte
+    </div>
+
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" >Submit</button>
+        {% for field in form %}
+            <div class="mb-3">
+                {{ field.label_tag }} {{ field|addclass:'form-control' }}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Valider</button>
     </form>
+
+</div>
 
 {% endblock content %}

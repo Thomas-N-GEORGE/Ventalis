@@ -6,17 +6,26 @@
 
 {% block content %}
 
-    <p>Employé :
+{% load myfilters %}
+
+<div class="container-sm min-vh-100">
+
+    <div class="fs-3 mb-3">
+        Employé :
         {{ employee.first_name|title }} {{ employee.last_name|upper }}
-    </p>
-    <form method="post">{% csrf_token %}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
         {% for field in form %}
-                <p class="">
-                    {{ field.label_tag }} {{ field }}
-                    {{ field.errors }}
-                </p>
+            <div class="mb-3">
+                {{ field.label_tag }} {{ field|addclass:'form-control' }}
+                {{ field.errors }}
+            </div>
         {% endfor %}
-        <input type="submit" value="Update">
+        <button type="submit" class="btn btn-primary">Valider</button>
     </form>
+
+</div>
 
 {% endblock content %}

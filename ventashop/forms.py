@@ -29,7 +29,7 @@ from ventashop.utils import (
 class MessageForm(forms.Form):
     """Our new message form."""
 
-    content = forms.CharField(label="Nouveau message")
+    content = forms.CharField(label="Nouveau message", widget=forms.Textarea)
 
 
 class ContactForm(forms.Form):

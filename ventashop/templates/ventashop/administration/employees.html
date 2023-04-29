@@ -6,22 +6,39 @@
 
 {% block content %}
 
-    <h2>Employé(e)s</h2>
-    <div>
-        <a href="{% url 'ventashop:employee_create' %}">Créer un(e) employé(e)</a>
+{% load myfilters %}
+
+<div class="container-sm my-3 min-vh-100">
+
+    <h1 class="fs-2 my-3">Employé(e)s</h1>
+
+    
+    <div class="list-group my-3">
+        {% for employee in employee_list %}
+            <a 
+                href="{% url 'ventashop:employee_update' employee.pk %}"
+                class="list-group-item list-group-item-action link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+            >
+                <div class="row">
+                    <div class="col">{{ employee.first_name|title }} {{ employee.last_name|upper }}</div>
+                    <div class="col">
+                        mat. {{ employee.reg_number }}
+                    </div>
+                    <div class="col text-end">
+                        Date d'entrée : {{ employee.date_joined|date:"D d M Y" }}
+                    </div>
+                </div> 
+            </a> 
+        {% empty %}
+            <a class="list-group-item list-group-item-action disabled">Pas encore d'employé(e).</a>
+        {% endfor %}
     </div>
+    
     <div>
-        <ul>
-            {% for employee in employee_list %}
-                <li>
-                    <a href="{% url 'ventashop:employee_update' employee.pk %}">
-                        {{ employee.first_name|title }} {{ employee.last_name|upper }} mat. {{ employee.reg_number }} 
-                    </a> 
-                </li>
-            {% empty %}
-                <li>Pas encore d'employé(e).</li>
-            {% endfor %}
-        </ul>
+        <form action="{% url 'ventashop:employee_create' %}" method="get">
+            <button type="submit" class="btn btn-primary">Ajouter un(e) employé(e)</button>
+        </form>
     </div>
+</div>
 
 {% endblock content %}

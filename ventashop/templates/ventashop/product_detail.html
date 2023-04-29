@@ -2,31 +2,88 @@
 
 {% extends 'ventashop/base.html' %}
 
-{% block title %}Panier{% endblock title %}
+{% block title %}Fiche produit{% endblock title %}
 
 {% block content %}
 
-    <p>Libellé : {{ product.name }}</p>
+{% load static %}
+{% load myfilters %}
 
-    {% if product.image %}
-        <img src="{{ product.image.url }}" alt="{{ product.name }}">
-    {% else %}
-    <!-- ADD DEFAULT 'STATIC' IMG URL HERE -->
-    <img src="" alt="">
-    {% endif %}
+<main class="">
+<div class="container min-vh-100 pt-5">
+    <!-- <div class="row gy-5"> -->
+        <div class="row">
+            <div class="col fs-1 my-3">{{ product.name }}</div>
+        </div>
+        
+        <div class="row py-3 gx-5 bg-body-tertiary">
+            <div class="col-sm-8 d-flex flex-column justify-content-center">
+                        <!-- Image -->
+                        {% if product.image %}
+                        <img 
+                            src="{{ product.image.url }}" 
+                            class="img-fluid object-fit-fill border rounded"
+                            width="auto"
+                            height="350"
+                        
+                            alt="{{ product.name }}"
+                            >
+                        {% else %}
+                        <!-- DEFAULT 'STATIC' IMG URL HERE -->
+                        <img 
+                            src="{% static 'ventashop/img/no-image.png' %}" 
+                            class="img-fluid object-fit-fill border rounded" 
+                            width="600"
+                            height="auto"
+                            alt="Pas d'image"
+                            >
+                        <p>Pas d'image pour ce produit.</p>
+                        {% endif %}
+            </div>
+            <div class="col-sm-4 d-flex flex-column justify-content-center">
+                <div class="pb-3">
+                    <div class="fs-1 fw-bold v-font-700">{{ product.price }} <span class="fs-3 fw-bold">€</span></div>
+                    <p>HT à l'unité</p>
+                </div>
+                <div class="pb-3">
+                    <p>(Commande de 1000 unités minimum)</p>
+                </div>
+                <div class="my-3">
+                    <!-- add to cart "button" -->
+                    <form action="{% url 'ventashop:product-add-to-cart' product.id %}" method="post">
+                        {% csrf_token %}
+                        <button 
+                            type="submit" 
+                            class="btn btn-primary btn-lg"
+                            {% if user.is_authenticated is not True or user.role != 'CUSTOMER' %}
+                                disabled
+                            {% endif %}
+                            >
+                            Ajouter au panier
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row py-3 gx-5">
+            <!-- Details -->
+            <div class="col-sm-8 fs-4">
+                <p>Description :</p> 
+                <p>{{ product.description }}</p>
+            </div>
+            <div class="col-sm-4">
 
-    <p>Ajouté le : {{ product.date_created|date:"D d M Y" }}</p>
-    <p>Description : {{ product.description }} </p>
-    <p>Prix HT à l'unité : {{ product.price }}</p>
-    <p>(Commande de 1000 unités minimum)</p>
-    <!-- add to cart "button" -->
-    <form action="{% url 'ventashop:product-add-to-cart' product.id %}" method="post">
-        {% csrf_token %}
-        <input type="submit" value="Ajouter au panier">
-    </form>
-    <p>Catégorie du produit : {{ product.category }}</p>
-
-    <!-- include category to go back to same category filtered products page we came from -->
-    <a href="{% url 'ventashop:products' product.category.slug %}">Retour à la liste de produits</a> 
-
+                <p>Catégorie <span class="fw-bold">{{ product.category }}</span></p>
+                <p>Ajouté le : {{ product.date_created|date:"D d M Y" }}</p>
+                
+                <!-- return to same category filtered products page we came from -->
+                <a 
+                    class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                    href="{% url 'ventashop:products' product.category.slug %}">Retour à la liste de produits
+                </a> 
+            </div>
+        </div>
+    <!-- </div> -->
+</div>
+</main>
 {% endblock %}

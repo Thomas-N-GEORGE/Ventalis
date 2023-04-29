@@ -6,25 +6,32 @@
 
 {% block content %}
 
-    <h2>Créer un employé Ventalis</h2>
+{% load myfilters %}
+
+<div class="container-sm min-vh-100">
+
+    <div class="fs-3 mb-3">Créer un employé Ventalis</div>
 
     <form method="post">
         {% csrf_token %}
         {% for field in form %}
             {% if field.name != "company" %}
-                <p class="">
-                    {{ field.label_tag }} {{ field }}
+                <div class="mb-3">
+                    {{ field.label_tag }} {{ field|addclass:'form-control' }}
                     {{ field.errors }}
-                </p>
+                </div>
             {% endif %}
         {% endfor %}
-        <button type="submit" >Submit</button>
+        <button type="submit" class="btn btn-primary">Créer</button>
     </form>
 
-    <div>
-        <a href="{% url 'ventashop:employees' %}">Voir tous les employés</a>
+    <div class="my-3">
+        <a
+            class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+            href="{% url 'ventashop:employees' %}">Voir tous les employés
+        </a>
     </div>
     
-
+</div>
 
 {% endblock content %}

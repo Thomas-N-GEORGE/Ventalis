@@ -6,22 +6,37 @@
 
 {% block content %}
 
-<div>Mon conseiller : {{ related_employee.first_name }}</div>
-<div><a href="{% url 'ventashop:messages' %}">Contacer mon conseiller</a></div>
+{% load myfilters %}
 
-<div>Mes commandes</div>
-<div>
-    <ul>
+<div class="container-sm my-3 min-vh-100">
+
+    <div class="my-3 d-sm-flex justify-content-between align-items-center">
+        <div class="fs-5 pr-3">Mon conseiller : {{ related_employee.first_name }}</div>
+        <form action="{% url 'ventashop:messages' %}" method="get">
+            <button type="submit" class="btn btn-info">Contacter mon conseiller</button>
+        </form>
+    </div>
+
+    <h1 class="fs-2 my-3">Mes commandes</h1>
+    <!-- Cart item list -->
+    <div class="list-group my-3">
+        
         {% for order in order_list %}
-            <li>
-                <a href="{% url 'ventashop:order-detail' order.slug %}">
-                    Ref. {{ order.ref_number }} | Montant HT: {{ order.total_price }} | Datée du {{ order.date_created|date:"D d M Y" }}
-                </a> 
-            </li>
+            <a 
+                class="list-group-item list-group-item-action"
+                href="{% url 'ventashop:order-detail' order.slug %}"
+                >
+                <div class="row">
+                    <div class="col">Ref. {{ order.ref_number }}</div>
+                    <div class="col">Montant HT: {{ order.total_price }}</div>
+                    <div class="col">Statut : {{ order.status }}</div>
+                    <div class="col">Datée du {{ order.date_created|date:"D d M Y" }}</div>
+                </div>
+            </a>
         {% empty %}
-            <li>Pas de commande.</li>
+            Pas de commande.
         {% endfor %}
-    </ul>
+            
+    </div>
 </div>
-
 {% endblock content %}

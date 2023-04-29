@@ -59,16 +59,22 @@
     border: 2px solid black;
 }
 
-.v-main {
+.v-main-full {
     padding-top: 100px;
     height: 1800px;
+    /* max-width: 1140px; */
 }
 
 .v-main-bgd-img {
-    background-image: url('../img/birds@2x.png');
+    /* background-image: url('../img/birds@2x.png'); */
+    background-image: url('../img/birds@2x_lower.png');
     background-size: 2650px auto;
     background-repeat: no-repeat;
 }
+
+/* .v-main {
+    max-width: 1140px;
+} */
 
 .v-white-text {
     color: white;

@@ -6,21 +6,38 @@
 
 {% block content %}
 
+{% load myfilters %}
+
+<div class="container-sm my-3 min-vh-100">
+
+    <h1 class="fs-2 my-3">Intranet</h1>
 
     <!-- To conversations. -->
-    <div>
-        <a href="{% url 'ventashop:conversations' %}">Voir mes conversations.</a>
+    <div class="my-3">
+        <form action="{% url 'ventashop:conversations' %}" method="get">
+            <button type="submit" class="btn btn-lg btn-info">Conversations et messages</button>
+        </form>
     </div>
+    
     <!-- To related customers. -->
-    <div>
-        <a href="{% url 'ventashop:customers' %}">Visionner les clients qui me sont attribués.</a>
+    <div class="my-3">
+        <form action="{% url 'ventashop:customers' %}" method="get">
+            <button type="submit" class="btn btn-lg btn-info">Mes clients</button>
+        </form>
     </div>
-
+    
     <!-- To categories and products. -->
-    <div>
-        <a href="{% url 'ventashop:product-create' %}">Créer un produit</a> 
-    <div></div>
-        <a href="{% url 'ventashop:category-create' %}">Créer une catégorie</a>
+    <div class="my-3">
+        <form action="{% url 'ventashop:product-create' %}" method="get">
+            <button type="submit" class="btn btn-lg btn-primary">Ajouter un produit</button>
+        </form>
     </div>
 
+    <div class="my-3">
+        <form action="{% url 'ventashop:category-create' %}" method="get">
+            <button type="submit" class="btn btn-lg btn-primary">Ajouter une catégorie</button>
+        </form>
+    </div>
+    
+</div>
 {% endblock %}

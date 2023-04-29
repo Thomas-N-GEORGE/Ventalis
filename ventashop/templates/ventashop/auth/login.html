@@ -6,13 +6,60 @@
 
 {% block content %}
 
+{% load myfilters %}
+
+<div class="container-sm min-vh-100">
+
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" >Submit</button>
-    </form>
 
-    <a href="{% url 'ventashop:password_reset' %}">Mot de passe oublié ?</a>
-    <a href="{% url 'ventashop:sign-in' %}">Créer un compte</a>
+        {% for field in form %}
+            <div class="mb-3">
+                {{ field.label_tag }} {{ field|addclass:'form-control' }}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Connexion</button>
+    </form>
+    <div class="my-3">
+        <a 
+            class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+            href="{% url 'ventashop:password_reset' %}">Mot de passe oublié ?
+        </a>
+    </div>
+    <div class="my-3">
+        <a 
+            class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+            href="{% url 'ventashop:sign-in' %}">Créer un compte
+        </a>
+    </div>
+
+</div>
 
 {% endblock content %}
+
+<!-- FOR DEV ! -->
+<!-- Django :  -->
+<div class="">
+    <label for="id_username">Email address:</label> 
+    <input type="text" name="username" autofocus="" autocapitalize="none" autocomplete="username" maxlength="254" required="" id="id_username">
+</div>
+
+
+<!-- Bootstrap example -->
+<form>  
+  <div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label">Email address</label>
+    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+  </div>
+  <div class="mb-3">
+    <label for="exampleInputPassword1" class="form-label">Password</label>
+    <input type="password" class="form-control" id="exampleInputPassword1">
+  </div>
+  <div class="mb-3 form-check">
+    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+    <label class="form-check-label" for="exampleCheck1">Check me out</label>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>

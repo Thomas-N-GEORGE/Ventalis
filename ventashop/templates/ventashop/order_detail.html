@@ -6,43 +6,44 @@
 
 {% block content %}
 
-    <h2>Commande n° : {{ order.ref_number }}</h2>
+{% load myfilters %}
 
-    <p>Créée le : {{ order.date_created|date:"D d M Y" }}</p>
+<div class="container-sm mt-3 min-vh-100">
 
-    <p>Statut : {{ status }} </p>
+    <h1 class="fs-2 my-3">Commande n° : {{ order.ref_number }}</h1>
 
-    <!-- line items -->
-    <h3>ÉLÉMENTS</h3>
-    <ul>
-        {% for line_item in line_item_list %}
-        <li>
-            {{ line_item.product }} | 
-            
-            Qty : {{ line_item.quantity }} | 
-            
-            Prix HT : {{ line_item.price }}
-        </li>
-        {% endfor %}
-    </ul>
-
-    <!-- total price -->
-    <p>Prix total HT : {{ order.total_price }}</p>
-    <!-- VAT prices : -->
-    <div>
-        <p>Montant de la TVA : {{ order.vat_amount }}</p>
-    </div>
-    <div>
-        <p>Montant TTC : {{ order.incl_vat_price }}</p>
+    <div class="my-3 fs-4 d-sm-flex justify-content-between align-items-center">
+        <div>Créée le : {{ order.date_created|date:"D d M Y" }}</div>
+        <div>Statut : {{ status }}</div>
     </div>
 
-    <p>Commentaires du vendeur : 
-        {% if comment %}
+    {% if comment %}
+        <p class="text-end">Commentaires du vendeur : 
             {{ comment.content }}
-        {% endif %}
-    </p>
+        </p>
+    {% endif %}
 
-    <!-- Back to order list page -->
-    <a href="{% url 'ventashop:my_space' %}">Mon espace</a> 
+    <!-- line items. -->
+    <div class="list-group my-3">
+        {% for line_item in line_item_list %}
+            <div class="list-group-item">
+                <div class="row">
+                    <div class="col">{{ line_item.product }}</div> 
+                    <div class="col">Quantité : {{ line_item.quantity }}</div>
+                    <div class="col text-end">Prix : {{ line_item.price }} € HT</div>
+                </div>
+            </div>            
+        {% endfor %}
+    </div>
 
+    <!-- Total price. -->
+    <p class="fs-4 text-end">Prix total HT : {{ order.total_price }} €</p>
+    <!-- VAT prices : -->
+    <p class="fs-4 text-end">TVA : {{ order.vat_amount }} €</p>
+    <div class="fs-3 text-end">
+        Montant TTC : 
+        <span class="fw-bold">{{ order.incl_vat_price }} €</span>
+    </div>
+
+</div>
 {% endblock %}
