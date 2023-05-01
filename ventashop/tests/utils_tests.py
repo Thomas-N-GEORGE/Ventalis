@@ -10,7 +10,10 @@ from ventashop.forms import UserForm
 ########################
 
 def create_administrator():
-    """Create an administrator User, without "going through app logic"."""
+    """
+    Create an administrator User, without "going through app logic",
+    e.g. from Django admin IF.
+    """
     
     administrator = User.objects.create(
         email = "administrator@ventalis.com",

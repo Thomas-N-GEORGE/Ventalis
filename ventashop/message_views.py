@@ -31,14 +31,16 @@ class MessageListView(LoginRequiredMixin, TestIsCustomerOrEmployeeMixin, FormMix
         if "n_last" in self.kwargs:   
             n_last = int(self.kwargs["n_last"])
             if user.role == "CUSTOMER":
-                m_set = list(Message.objects.filter(conversation__customer_account=user.customeraccount))[-n_last:]
+                # m_set = list(Message.objects.filter(conversation__customer_account=user.customeraccount))[-n_last:]
+                m_set = list(Message.objects.filter(conversation__id=self.kwargs["pk"]))[-n_last:]
             else:
                 m_set = list(Message.objects.filter(conversation__id=self.kwargs["pk"]))[-n_last:]
         
         # all messages to be displayed.
         else:                       
             if user.role == "CUSTOMER":
-                m_set = Message.objects.filter(conversation__customer_account=user.customeraccount)
+                # m_set = Message.objects.filter(conversation__customer_account=user.customeraccount)
+                m_set = Message.objects.filter(conversation__id=self.kwargs["pk"])
             else:
                 m_set = Message.objects.filter(conversation__id=self.kwargs["pk"])
 
@@ -51,7 +53,7 @@ class MessageListView(LoginRequiredMixin, TestIsCustomerOrEmployeeMixin, FormMix
         conversation = get_object_or_404(Conversation, pk=self.kwargs["pk"])
         
         if form.is_valid():
-            author = self.request.user.first_name
+            author = self.request.user
             content = form.cleaned_data["content"]
             conversation.add_message(author=author, content=content)
 
@@ -66,7 +68,8 @@ class MessageListView(LoginRequiredMixin, TestIsCustomerOrEmployeeMixin, FormMix
         # Get conversation to be displayed
         # context["conversation"] = get_object_or_404(Conversation, pk=self.kwargs["pk"])
         if user.role == "CUSTOMER":
-            context["conversation"] = get_object_or_404(Conversation, customer_account=user.customeraccount)
+            # context["conversation"] = get_object_or_404(Conversation, customer_account=user.customeraccount)
+            context["conversation"] = get_object_or_404(Conversation, pk=self.kwargs["pk"])
         else:
             # context["conversation"] = get_object_or_404(Conversation, customer_account__employee_reg=user.reg_number)
             context["conversation"] = get_object_or_404(Conversation, pk=self.kwargs["pk"])
@@ -93,7 +96,19 @@ class ConversationListView(LoginRequiredMixin, TestIsEmployeeMixin, ListView):
     context_object_name = "conversation_list"
 
     def get_queryset(self):
-        conversation_list = Conversation.objects.filter(
-            customer_account__employee_reg=self.request.user.reg_number
-        ).order_by("date_created")
+        """The user's conversations, with the list of participants for each."""
+
+        user = self.request.user
+        conversations = Conversation.objects.filter(participants=user).order_by("date_modified")
+
+        conversation_list = []
+        for conversation in conversations:
+            participants = conversation.participants.all()
+            conversation_list.append(
+                {
+                    "conversation": conversation,
+                    "participants": participants,
+                }
+            )
+
         return conversation_list

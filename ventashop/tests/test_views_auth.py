@@ -16,7 +16,7 @@ class AllViewsRedirectionTestCase(TestCase):
         cls.employee1 = utils_tests.create_employee1()
         cls.customer1 = utils_tests.create_customer1()
         cls.empl1_pk = cls.employee1.pk
-        
+        cls.conv_id = Conversation.objects.filter(participants=cls.customer1).filter(participants=cls.employee1)[0].pk
         cls.c = Client()
 
     def test_customer_authorization(self):
@@ -25,14 +25,15 @@ class AllViewsRedirectionTestCase(TestCase):
         # Arrange.
         self.c.login(email='customer1@test.com', password='12345678&')
 
+
         # Act.
         response1 = self.c.get(path="/my_space/")
         response2 = self.c.get(path="/cart/")
         response3 = self.c.get(path="/orders/")
         response4 = self.c.get(path="/conversations/")
         # response5 = self.c.get(path="/messages/")
-        response6 = self.c.get(path="/1/messages/")
-        response7 = self.c.get(path="/1/messages/5")
+        response6 = self.c.get(path="/" + str(self.conv_id) + "/messages/")
+        response7 = self.c.get(path="/" + str(self.conv_id) + "/messages/5")
         response8 = self.c.get(path="/intranet/")
         response9 = self.c.get(path="/customers/")
         response10 = self.c.get(path="/product_form/")

@@ -158,10 +158,10 @@ class UserForm(forms.ModelForm):
             
             else:   
                 # Case role == CUSTOMER
-                # Create customer account, assign its employee reg number, related cart, and a related conversation.
+                # Create customer account, assign its employee reg number, related cart, and create a related conversation.
                 customer_account = CustomerAccount.objects.create(customer=user)
                 customer_account.set_cart()
-                customer_account.set_conversation(subject="Échanges avec mon conseiller")
                 customer_account.set_employee_reg_number()
+                customer_account.set_conversation(subject="Échanges avec mon conseiller", customer=user)
         
         return user

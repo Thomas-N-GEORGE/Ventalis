@@ -8,7 +8,13 @@
 
 {% load myfilters %}
 
-<div class="container-sm min-vh-100">
+<div class="container-sm my-3 min-vh-100">
+
+    <h1 class="fs-2 my-3">Se connecter</h1>
+
+    {% if form.errors %}
+        <p class="text-bg-warning p-3">Adresse électronique et/ou mot de passe incorrect(s)</p>
+    {% endif %}
 
     <form method="post">
         {% csrf_token %}
@@ -37,29 +43,3 @@
 </div>
 
 {% endblock content %}
-
-<!-- FOR DEV ! -->
-<!-- Django :  -->
-<div class="">
-    <label for="id_username">Email address:</label> 
-    <input type="text" name="username" autofocus="" autocapitalize="none" autocomplete="username" maxlength="254" required="" id="id_username">
-</div>
-
-
-<!-- Bootstrap example -->
-<form>  
-  <div class="mb-3">
-    <label for="exampleInputEmail1" class="form-label">Email address</label>
-    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-    <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-  </div>
-  <div class="mb-3">
-    <label for="exampleInputPassword1" class="form-label">Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword1">
-  </div>
-  <div class="mb-3 form-check">
-    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-    <label class="form-check-label" for="exampleCheck1">Check me out</label>
-  </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>

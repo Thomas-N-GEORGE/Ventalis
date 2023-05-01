@@ -13,7 +13,7 @@
     <h1 class="fs-2 my-3">Conversation : {{ conversation }}</h1>
 
     {% for message in message_list %}
-        {% if user.first_name != message.author %}
+        {% if user != message.author %}
             <div class="row">
                 <div class="col-8">
                     <div class="card">
@@ -37,7 +37,7 @@
                 <div class="col-8">
                     <div class="card text-end">
                         <div class="card-header">
-                            <div class="">{{ message.author }} a écrit :</div>
+                            <div class="">Vous avez écrit :</div>
                         </div>
                         <div class="card-body">
                             <p class="card-text">{{ message.content }}</p>

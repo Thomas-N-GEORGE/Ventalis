@@ -497,13 +497,15 @@ class MessageListViewTestCase(TestCase):
         cls.c = Client()
         cls.c.login(email='customer1@test.com', password='12345678&')
 
-        cls.conversation = Conversation.objects.get(customer_account=cls.customer1.customeraccount)
+        # cls.conversation = Conversation.objects.get(customer_account=cls.customer1.customeraccount)
+        cls.conversation = Conversation.objects.get(participants=cls.customer1)
         cls.conv_id = cls.conversation.pk
         
         # create 10 messages in cls.conversation
         for i in range(0, 10):
             Message.objects.create(
-                author="author" + str(i),
+                # author="author" + str(i),
+                author=cls.customer1,
                 content="content" + str(i),
                 conversation=cls.conversation,
             )
@@ -519,7 +521,7 @@ class MessageListViewTestCase(TestCase):
 
         # Arrange.
         for i in range(0, 10):
-            self.assertContains(response, "author" + str(i))
+            self.assertContains(response, self.customer1)
             self.assertContains(response, "content" + str(i))
 
     def test_display_only_n_messages(self):
@@ -534,9 +536,8 @@ class MessageListViewTestCase(TestCase):
 
         # Arrange.
         for i in range(0, 5):
-            self.assertNotContains(response, "author" + str(i))
             self.assertNotContains(response, "content" + str(i))
-            self.assertContains(response, "author" + str(i + 5))
+            self.assertContains(response, self.customer1)
             self.assertContains(response, "content" + str(i + 5))
 
     def test_new_message_form_in_view(self):
@@ -557,7 +558,7 @@ class MessageListViewTestCase(TestCase):
         # Assert.
         last_message = list(self.conversation.message_set.all())[-1]
 
-        self.assertEqual(last_message.author, "cust1_first_name")
+        self.assertEqual(last_message.author, self.customer1)
         self.assertEqual(last_message.content, "content11")
         self.assertRedirects(response=response,
                              expected_url=reverse("ventashop:messages-last", args=(self.conv_id, 5,))

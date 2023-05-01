@@ -4,11 +4,11 @@ from decimal import Decimal
 
 from django.test import TestCase
 
-from ventashop.models import (Product, LineItem, 
+from ventashop.models import (User, Product, LineItem, 
                               Cart, Order, Comment, 
                               Conversation, Message, 
                               CustomerAccount)
-
+from ventashop.tests.utils_tests import create_employee1, create_customer1
 
 class OrderTestCase(TestCase):
     """Test class for our Cart model logic."""
@@ -348,10 +348,12 @@ class ConversationTestCase(TestCase):
         # Arrange.
         conversation = Conversation.objects.create(subject="test")
         message_content = "This is a test."
-        message_author = "Hi test."
+        # message_author = "Hi test."
+        message_author = create_customer1()
 
         # Act.
         message_count = Message.objects.all().count()
+        # conversation.add_message(author=message_author, content=message_content)
         conversation.add_message(author=message_author, content=message_content)
         message = conversation.message_set.all()[0]
 
@@ -371,6 +373,12 @@ class CustomerAccountTestCase(TestCase):
         cls.cart_count = Cart.objects.all().count()
         cls.conversation_count = Conversation.objects.all().count()
         cls.ca = CustomerAccount.objects.create()
+        cls.customer = User.objects.create(
+            email = "customer1@test.com",
+            password = "12345678&",
+            first_name = "cust1_first_name",
+            last_name = "cust1_last_name",
+        )
 
     def test_set_cart(self):
         """Check if a related cart is created."""
@@ -397,7 +405,7 @@ class CustomerAccountTestCase(TestCase):
         """Check if a related conversation is created."""
 
         # Act.
-        self.ca.set_conversation("test")
+        self.ca.set_conversation("test", self.customer)
 
         # Assert.
         self.assertEqual(self.conversation_count + 1, Conversation.objects.all().count())
@@ -406,8 +414,8 @@ class CustomerAccountTestCase(TestCase):
         """Check if no second conversation is created if method is called twice."""
 
         # Act.
-        self.ca.set_conversation("test")
-        self.ca.set_conversation("test")
+        self.ca.set_conversation("test", self.customer)
+        self.ca.set_conversation("test", self.customer)
 
         # Assert.
         self.assertEqual(self.conversation_count + 1, Conversation.objects.all().count())

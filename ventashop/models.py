@@ -87,14 +87,9 @@ class CustomerAccount(models.Model):
         except ObjectDoesNotExist:
             Cart.objects.create(customer_account=self)
 
-    def set_conversation(self, subject):
-        """Assign a conversation to customer account"""
 
-        if not self.conversation_set.all().exists():
-            Conversation.objects.create(customer_account=self, subject=subject)
-
-    def set_employee_reg_number(self):
-        """Assign related employee by his reg_nubmer."""
+    def _choose_related_employee(self):
+        """Choose employee with least related customers."""
 
         employees = User.objects.filter(role="EMPLOYEE")
 
@@ -116,8 +111,33 @@ class CustomerAccount(models.Model):
                 count = customers_count
                 employee = e
 
-        self.employee_reg = employee.reg_number
-        self.save()
+        return employee
+
+    def set_employee_reg_number(self):
+        """Assign related employee reg_nubmer."""
+
+        related_employee = self._choose_related_employee()
+
+        if related_employee is not None:    # Abort if no employee exists.
+            self.employee_reg = related_employee.reg_number
+            self.save()
+
+    def set_conversation(self, subject, customer):
+        """Create a conversation with customer and related employee as participants."""
+
+        related_employee = User.objects.get(reg_number=self.employee_reg)
+        
+        # Abort if this conversation is already set.
+        if Conversation.objects.filter(participants=customer).filter(participants=related_employee).exists():
+            return
+        
+        new_conversation = Conversation.objects.create(subject=subject)
+        new_conversation.participants.add(customer)
+
+        new_conversation.participants.add(related_employee)
+
+        new_conversation.save()
+
 
 
 class Category(models.Model):
@@ -373,10 +393,10 @@ class LineItem(models.Model):
 class Conversation(models.Model):
     """This is our conversation model."""
 
+    participants = models.ManyToManyField(User)
     subject = models.CharField(max_length=300)
     date_created = models.DateTimeField(default=timezone.now)
     date_modified = models.DateTimeField(default=timezone.now)
-    customer_account = models.ForeignKey(CustomerAccount, on_delete=models.PROTECT, null=True)
 
     def __str__(self) -> str:
         return self.subject
@@ -395,7 +415,7 @@ class Message(models.Model):
     class Meta:
         ordering = ["date_created"]
 
-    author = models.CharField(max_length=200)
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
     date_created = models.DateTimeField(default=timezone.now)
     content = models.CharField(max_length=5000, null=False)
     is_read = models.BooleanField(default=False, null=False)

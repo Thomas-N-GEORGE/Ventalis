@@ -160,7 +160,8 @@ class MySpaceView(LoginRequiredMixin, TestIsCustomerMixin, ListView):
         related_employee = get_object_or_404(User, reg_number = user.customeraccount.employee_reg)
         context["related_employee"] = related_employee
 
-        context["conversation"] = get_object_or_404(Conversation, customer_account=user.customeraccount)
+        # context["conversation"] = get_object_or_404(Conversation, customer_account=user.customeraccount)
+        context["conversation"] = Conversation.objects.filter(participants=user).filter(participants=related_employee)[0]
         
         return context
 
@@ -300,14 +301,14 @@ class CategoryCreateView(LoginRequiredMixin, TestIsEmployeeMixin, CreateView):
         return response
 
 
-######### ??? NOT USED ??? #############
+##### NOT USED #####
 class CategoryListView(ListView):
     """Our category list view."""
 
     model = Category
     paginate_by = 100  # if pagination is desired
     template_name = 'ventashop/categories.html'
-######### ??? NOT USED ??? #############
+##### NOT USED #####
 
 
 ################
