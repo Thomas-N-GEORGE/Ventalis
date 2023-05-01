@@ -31,7 +31,7 @@
                         {% else %}
                         <!-- DEFAULT 'STATIC' IMG URL HERE -->
                         <img 
-                            src="{% static 'ventashop/img/no-image.png' %}" 
+                            src="{% static 'ventashop/img/no-image-small.png' %}" 
                             class="img-fluid object-fit-fill border rounded" 
                             width="600"
                             height="auto"
@@ -77,10 +77,17 @@
                 <p>Ajouté le : {{ product.date_created|date:"D d M Y" }}</p>
                 
                 <!-- return to same category filtered products page we came from -->
-                <a 
-                    class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                    href="{% url 'ventashop:products' product.category.slug %}">Retour à la liste de produits
-                </a> 
+                {% if product.category is not None %}
+                    <a 
+                        class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                        href="{% url 'ventashop:products' product.category.slug %}">Retour à la liste de produits
+                    </a> 
+                {% else %}
+                    <a 
+                        class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                        href="{% url 'ventashop:products-all' %}">Retour à la liste de produits
+                    </a> 
+                {% endif %}
             </div>
         </div>
     <!-- </div> -->

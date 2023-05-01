@@ -1,17 +1,15 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 
-
-from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView
-from django.views.generic import TemplateView, ListView, DetailView, RedirectView, FormView, View
-from django.views.generic.edit import CreateView, UpdateView
+from django.contrib.auth.views import PasswordResetView
+from django.views.generic import TemplateView, ListView, DetailView, RedirectView, FormView
+from django.views.generic.edit import CreateView
 from django.urls import reverse
 from django.db import IntegrityError
 
-from ventashop.models import Category, Product, Cart, LineItem, Order, User
-from ventashop.forms import ContactForm, LoginForm, UserForm, EmployeePwdUpdateForm
+from ventashop.models import Category, Product, Cart, LineItem, Order, User, Conversation
+from ventashop.forms import ContactForm, UserForm, EmployeePwdUpdateForm
 from ventashop.auth_utils import TestIsCustomerMixin, TestIsEmployeeMixin, TestIsAdministratorMixin
 
 
@@ -36,35 +34,6 @@ class ContactFormView(FormView):
         form.send_email()
         return super().form_valid(form)
 
-######### NOT USED #############
-class LoginPageView(View):
-    """Our login page form view."""
-
-    # template_name = "ventashop/login.html"
-    # authentication_form = LoginForm
-    # success_url = "ventashop:home"
-
-    template_name = 'ventashop/login.html'
-    form_class = LoginForm
-    
-    def get(self, request):
-        form = self.form_class()
-        message = ''
-        return render(request, self.template_name, context={'form': form, 'message': message})
-        
-    def post(self, request):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            user = authenticate(
-                email=form.cleaned_data['email'],
-                password=form.cleaned_data['password'],
-            )
-            if user is not None:
-                login(request, user)
-                return redirect(reverse("ventashop:home"))
-        message = 'Login failed!'
-        return render(request, self.template_name, context={'form': form, 'message': message})
-######### NOT USED #############
 
 #########################
 ##### USER SPECIFIC #####
@@ -113,7 +82,7 @@ class EmployeeCreateFormView(LoginRequiredMixin, TestIsAdministratorMixin, FormV
     login_url = "/login/"
     form_class=UserForm
     template_name="ventashop/administration/employee_form.html"
-    success_url = "/"
+    success_url = "/administration/employees"
 
     def form_valid(self, form):
         """Process to create a new "employee"."""
@@ -183,13 +152,15 @@ class MySpaceView(LoginRequiredMixin, TestIsCustomerMixin, ListView):
         return Order.objects.filter(customer_account=self.request.user.customeraccount)
     
     def get_context_data(self, **kwargs):
-        """Objects to be displayed"""
+        """Get related employee and conversation"""
 
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
         related_employee = get_object_or_404(User, reg_number = user.customeraccount.employee_reg)
         context["related_employee"] = related_employee
+
+        context["conversation"] = get_object_or_404(Conversation, customer_account=user.customeraccount)
         
         return context
 
@@ -452,7 +423,6 @@ class CartEmptyView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
 #################
 ##### ORDER #####
 #################
-
 
 class MakeOrderView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
     """Make order from cart."""

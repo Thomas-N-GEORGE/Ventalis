@@ -542,7 +542,7 @@ class MessageListViewTestCase(TestCase):
     def test_new_message_form_in_view(self):
         """
         Check if new message is created with form, 
-        and redirection to url "ventashop:messages".
+        and redirection to url "ventashop:messages-last".
         """
 
         # Act.

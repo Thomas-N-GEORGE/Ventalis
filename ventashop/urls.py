@@ -1,7 +1,15 @@
 
-from django.contrib.auth.views import LoginView, LogoutView, PasswordResetConfirmView, PasswordResetCompleteView, PasswordResetView, PasswordResetDoneView, PasswordChangeView, PasswordChangeDoneView
-from django.urls import path, include, reverse
+from django.contrib.auth.views import (
+                                        LoginView, 
+                                        LogoutView, 
+                                        PasswordResetConfirmView, 
+                                        PasswordResetCompleteView, 
+                                        PasswordResetDoneView, 
+                                        PasswordChangeDoneView,
+                                        )
+from django.urls import path
 
+from ventashop.message_views import MessageListView, ConversationListView
 from ventashop.views import (
                             AboutView, 
                             ContactFormView,
@@ -29,102 +37,81 @@ from ventashop.views import (
                             CustomerListView,
                             )
 
-from ventashop.message_views import MessageListView, ConversationListView
-
-
 app_name = "ventashop"
 
 urlpatterns = [
-    # /
-    path("", HomeView.as_view(), name="home"),
-
-    # /about
-    path("about/", AboutView.as_view(), name="about"),
     
-    # /contact
+    ###################################
+    ##### "STATIC" VIEWS W/O AUTH #####
+    ###################################
+
+    path("", HomeView.as_view(), name="home"),
+    path("about/", AboutView.as_view(), name="about"),
     path("contact/", ContactFormView.as_view(), name="contact"),
     
     ###################################
     ##### PRODUCTS AND CATEGORIES #####
     ###################################
     
-    # /products/    (all products)
     path("products/", ProductListView.as_view(), name="products-all"),
-
-    # /category/products/   (products filtered by category)
-    path("<slug:slug>/products/", ProductListView.as_view(), name="products"),
-
-    # /5/product_detail
+    path("<slug:slug>/products/", ProductListView.as_view(), name="products"),  # products filtered by category
     path("<slug:slug>/product_detail/", ProductDetailView.as_view(), name="product-detail"),
-
-    # /product_form
     path("product_form/", ProductCreateView.as_view() , name='product-create'),
-
-######### ??? NOT USED ??? #############
-    # /categories
-    path("categories/", CategoryListView.as_view(), name='categories'),
-######### ??? NOT USED ??? #############
-
-    # /category_form
     path("category_form/", CategoryCreateView.as_view() , name='category-create'),
+
+    ##### Not used for now #####
+    path("categories/", CategoryListView.as_view(), name='categories'),
 
     ################
     ##### CART #####
     ################
     
-    # /5/cart/
     path("<int:pk>/cart/", CartView.as_view(), name="cart"),
-    # /cart/
     path("cart/", CartView.as_view(), name="cart"),
-
-    # Redirect CartEmptyView
-    path("<int:pk>/cart_empty/", CartEmptyView.as_view(), name="cart-empty"),
-
-    # Redirect ProductAddToCartView
-    # path("product_add/<int:cart_id>/<int:product_id>/", ProductAddToCartView.as_view(), name="product-add-to-cart"),
-    # Redirect ProductAddToCartView
-    path("product_add/<int:product_id>/", ProductAddToCartView.as_view(), name="product-add-to-cart"),
     
-    # Redirect LineItemUpdateCartView
+    ##### Redirect after cart update #####
+    path("product_add/<int:product_id>/", ProductAddToCartView.as_view(), name="product-add-to-cart"),
     path("line_item_update/<int:cart_id>/<int:line_item_id>/", LineItemUpdateView.as_view(), name="line-item-update"),
-
-    # Redirect LineItemRemoveFromCartView
     path("line_item_remove/<int:line_item_id>/", LineItemRemoveFromCartView.as_view(), name="line-item-remove"),
-
-    # Redirect MakeOrderView
+    path("<int:pk>/cart_empty/", CartEmptyView.as_view(), name="cart-empty"),
     path("<int:pk>/make_order/", MakeOrderView.as_view(), name="make-order"),
     
     ##################
     ##### ODRERS #####
     ##################
 
-    # /orders
     path("orders/", OrderListView.as_view(), name="orders"),
-
-    # /5/order_detail
     path("<slug:slug>/order_detail/", OrderDetailView.as_view(), name="order-detail"),
 
-    ####################
-    ##### MESSAGES #####
-    ####################
+    ######################################
+    ##### CONVERSATIONS AND MESSAGES #####
+    ######################################
 
-    # /conversations --> all conversations for employee.
-    path("conversations/", ConversationListView.as_view(), name="conversations"),
-    
-    # /3/messages --> all messages, employee.
+    #  all conversations, for employees for now.
+    path("conversations/", ConversationListView.as_view(), name="conversations"),               
     path("<int:pk>/messages/", MessageListView.as_view(), name="messages"),
+    path("<int:pk>/messages/<int:n_last>", MessageListView.as_view(), name="messages-last"),
+    
+    #########################
+    ##### ROLE SPECIFIC #####
+    #########################
 
-    # /messages --> all messages, customer only.
-    path("messages/", MessageListView.as_view(), name="messages"),
-    
-    # /3/messages/5  --> 5 last messages of conversation #3.
-    path("<int:pk>/messages/<int:last>", MessageListView.as_view(), name="messages-last"),
-    
+    ##### Administrator #####
+    path("administration/employees/", EmployeeListView.as_view(), name="employees"),
+    path("administration/employee_create/", EmployeeCreateFormView.as_view(), name="employee_create"),
+    path("administration/<int:pk>/employee_update/", EmployeePwdUpdateView.as_view(), name="employee_update"),
+
+    ##### EMPLOYEE #####
+    path("intranet/", IntranetView.as_view(), name="intranet"),
+    path("customers/", CustomerListView.as_view(), name="customers"),
+
+    ##### CUSTOMER #####
+    path("my_space/", MySpaceView.as_view(), name="my_space"),
+
     ##########################
     ##### AUTHENTICATION #####
     ##########################
 
-    # /login
     path(
         'login/', 
         LoginView.as_view(
@@ -134,7 +121,6 @@ urlpatterns = [
         name='login',
     ),
     
-    # /logout
     path(
         "logout/", 
         LogoutView.as_view(
@@ -142,17 +128,9 @@ urlpatterns = [
             next_page=None),
         name = 'logout',
     ),
-    
-    # /password_change_done
-    path(
-        "password_change_done/", 
-       PasswordChangeDoneView.as_view(
-            template_name='ventashop/auth/password_change_done.html',
-            ),
-        name = 'password_change_done',
-    ),
 
-    # /password_reset
+    path("sign-in/", UserSignInFormView.as_view(), name="sign-in"),
+
     path(
         "password_reset/", 
         CustomerPasswordResetView.as_view(
@@ -161,15 +139,6 @@ urlpatterns = [
             success_url = "/password_reset_done/",
             ),
         name = 'password_reset',
-    ),
-
-    # /password_reset_done
-    path(
-        "password_reset_done/", 
-       PasswordResetDoneView.as_view(
-            template_name='ventashop/auth/password_reset_done.html',
-            ),
-        name = 'password_reset_done',
     ),
 
     # /password_reset_confirm_view
@@ -182,7 +151,6 @@ urlpatterns = [
         name = 'password_reset_confirm',
     ),
     
-    # /password_reset_complete
     path(
         "reset/done", 
        PasswordResetCompleteView.as_view(
@@ -191,34 +159,19 @@ urlpatterns = [
         name = 'password_reset_complete',
     ),
 
-    # sign-in
-    path("sign-in/", UserSignInFormView.as_view(), name="sign-in"),
-
-    #########################
-    ##### Administrator #####
-    #########################
-
-    # employees
-    path("administration/employees/", EmployeeListView.as_view(), name="employees"),
+    path(
+        "password_reset_done/", 
+       PasswordResetDoneView.as_view(
+            template_name='ventashop/auth/password_reset_done.html',
+            ),
+        name = 'password_reset_done',
+    ),
     
-    # employee_create
-    path("administration/employee_create/", EmployeeCreateFormView.as_view(), name="employee_create"),
-    
-    # employee_update
-    path("administration/<int:pk>/employee_update/", EmployeePwdUpdateView.as_view(), name="employee_update"),
-
-    ####################
-    ##### CUSTOMER #####
-    ####################
-    # /myspace
-    path("my_space/", MySpaceView.as_view(), name="my_space"),
-
-    ####################
-    ##### EMPLOYEE #####
-    ####################
-    #/intranet
-    path("intranet/", IntranetView.as_view(), name="intranet"),
-
-    #/customers
-    path("customers/", CustomerListView.as_view(), name="customers"),
+    path(
+        "password_change_done/", 
+       PasswordChangeDoneView.as_view(
+            template_name='ventashop/auth/password_change_done.html',
+            ),
+        name = 'password_change_done',
+    ),
 ]

@@ -28,12 +28,12 @@ class MessageListView(LoginRequiredMixin, TestIsCustomerOrEmployeeMixin, FormMix
         user = self.request.user
 
         # n last messages to be displayed.
-        if "last" in self.kwargs:   
-            last = int(self.kwargs["last"])
+        if "n_last" in self.kwargs:   
+            n_last = int(self.kwargs["n_last"])
             if user.role == "CUSTOMER":
-                m_set = list(Message.objects.filter(conversation__customer_account=user.customeraccount))[-last:]
+                m_set = list(Message.objects.filter(conversation__customer_account=user.customeraccount))[-n_last:]
             else:
-                m_set = list(Message.objects.filter(conversation__id=self.kwargs["pk"]))[-last:]
+                m_set = list(Message.objects.filter(conversation__id=self.kwargs["pk"]))[-n_last:]
         
         # all messages to be displayed.
         else:                       
@@ -63,6 +63,7 @@ class MessageListView(LoginRequiredMixin, TestIsCustomerOrEmployeeMixin, FormMix
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
+        # Get conversation to be displayed
         # context["conversation"] = get_object_or_404(Conversation, pk=self.kwargs["pk"])
         if user.role == "CUSTOMER":
             context["conversation"] = get_object_or_404(Conversation, customer_account=user.customeraccount)
@@ -70,7 +71,14 @@ class MessageListView(LoginRequiredMixin, TestIsCustomerOrEmployeeMixin, FormMix
             # context["conversation"] = get_object_or_404(Conversation, customer_account__employee_reg=user.reg_number)
             context["conversation"] = get_object_or_404(Conversation, pk=self.kwargs["pk"])
 
+        # Form for new message
         context["form"] = self.get_form(self.form_class)
+
+        # Only last messages or all of them
+        if "n_last" in self.kwargs:
+            context["n_last"] = True
+        else:
+            context["n_last"] = False
 
         return context
 

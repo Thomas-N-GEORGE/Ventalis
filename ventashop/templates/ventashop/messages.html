@@ -53,12 +53,21 @@
 
     <!-- All messages ? -->
     <div class="mt-5 mb-3 text-end">
-        <a 
-            href="{% url 'ventashop:messages' conversation.pk %}"
-            class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-            >
-            Voir tous les messages
-        </a>
+        {% if n_last is True %}
+            <a 
+                href="{% url 'ventashop:messages' conversation.pk %}"
+                class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                >
+                Voir tous les messages
+            </a>
+        {% else %}
+            <a 
+                href="{% url 'ventashop:messages-last' conversation.pk 5 %}"
+                class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                >
+                Voir seulement les derniers messages
+            </a>
+        {% endif %}
     </div>
     
     <!-- New message -->
@@ -75,7 +84,12 @@
             <!-- Back to conversations -->
             <div class="col text-end">
                 {% if user.role == "EMPLOYEE" %}
-                    <a href="{% url 'ventashop:conversations' %}">Retour aux conversations</a>
+                    <a 
+                        href="{% url 'ventashop:conversations' %}"
+                        class="mx-1 link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                    >
+                        Retour aux conversations
+                    </a>
                 {% endif %}
             </div>
             
