@@ -27,8 +27,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-*_ha1040kc0v6jymvf+#p=hh@9t5i0q2&bns4-#7)ov5tw$=h1')
 
 
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+# EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 
 IS_PROD = os.environ.get('IS_HEROKU')
@@ -167,14 +167,20 @@ STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 # Simplified static file serving.
 # https://pypi.org/project/whitenoise/
 # Enable WhiteNoise's GZip compression of static assets.
-# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+if IS_PROD:
+# Enable WhiteNoise's GZip compression of static assets.
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+else:
 # During testing, at least, we need this instead : 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 
 # Media files
-MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+if IS_PROD:
+    MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+else:
+    MEDIA_ROOT = os.path.join(BASE_DIR,'media-dev')
 MEDIA_URL = 'media/'
 print ("MEDIA_ROOT path", MEDIA_ROOT)
 
@@ -186,12 +192,33 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Update database configuration from $DATABASE_URL.
-# db_from_env = dj_database_url.config(conn_max_age=500)
+if IS_PROD:
+    db_from_env = dj_database_url.config(conn_max_age=500)
+    DATABASES['default'].update(db_from_env)
 
-# DATABASES['default'].update(db_from_env)
 
-# Email during development : 
-if not IS_PROD:
+# Email
+if DEBUG:
+# Email during development, output in console : 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+if IS_PROD:
+# Email with SendGrid, SMTP
+    # EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+
+    EMAIL_HOST = 'smtp.sendgrid.net'
+    EMAIL_HOST_USER = 'ventalis_send_mail' # this is exactly the value 'apikey'
+    EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+
+
+# Email with SendGrid API, won't work either.
+# SENDGRID_SANDBOX_MODE_IN_DEBUG=True
+# SENDGRID_ECHO_TO_STDOUT=True
+# EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+# SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+
 
 VENTALIS_EMAIL = "ventalis-gmail@example.com"
