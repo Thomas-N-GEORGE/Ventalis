@@ -1,18 +1,20 @@
-<!-- contact page, "contact". -->
+<!-- Employee update page, "Mot de passe employé". -->
 
 {% extends 'ventashop/base.html' %}
 
-{% block title %}Contact{% endblock title %}
+{% block title %}Mot de passe employé{% endblock title %}
 
 {% block content %}
 
 {% load myfilters %}
 
 <div class="container-sm min-vh-100">
-    
-    <div class="fs-3 mb-3">Nous contacter</div>
 
-<!-- Email : Contact form -->
+    <div class="fs-3 mb-3">
+        Employé :
+        {{ employee.first_name|title }} {{ employee.last_name|upper }}
+    </div>
+
     <form method="post">
         {% csrf_token %}
         {% for field in form %}
@@ -21,7 +23,7 @@
                 {{ field.errors }}
             </div>
         {% endfor %}
-        <button type="submit" class="btn btn-primary">Envoyer</button>
+        <button type="submit" class="btn btn-primary">Valider</button>
     </form>
 
 </div>

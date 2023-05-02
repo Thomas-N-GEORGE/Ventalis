@@ -1,18 +1,18 @@
-<!-- contact page, "contact". -->
+<!-- sign in page, "Créer un compte". -->
 
 {% extends 'ventashop/base.html' %}
 
-{% block title %}Contact{% endblock title %}
+{% block title %}Créer un compte{% endblock title %}
 
 {% block content %}
 
 {% load myfilters %}
 
 <div class="container-sm min-vh-100">
-    
-    <div class="fs-3 mb-3">Nous contacter</div>
+    <div class="fs-3 mb-3">
+        Créer un compte
+    </div>
 
-<!-- Email : Contact form -->
     <form method="post">
         {% csrf_token %}
         {% for field in form %}
@@ -21,7 +21,7 @@
                 {{ field.errors }}
             </div>
         {% endfor %}
-        <button type="submit" class="btn btn-primary">Envoyer</button>
+        <button type="submit" class="btn btn-primary">Valider</button>
     </form>
 
 </div>

@@ -14,8 +14,6 @@ import dj_database_url
 import os
 from pathlib import Path
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,8 +27,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+# EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 
 IS_PROD = os.environ.get('IS_HEROKU')
@@ -39,15 +37,6 @@ IS_PROD = os.environ.get('IS_HEROKU')
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 DEBUG = not IS_PROD
-
-
-# # other way of setting to prod environement
-# IS_HEROKU = "YES" in os.environ
-
-
-# # SECURITY WARNING: don't run with debug turned on in production!
-# if not IS_HEROKU:
-#     DEBUG = True
 
 
 ALLOWED_HOSTS = [
@@ -74,6 +63,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ventashop.apps.VentashopConfig',
+    'django_cleanup.apps.CleanupConfig'
 ]
 
 MIDDLEWARE = [
@@ -123,6 +113,10 @@ DATABASES = {
 }
 
 
+# Custom user
+AUTH_USER_MODEL = "ventashop.User"
+
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -141,11 +135,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# After successfull login
+# LOGIN_REDIRECT_URL = 'home'
+# LOGIN_REDIRECT_URL = "/"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr-FR'
 
 TIME_ZONE = 'Europe/Paris'
 
@@ -170,12 +167,22 @@ STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 # Simplified static file serving.
 # https://pypi.org/project/whitenoise/
 # Enable WhiteNoise's GZip compression of static assets.
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+if IS_PROD:
+# Enable WhiteNoise's GZip compression of static assets.
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+else:
+# During testing, at least, we need this instead : 
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 
 # Media files
-MEDIA_ROOT = os.path.join(BASE_DIR,'media')
-MEDIA_URL = '/media/'
+if IS_PROD:
+    MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+else:
+    MEDIA_ROOT = os.path.join(BASE_DIR,'media-dev')
+MEDIA_URL = 'media/'
+print ("MEDIA_ROOT path", MEDIA_ROOT)
 
 
 # Default primary key field type
@@ -185,6 +192,33 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Update database configuration from $DATABASE_URL.
-db_from_env = dj_database_url.config(conn_max_age=500)
+if IS_PROD:
+    db_from_env = dj_database_url.config(conn_max_age=500)
+    DATABASES['default'].update(db_from_env)
 
-DATABASES['default'].update(db_from_env)
+
+# Email
+if DEBUG:
+# Email during development, output in console : 
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+if IS_PROD:
+# Email with SendGrid, SMTP
+    # EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+
+    EMAIL_HOST = 'smtp.sendgrid.net'
+    EMAIL_HOST_USER = 'ventalis_send_mail' # this is exactly the value 'apikey'
+    EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+
+
+# Email with SendGrid API, won't work either.
+# SENDGRID_SANDBOX_MODE_IN_DEBUG=True
+# SENDGRID_ECHO_TO_STDOUT=True
+# EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+# SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+
+
+VENTALIS_EMAIL = "ventalis-gmail@example.com"

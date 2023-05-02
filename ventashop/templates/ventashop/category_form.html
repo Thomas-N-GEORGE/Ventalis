@@ -1,8 +1,8 @@
-<!-- contact page, "contact". -->
+<!-- Our form to create a new category of products -->
 
 {% extends 'ventashop/base.html' %}
 
-{% block title %}Contact{% endblock title %}
+{% block title %}Créer catégorie{% endblock title %}
 
 {% block content %}
 
@@ -10,9 +10,15 @@
 
 <div class="container-sm min-vh-100">
     
-    <div class="fs-3 mb-3">Nous contacter</div>
+    <div class="fs-3 mb-3">Créer une catégorie</div>
 
-<!-- Email : Contact form -->
+    <!-- Slug intigrity error -->
+    {% if error_message %}
+    <div class="text-bg-warning p-3">
+        {{ error_message }}
+    </div>
+    {% endif %}
+
     <form method="post">
         {% csrf_token %}
         {% for field in form %}
@@ -21,9 +27,9 @@
                 {{ field.errors }}
             </div>
         {% endfor %}
-        <button type="submit" class="btn btn-primary">Envoyer</button>
+        <button type="submit" class="btn btn-primary">Créer</button>
     </form>
 
 </div>
 
-{% endblock content %}
+{% endblock %}
