@@ -1,13 +1,8 @@
 # virtual environment
 /env
 
-# whatever env variables
-.env
-
 # unused : 
 /unused_files
-/ventasite/settings_dev.py
-ventasite/settings_copy.py
 
 *.pyc
 
@@ -18,7 +13,7 @@ ventasite/settings_copy.py
 *.sqlite3
 
 # media
-media-dev/
+media/
 
 # static files gathered by whitenoise
 staticfiles/

@@ -177,12 +177,9 @@ else:
 
 
 # Media files
-if IS_PROD:
-    MEDIA_ROOT = os.path.join(BASE_DIR,'media')
-else:
-    MEDIA_ROOT = os.path.join(BASE_DIR,'media-dev')
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+
 MEDIA_URL = 'media/'
-print ("MEDIA_ROOT path", MEDIA_ROOT)
 
 
 # Default primary key field type
