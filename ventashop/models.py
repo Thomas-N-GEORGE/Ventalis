@@ -359,7 +359,6 @@ class Comment(models.Model):
     class Meta:
         ordering = ["-date_created"]
 
-
     content = models.CharField(max_length=2000, null=False)
     date_created = models.DateTimeField(default=timezone.now)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)

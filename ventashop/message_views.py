@@ -30,19 +30,11 @@ class MessageListView(LoginRequiredMixin, TestIsCustomerOrEmployeeMixin, FormMix
         # n last messages to be displayed.
         if "n_last" in self.kwargs:   
             n_last = int(self.kwargs["n_last"])
-            if user.role == "CUSTOMER":
-                # m_set = list(Message.objects.filter(conversation__customer_account=user.customeraccount))[-n_last:]
-                m_set = list(Message.objects.filter(conversation__id=self.kwargs["pk"]))[-n_last:]
-            else:
-                m_set = list(Message.objects.filter(conversation__id=self.kwargs["pk"]))[-n_last:]
+            m_set = list(Message.objects.filter(conversation__id=self.kwargs["pk"]))[-n_last:]
         
         # all messages to be displayed.
         else:                       
-            if user.role == "CUSTOMER":
-                # m_set = Message.objects.filter(conversation__customer_account=user.customeraccount)
-                m_set = Message.objects.filter(conversation__id=self.kwargs["pk"])
-            else:
-                m_set = Message.objects.filter(conversation__id=self.kwargs["pk"])
+            m_set = Message.objects.filter(conversation__id=self.kwargs["pk"])
 
         return m_set
 
@@ -66,13 +58,7 @@ class MessageListView(LoginRequiredMixin, TestIsCustomerOrEmployeeMixin, FormMix
         user = self.request.user
 
         # Get conversation to be displayed
-        # context["conversation"] = get_object_or_404(Conversation, pk=self.kwargs["pk"])
-        if user.role == "CUSTOMER":
-            # context["conversation"] = get_object_or_404(Conversation, customer_account=user.customeraccount)
-            context["conversation"] = get_object_or_404(Conversation, pk=self.kwargs["pk"])
-        else:
-            # context["conversation"] = get_object_or_404(Conversation, customer_account__employee_reg=user.reg_number)
-            context["conversation"] = get_object_or_404(Conversation, pk=self.kwargs["pk"])
+        context["conversation"] = get_object_or_404(Conversation, pk=self.kwargs["pk"])
 
         # Form for new message
         context["form"] = self.get_form(self.form_class)
