@@ -287,7 +287,7 @@ class Order(models.Model):
         
 
     # Choices for the state :
-    NON_TRAITEE = "NT"
+    CREEE = "CR"
     EN_COURS_DE_TRAITEMENT = "CT"
     EN_ATTENTE_APPROVISIONNEMENT = "AA"
     PREPARATION_EXPEDITION = "PE"
@@ -297,7 +297,7 @@ class Order(models.Model):
     ANNULEE = "AN"
 
     STATUS_CHOICES = [
-        (NON_TRAITEE, "Non traitée"),
+        (CREEE, "Créée"),
         (EN_COURS_DE_TRAITEMENT, "En cours de traitement"),
         (EN_ATTENTE_APPROVISIONNEMENT, "En attente d'approvisionnement"),
         (PREPARATION_EXPEDITION, "En préparation à l'expédition"),
@@ -307,7 +307,7 @@ class Order(models.Model):
         (ANNULEE, "Annulée"),
     ]
 
-    status = models.CharField(max_length=2, choices=STATUS_CHOICES, default=NON_TRAITEE,)
+    status = models.CharField(max_length=2, choices=STATUS_CHOICES, default=CREEE,)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     incl_vat_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)

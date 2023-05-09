@@ -4,16 +4,17 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from ventashop.models import (
-                            CustomerAccount, 
-                            Order, 
-                            Conversation, 
-                            Message, 
-                            LineItem, 
-                            Comment, 
-                            Product,
-                            )
+    Comment,
+    Conversation,
+    CustomerAccount,
+    LineItem,
+    Message,
+    Order,
+    Product,
+)
 
 User = get_user_model()
+
 
 class UserSerializer(serializers.ModelSerializer):
     """User model serializer."""
@@ -24,12 +25,33 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", 'email', 'first_name', 'last_name', 'reg_number', 'role', "conversation_set", "message_set", "customer_account_set"]
-        read_only_fields = ["id", 'email', 'first_name', 'last_name', 'reg_number', 'role', "conversation_set", "message_set", "customer_account_set"]
+        fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "reg_number",
+            "role",
+            "conversation_set",
+            "message_set",
+            "customer_account_set",
+        ]
+        read_only_fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "reg_number",
+            "role",
+            "conversation_set",
+            "message_set",
+            "customer_account_set",
+        ]
+
 
 class CustomerAccountSerializer(serializers.ModelSerializer):
     """CustomerAccount model serializer."""
-    
+
     customer = serializers.ReadOnlyField(source="customer.email")
     order_set = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
@@ -47,20 +69,43 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ["content", "date_created", "order", "order_id"]
+        fields = ["content", "order", "order_id"]
 
 
 class OrderSerializer(serializers.ModelSerializer):
     """Order model serializer."""
-    
+
     customer_account = serializers.ReadOnlyField(source="customer_account.pk")
     lineitem_set = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     comment_set = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Order
-        fields = ["id", "status", "total_price", "vat_amount", "incl_vat_price", "date_created", "ref_number", "slug", "customer_account", "lineitem_set", "comment_set"]
-        read_only_fields = ["id", "total_price", "vat_amount", "incl_vat_price", "date_created", "ref_number", "slug", "customer_account", "lineitem_set", "comment_set"]
+        fields = [
+            "id",
+            "status",
+            "total_price",
+            "vat_amount",
+            "incl_vat_price",
+            "date_created",
+            "ref_number",
+            "slug",
+            "customer_account",
+            "lineitem_set",
+            "comment_set",
+        ]
+        read_only_fields = [
+            "id",
+            "total_price",
+            "vat_amount",
+            "incl_vat_price",
+            "date_created",
+            "ref_number",
+            "slug",
+            "customer_account",
+            "lineitem_set",
+            "comment_set",
+        ]
 
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -72,7 +117,15 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ["id", "author", "date_created", "content", "is_read", "conversation", "conversation_id"]
+        fields = [
+            "id",
+            "author",
+            "date_created",
+            "content",
+            "is_read",
+            "conversation",
+            "conversation_id",
+        ]
         read_only_fields = ["date_created"]
 
 
@@ -86,7 +139,14 @@ class ConversationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conversation
         # fields = ["id", "subject", "date_created", "date_modified", "participants", "message_set"]
-        fields = ["id", "subject", "date_created", "date_modified", "participants", "message_set"]
+        fields = [
+            "id",
+            "subject",
+            "date_created",
+            "date_modified",
+            "participants",
+            "message_set",
+        ]
         read_only_fields = ["subject", "date_created"]
 
 
@@ -96,7 +156,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ["name", "price"]
-        read_only_fields=["name", "price"]
+        read_only_fields = ["name", "price"]
 
 
 class LineItemSerializer(serializers.ModelSerializer):
@@ -107,8 +167,8 @@ class LineItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LineItem
-        fields = ['product', 'quantity', 'price', 'order']
-        read_only_fields=["quantity", "price"]
+        fields = ["product", "quantity", "price", "order"]
+        read_only_fields = ["quantity", "price"]
 
 
 class WholeOrderSerializer(OrderSerializer):
@@ -119,5 +179,28 @@ class WholeOrderSerializer(OrderSerializer):
 
     class Meta:
         model = Order
-        fields = ["id", "status", "total_price", "vat_amount", "incl_vat_price", "date_created", "ref_number", "slug", "customer_account", "lineitem_set", "comment_set"]
-        read_only_fields = ["id", "total_price", "vat_amount", "incl_vat_price", "date_created", "ref_number", "slug", "customer_account", "lineitem_set", "comment_set"]
+        fields = [
+            "id",
+            "status",
+            "total_price",
+            "vat_amount",
+            "incl_vat_price",
+            "date_created",
+            "ref_number",
+            "slug",
+            "customer_account",
+            "lineitem_set",
+            "comment_set",
+        ]
+        read_only_fields = [
+            "id",
+            "total_price",
+            "vat_amount",
+            "incl_vat_price",
+            "date_created",
+            "ref_number",
+            "slug",
+            "customer_account",
+            "lineitem_set",
+            "comment_set",
+        ]
