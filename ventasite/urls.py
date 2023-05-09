@@ -22,9 +22,9 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from . import settings
 
 
-
 urlpatterns = [
-    path('', include("ventashop.urls")),
+    path('api/', include("ventAPI.urls", namespace="ventAPI")),
+    path('', include("ventashop.urls", namespace="ventashop")),
     path('admin/', admin.site.urls),
 ]
 

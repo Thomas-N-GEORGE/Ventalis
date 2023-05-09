@@ -264,7 +264,8 @@ class ProductListView(ListView):
         
         if "slug" in self.kwargs:
             actual_category = Category.objects.filter(slug=self.kwargs["slug"])
-            context["actual_category"] = actual_category[0]
+            if actual_category.exists():
+                context["actual_category"] = actual_category[0]
 
         context["category_list"] = Category.objects.all().order_by("name")
         

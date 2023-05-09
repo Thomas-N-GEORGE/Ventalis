@@ -24,14 +24,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-*_ha1040kc0v6jymvf+#p=hh@9t5i0q2&bns4-#7)ov5tw$=h1'
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-*_ha1040kc0v6jymvf+#p=hh@9t5i0q2&bns4-#7)ov5tw$=h1",
+)
 
 
 # EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 # EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 
-IS_PROD = os.environ.get('IS_HEROKU')
+IS_PROD = os.environ.get("IS_HEROKU")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -40,75 +44,81 @@ DEBUG = not IS_PROD
 
 
 ALLOWED_HOSTS = [
-    '0.0.0.0', 
-    'localhost', 
-    '127.0.0.1',
-    'ventalis.herokuapp.com',
+    "0.0.0.0",
+    "localhost",
+    "127.0.0.1",
+    "ventalis.herokuapp.com",
 ]
 
 # Generally avoid wildcards(*). However since Heroku router provides hostname validation it is ok
 if IS_PROD:
     ALLOWED_HOSTS = ["*"]
 else:
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = [
+        "0.0.0.0",
+        "localhost",
+        "127.0.0.1",
+    ]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'ventashop.apps.VentashopConfig',
-    'django_cleanup.apps.CleanupConfig'
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "ventashop.apps.VentashopConfig",
+    "django_cleanup.apps.CleanupConfig",
+    "rest_framework",
+    "rest_framework.authtoken",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'ventasite.urls'
+ROOT_URLCONF = "ventasite.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'ventasite.wsgi.application'
+WSGI_APPLICATION = "ventasite.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'thomas',
-        'USER': 'thomas',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '5432',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "thomas",
+        "USER": "thomas",
+        "PASSWORD": "",
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
 
@@ -122,16 +132,16 @@ AUTH_USER_MODEL = "ventashop.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -139,12 +149,25 @@ AUTH_PASSWORD_VALIDATORS = [
 # LOGIN_REDIRECT_URL = 'home'
 # LOGIN_REDIRECT_URL = "/"
 
+
+# Django REST Framework settings
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    # 'PAGE_SIZE': 10,
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.TokenAuthentication",
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    # "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+}
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'fr-FR'
+LANGUAGE_CODE = "fr-FR"
 
-TIME_ZONE = 'Europe/Paris'
+TIME_ZONE = "Europe/Paris"
 
 USE_I18N = True
 
@@ -154,10 +177,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 
-#location where django collect all static files
-STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
+# location where django collect all static files
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # location where you will store your static files
 # STATICFILES_DIRS = [
@@ -169,46 +192,43 @@ STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 # Enable WhiteNoise's GZip compression of static assets.
 
 if IS_PROD:
-# Enable WhiteNoise's GZip compression of static assets.
+    # Enable WhiteNoise's GZip compression of static assets.
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 else:
-# During testing, at least, we need this instead : 
+    # During testing, at least, we need this instead :
     STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 
 # Media files
-if IS_PROD:
-    MEDIA_ROOT = os.path.join(BASE_DIR,'media')
-else:
-    MEDIA_ROOT = os.path.join(BASE_DIR,'media-dev')
-MEDIA_URL = 'media/'
-print ("MEDIA_ROOT path", MEDIA_ROOT)
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+MEDIA_URL = "media/"
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Update database configuration from $DATABASE_URL.
 if IS_PROD:
     db_from_env = dj_database_url.config(conn_max_age=500)
-    DATABASES['default'].update(db_from_env)
+    DATABASES["default"].update(db_from_env)
 
 
 # Email
 if DEBUG:
-# Email during development, output in console : 
+    # Email during development, output in console :
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 if IS_PROD:
-# Email with SendGrid, SMTP
+    # Email with SendGrid, SMTP
     # EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-    SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+    SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
 
-    EMAIL_HOST = 'smtp.sendgrid.net'
-    EMAIL_HOST_USER = 'ventalis_send_mail' # this is exactly the value 'apikey'
+    EMAIL_HOST = "smtp.sendgrid.net"
+    EMAIL_HOST_USER = "ventalis_send_mail"  # this is exactly the value 'apikey'
     EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True
