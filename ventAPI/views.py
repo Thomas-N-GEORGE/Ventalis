@@ -8,6 +8,7 @@ from rest_framework import viewsets
 from rest_framework.authentication import (
     TokenAuthentication,
 )
+
 # from rest_framework.response import Response
 
 # from ventAPI.pemissions import IsEmployee
@@ -52,6 +53,12 @@ class UserViewSet(viewsets.ModelViewSet):
         if "customer_account" in self.request.query_params:
             queryset = User.objects.filter(
                 customeraccount=self.request.query_params["customer_account"]
+            )
+            return queryset
+
+        elif "reg_number" in self.request.query_params:
+            queryset = User.objects.filter(
+                reg_number=self.request.query_params["reg_number"]
             )
             return queryset
 
