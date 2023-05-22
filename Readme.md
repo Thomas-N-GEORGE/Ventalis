@@ -26,7 +26,7 @@ Projet de fin d'études STUDI Bachelor CDA 2022/2024 (spéc. Python).
 ````
 2. Créer un environnement virtuel (ici nommé *env* ) à l'aide de la commande : 
 ````
- python venv env
+ python3 -m venv env
 ````
 
 3. Activer l'environnement virtuel à l'aide de la commande : 
