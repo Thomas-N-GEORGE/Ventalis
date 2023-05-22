@@ -1,8 +1,10 @@
 # Ventashop
 
-Application de gestion des commandes de produits marketing
+## Application de gestion des commandes de produits marketing.
 
-## Comment installer Ventasite/Ventashop en local : 
+Projet de fin d'études STUDI Bachelor CDA 2022/2024 (spéc. Python).
+
+### Comment installer Ventasite/Ventashop en local : 
 ---
 
 0. Pré-requis : 
@@ -15,40 +17,40 @@ Application de gestion des commandes de produits marketing
  - Dans un terminal, se placer à l'emplacement local où l'on veut que le dossier source soit cloné.
  - Exécuter la commande git clone : 
 ````
-$ git clone https://github.com/Thomas-N-GEORGE/Ventalis.git
+ git clone https://github.com/Thomas-N-GEORGE/Ventalis.git
 ````
 
  - En principe un dossier nommé Ventalis s'est crée. S'y déplacer : 
 ````
-$ cd Ventalis
+ cd Ventalis
 ````
 2. Créer un environnement virtuel (ici nommé *env* ) à l'aide de la commande : 
 ````
-$ python venv env
+ python venv env
 ````
 
 3. Activer l'environnement virtuel à l'aide de la commande : 
  
 * pour les plateformes Unix/Linux : 
 ````
-$ source env/bin/activate
+ source env/bin/activate
 ````
 
 * pour la plateforme Windows (cmd.exe):
 ````
-$ source env\bin\activate.bat
+ source env/scripts/activate
 ````
  * autre : consulter https://docs.python.org/3/library/venv.html
 
+Votre invite de commande doit maintenant être précédée de `(env)`, vous indiquant que vous êtes bien dans l'environnement virtuel.
 
 4. Installer les dépendances du projet : 
 ````
-(env) $ pip install -r requirements.txt
+ pip install -r requirements.txt
 ````
 
-5. Base de données : on peut installer rapidemnt une bdd postgresql .
-
-6. settings.py : accorder le dictionnaire DATABASES avec vos propres clés NAME et USER 
+5. Base de données : soit la BDD SQlite3 utilisée par défaut par Dajngo, soit une BDD Postgres intallée à l'aide d'outils comme : 
+Et dans ce cas : modifier le fichier `settings.py` et accorder le dictionnaire DATABASES avec vos propres clés NAME et USER 
 ````
 DATABASES = {
     'default': {
@@ -64,52 +66,53 @@ DATABASES = {
 
 7. Jouer les migrations pour créer les tables dans la BDD : 
 ````
-(env) $ python manage.py makemigrations ventashop
-(env) $ python manage.py migrate
+ python manage.py makemigrations ventashop
+ python manage.py migrate
 ````
 
-8. Lancer l'application : 
+8. Créer un dossier `media/` à la racine du projet. Django y stockera les photos des produits.
 ````
-(env) $ python manage.py ventashop
+mkdir media
 ````
 
-Si tout se passe bien on peut retrouver la page d'ouverture à l'adresse locale : 
+9. Lancer l'application : 
 ````
-http://127.0.0.1:8000/
+ python manage.py ventashop
+````
+
+On peut retrouver la page d'ouverture à l'adresse locale : 
+````
+ http://127.0.0.1:8000/
 ````
 
 
 ## Utilisation : 
 ---
 
-On peut peupler la BDD à l'aide de la **fixture** se trouvant dans le dossier **ventashop/fixtures**.
+ - On peut peupler la BDD à l'aide de la **fixture** se trouvant dans le dossier **ventashop/fixtures**.
 
 Pour intégrer des données, utiliser la commande **loaddata** (Django trouve le fichier tout seul en principe):
 ````
-(env) $ python manage.py loaddata ventadata.json
+ python manage.py loaddata ventadata.json
 ````
----
-Et sinon, en partant de zéro, on effectue ces étapes dans l'ordre : 
 
-1. Créer un superuser Django avec la commande : 
+Et éventuellement créer un superuser Django avec la commande : 
 ````
-(env) $ python manage.py createsuperuser
+ python manage.py createsuperuser
 ````
+
+ - On peut aussi tout créer depuis la BDD vide de données :
+
+1. Créer un superuser Django avec la commande précédente 
 
 2. Ensuite, avec ce super utilisateur, on accède à la partie admin de Django ici http://127.0.0.1:8000/admin
 
-    Ceci nous permet de créer un compte adminisrateur pour l'application.
+    Ceci nous permet de créer un utilisateur avec un compte adminisrateur pour Ventalis. Nepas oublier de lui attribuer le rôle admin.
 
-3. En se connectant avec ce compte administrateur dans l'application, on accède à l'Espace Administrateur pour créer un/des Employé(s).
+3. En se connectant avec ce compte administrateur dans l'interface Ventalis, on accède à l'Espace Administrateur pour créer un/des Employé.e.s.
 
-4. Ensuite le compte Employé quant à lui permet de créer et gérer produits, commandes, etc. à partir de son espace "Intranet"
+4. Ensuite le compte Employé quant à lui permet de créer et gérer produits, commandes, etc. à partir de son espace "Intranet".
 
 Se référer au mode d'emploi SVP pour retrouver ces étapes à l'utilisation en détail, y compris en tant que Visiteur / Utilisateur.
 
 ---
-Pour créer des fixtures avec **dumpdata**, un exemple : 
-````
-python manage.py dumpdata ventashop.product --indent 4 > ventashop/fixtures/product.json
-````
-
-

@@ -1,7 +1,8 @@
 """Our message and conversation related views' module."""
 
+from typing import Any
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import ListView
@@ -11,46 +12,63 @@ from ventashop.forms import MessageForm
 from ventashop.models import Conversation, Message
 from ventashop.auth_utils import TestIsCustomerOrEmployeeMixin, TestIsEmployeeMixin
 
-class MessageListView(LoginRequiredMixin, TestIsCustomerOrEmployeeMixin, FormMixin, ListView):
+
+class MessageListView(
+    LoginRequiredMixin, TestIsCustomerOrEmployeeMixin, FormMixin, ListView
+):
     """Our message list view (e.g. display a conversation)."""
 
     login_url = "/login/"
     model = Message
     # paginate_by = 5  # if pagination is desired
-    template_name = 'ventashop/messages.html'
-    context_object_name = 'message_list'
+    template_name = "ventashop/messages.html"
+    context_object_name = "message_list"
 
     form_class = MessageForm
 
-    def get_queryset(self, *args, **kwargs):
-        """Message list (aka one conversation) to be displayed."""
+    def get(self, request, *args, **kwargs) -> HttpResponse:
+        """Check if user is a participant in conversation."""
 
         user = self.request.user
+        conversation = get_object_or_404(Conversation, pk=self.kwargs["pk"])
+        print(conversation.participants.all())
 
-        # n last messages to be displayed.
-        if "n_last" in self.kwargs:   
-            n_last = int(self.kwargs["n_last"])
-            m_set = list(Message.objects.filter(conversation__id=self.kwargs["pk"]))[-n_last:]
-        
-        # all messages to be displayed.
-        else:                       
-            m_set = Message.objects.filter(conversation__id=self.kwargs["pk"])
+        if user not in conversation.participants.all():
+            return HttpResponse("Unauthorized", status=401)
 
-        return m_set
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """Handle new message POST request."""
-        
+
         form = self.form_class(request.POST)
         conversation = get_object_or_404(Conversation, pk=self.kwargs["pk"])
-        
+
         if form.is_valid():
             author = self.request.user
             content = form.cleaned_data["content"]
             conversation.add_message(author=author, content=content)
 
-        return HttpResponseRedirect(reverse('ventashop:messages-last', args=(conversation.id, 5)))
-        
+        return HttpResponseRedirect(
+            reverse("ventashop:messages-last", args=(conversation.id, 5))
+        )
+
+    def get_queryset(self, *args, **kwargs):
+        """Message list (aka one conversation) to be displayed."""
+
+        # n last messages to be displayed.
+        if "n_last" in self.kwargs:
+            n_last = int(self.kwargs["n_last"])
+            m_set = list(Message.objects.filter(conversation__id=self.kwargs["pk"]))[
+                -n_last:
+            ]
+
+        # all messages to be displayed.
+        else:
+            m_set = Message.objects.filter(conversation__id=self.kwargs["pk"])
+
+        return m_set
+
     def get_context_data(self, **kwargs):
         """Related conversation and new message form to be displayed."""
 
@@ -78,14 +96,16 @@ class ConversationListView(LoginRequiredMixin, TestIsEmployeeMixin, ListView):
     login_url = "/login/"
     model = Conversation
     # paginate_by = 5  # if pagination is desired
-    template_name = 'ventashop/conversations.html'
+    template_name = "ventashop/conversations.html"
     context_object_name = "conversation_list"
 
     def get_queryset(self):
         """The user's conversations, with the list of participants for each."""
 
         user = self.request.user
-        conversations = Conversation.objects.filter(participants=user).order_by("date_modified")
+        conversations = Conversation.objects.filter(participants=user).order_by(
+            "date_modified"
+        )
 
         conversation_list = []
         for conversation in conversations:

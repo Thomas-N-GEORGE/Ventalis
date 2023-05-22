@@ -12,13 +12,6 @@
 
     <h1 class="fs-2 my-3">Intranet</h1>
 
-    <!-- To conversations. -->
-    <div class="my-3">
-        <form action="{% url 'ventashop:conversations' %}" method="get">
-            <button type="submit" class="btn btn-lg btn-info">Conversations et messages</button>
-        </form>
-    </div>
-    
     <!-- To related customers. -->
     <div class="my-3">
         <form action="{% url 'ventashop:customers' %}" method="get">
@@ -26,18 +19,25 @@
         </form>
     </div>
     
-    <!-- To categories and products. -->
+    <!-- To conversations. -->
     <div class="my-3">
-        <form action="{% url 'ventashop:product-create' %}" method="get">
-            <button type="submit" class="btn btn-lg btn-primary">Ajouter un produit</button>
+        <form action="{% url 'ventashop:conversations' %}" method="get">
+            <button type="submit" class="btn btn-lg btn-info">Conversations et messages</button>
         </form>
     </div>
-
+    
+    <!-- To categories and products. -->
     <div class="my-3">
         <form action="{% url 'ventashop:category-create' %}" method="get">
             <button type="submit" class="btn btn-lg btn-primary">Ajouter une catégorie</button>
         </form>
     </div>
     
+    <div class="my-3">
+        <form action="{% url 'ventashop:product-create' %}" method="get">
+            <button type="submit" class="btn btn-lg btn-primary">Ajouter un produit</button>
+        </form>
+    </div>
+
 </div>
 {% endblock %}

@@ -23,9 +23,9 @@ from . import settings
 
 
 urlpatterns = [
-    path('api/', include("ventAPI.urls", namespace="ventAPI")),
-    path('', include("ventashop.urls", namespace="ventashop")),
-    path('admin/', admin.site.urls),
+    path("api/", include("ventAPI.urls", namespace="ventAPI")),
+    path("gestion/", admin.site.urls),
+    path("", include("ventashop.urls", namespace="ventashop")),
 ]
 
 if settings.DEBUG:

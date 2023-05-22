@@ -1,7 +1,5 @@
 /* Our customized stylesheet */
 
-/* if we have some time left, it would be better to implement sass... */
-
 
 /* ******************** */
 /* ***** FONTS ******** */
@@ -14,6 +12,11 @@
 @font-face {
     font-family: "Museo300-Regular";
     src: url("../fonts/Museo300-Regular_0.otf") format("opentype");
+}
+
+@font-face {
+    font-family: "MuseoSans300-Regular";
+    src: url("../fonts/MuseoSans/MuseoSans_300.otf") format("opentype");
 }
 
 @font-face {
@@ -42,6 +45,9 @@
 }
 .v-font-300 {
     font-family: 'Museo300-Regular','Open Sans',Verdana,Tahoma,Arial,Helvetica,sans-serif;
+}
+.v-fontSans-300 {
+    font-family: 'MuseoSans300-Regular','Open Sans',Verdana,Tahoma,Arial,Helvetica,sans-serif;
 }
 .v-font-100 {
     font-family: 'Museo100-Regular','Open Sans',Verdana,Tahoma,Arial,Helvetica,sans-serif;
@@ -72,10 +78,11 @@
     background-repeat: no-repeat;
 }
 
-/* .v-main {
-    max-width: 1140px;
-} */
-
 .v-white-text {
     color: white;
+}
+
+.pres-color {
+  /* background-color: #DAF7DC; */
+  background-color: #0B7786;
 }

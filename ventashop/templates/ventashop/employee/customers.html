@@ -17,12 +17,7 @@
             <div class="list-group-item">
                 <div class="row">
                     <div class="col">{{ customer.first_name|title }} {{ customer.last_name|upper }}</div>
-                    <div class="col">inscrit le {{ customer.date_joined|date:"D d M Y" }}</div>
-                    <div class="col text-end">
-                        <form action="#" method="get">
-                            <button class="btn btn-secondary" disabled="disabled">Message</button>
-                        </form>
-                    </div>
+                    <div class="col text-end">inscrit le {{ customer.date_joined|date:"D d M Y" }}</div>
                 </div>
             </div>
         {% empty %}

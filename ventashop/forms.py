@@ -11,19 +11,13 @@ from django.forms import ModelForm
 from ventashop.models import Category, User, Cart, CustomerAccount
 from ventasite.settings import VENTALIS_EMAIL
 from ventashop.utils import (
-                            unique_reg_number_generator, 
-                            contains_min_one_upper,
-                            contains_min_one_lower, 
-                            min_length_8,
-                            contains_min_one_digit,
-                            contains_min_one_spec_char,
-                            )
-
-
-# class Form(ModelForm):
-#     class Meta:
-#         model = Category
-#         fields = ["name"]
+    unique_reg_number_generator,
+    contains_min_one_upper,
+    contains_min_one_lower,
+    min_length_8,
+    contains_min_one_digit,
+    contains_min_one_spec_char,
+)
 
 
 class MessageForm(forms.Form):
@@ -56,7 +50,7 @@ class ContactForm(forms.Form):
                 last_name_info,
                 first_name_info,
                 new_line,
-                self.cleaned_data["content"]
+                self.cleaned_data["content"],
             )
         )
 
@@ -64,7 +58,7 @@ class ContactForm(forms.Form):
 
     def send_email(self):
         """Get content and send email"""
-        
+
         message = self.build_message_from_info
 
         send_mail(
@@ -85,16 +79,16 @@ class EmployeePwdUpdateForm(forms.Form):
     """Our employee update form, for updating an employee's password as administrator."""
 
     password = forms.CharField(
-        max_length=100, 
-        widget=forms.PasswordInput, 
-        label="Nouveau mot de passe", 
+        max_length=100,
+        widget=forms.PasswordInput,
+        label="Nouveau mot de passe",
         validators=[
             min_length_8,
             contains_min_one_upper,
             contains_min_one_lower,
             contains_min_one_digit,
             contains_min_one_spec_char,
-        ]
+        ],
     )
 
     def update_employee_pwd(self, user_id):
@@ -102,10 +96,10 @@ class EmployeePwdUpdateForm(forms.Form):
 
         user, created = User.objects.get_or_create(id=user_id)
 
-        if created:     # abort if we're not simply updating
+        if created:  # abort if we're not simply updating
             user.delete()
             return
-        
+
         user.password = make_password(self.cleaned_data["password"])
         user.save()
 
@@ -113,10 +107,12 @@ class EmployeePwdUpdateForm(forms.Form):
 class UserForm(forms.ModelForm):
     """Our user "creation" form, for signing in as customer, and adding an employee as administrator."""
 
-    email = forms.EmailField(max_length=255, widget=forms.EmailInput, label="Login : adresse mail")
+    email = forms.EmailField(
+        max_length=255, widget=forms.EmailInput, label="Login : adresse mail"
+    )
     password = forms.CharField(
-        max_length=100, 
-        widget=forms.PasswordInput, 
+        max_length=100,
+        widget=forms.PasswordInput,
         label="Mot de passe",
         validators=[
             min_length_8,
@@ -132,7 +128,7 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'first_name', 'last_name', 'company']
+        fields = ["email", "password", "first_name", "last_name", "company"]
 
     def create_user(self, role):
         """
@@ -150,18 +146,20 @@ class UserForm(forms.ModelForm):
         )
 
         if created:
-            if role == "EMPLOYEE":      
+            if role == "EMPLOYEE":
                 # Creation of a unique registration number
                 user.reg_number = unique_reg_number_generator(user)
                 user.company = "Ventalis"
                 user.save()
-            
-            else:   
+
+            else:
                 # Case role == CUSTOMER
                 # Create customer account, assign its employee reg number, related cart, and create a related conversation.
                 customer_account = CustomerAccount.objects.create(customer=user)
                 customer_account.set_cart()
                 customer_account.set_employee_reg_number()
-                customer_account.set_conversation(subject="Échanges avec mon conseiller", customer=user)
-        
+                customer_account.set_conversation(
+                    subject="Échanges avec mon conseiller", customer=user
+                )
+
         return user
