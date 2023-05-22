@@ -1,16 +1,36 @@
+""" Our Ventashp main view module."""
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import PasswordResetView
-from django.views.generic import TemplateView, ListView, DetailView, RedirectView, FormView
+from django.views.generic import (
+    TemplateView,
+    ListView,
+    DetailView,
+    RedirectView,
+    FormView,
+)
 from django.views.generic.edit import CreateView
 from django.urls import reverse
 from django.db import IntegrityError
 
-from ventashop.models import Category, Product, Cart, LineItem, Order, User, Conversation
+from ventashop.models import (
+    Category,
+    Product,
+    Cart,
+    LineItem,
+    Order,
+    User,
+    Conversation,
+)
 from ventashop.forms import ContactForm, UserForm, EmployeePwdUpdateForm
-from ventashop.auth_utils import TestIsCustomerMixin, TestIsEmployeeMixin, TestIsAdministratorMixin
+from ventashop.auth_utils import (
+    TestIsCustomerMixin,
+    TestIsEmployeeMixin,
+    TestIsAdministratorMixin,
+)
 
 
 class HomeView(TemplateView):
@@ -39,40 +59,41 @@ class ContactFormView(FormView):
 ##### USER SPECIFIC #####
 #########################
 
+
 class CustomerPasswordResetView(PasswordResetView):
     """Our Customer Reset password class."""
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            email=form.cleaned_data['email'],
-            print ("cleaned_email : ", email)
+            email = (form.cleaned_data["email"],)
+            print("cleaned_email : ", email)
             user = User.objects.filter(email=email[0])
             test = User.objects.all()
             for t in test:
                 print(t, "email = ", t.email)
-            
+
             if user.count() > 0:
                 # Password change available only to registrated Customers.
-                print (user)
-                if user[0].role == "CUSTOMER" :
+                print(user)
+                if user[0].role == "CUSTOMER":
                     return super().post(request, *args, **kwargs)
             else:
                 # Redirect here anyway to avoid leaking info about registered emails.
-                return HttpResponseRedirect(reverse('ventashop:password_reset_done'))
+                return HttpResponseRedirect(reverse("ventashop:password_reset_done"))
 
 
 class UserSignInFormView(FormView):
     """Our user sing in view."""
 
-    template_name="ventashop/auth/sign-in.html"
-    form_class=UserForm
+    template_name = "ventashop/auth/sign-in.html"
+    form_class = UserForm
     success_url = "/login"
 
     def form_valid(self, form):
         """Process to create a new "customer"."""
 
-        form.create_user(role = "CUSTOMER")
+        form.create_user(role="CUSTOMER")
         return super().form_valid(form)
 
 
@@ -80,14 +101,14 @@ class EmployeeCreateFormView(LoginRequiredMixin, TestIsAdministratorMixin, FormV
     """Our employee creation form view, for administrator."""
 
     login_url = "/login/"
-    form_class=UserForm
-    template_name="ventashop/administration/employee_form.html"
+    form_class = UserForm
+    template_name = "ventashop/administration/employee_form.html"
     success_url = "/administration/employees"
 
     def form_valid(self, form):
         """Process to create a new "employee"."""
-        
-        form.create_user(role = "EMPLOYEE")
+
+        form.create_user(role="EMPLOYEE")
         return super().form_valid(form)
 
 
@@ -97,11 +118,11 @@ class EmployeePwdUpdateView(LoginRequiredMixin, TestIsAdministratorMixin, FormVi
     """
 
     login_url = "/login/"
-    form_class=EmployeePwdUpdateForm
-    template_name="ventashop/administration/employee_update_form.html"
-    success_url="/administration/employees"
+    form_class = EmployeePwdUpdateForm
+    template_name = "ventashop/administration/employee_update_form.html"
+    success_url = "/administration/employees"
 
-    def form_valid(self, form) :
+    def form_valid(self, form):
         """Process to update employee's password."""
 
         # !!!! password_validation.validate_password ???!!!
@@ -112,20 +133,20 @@ class EmployeePwdUpdateView(LoginRequiredMixin, TestIsAdministratorMixin, FormVi
 
     def get_context_data(self, **kwargs):
         """Employee details and old password to be displayed."""
-        
+
         context = super().get_context_data(**kwargs)
         employee = get_object_or_404(User, pk=self.kwargs["pk"])
 
         context["employee"] = employee
         return context
-    
+
 
 class EmployeeListView(LoginRequiredMixin, TestIsAdministratorMixin, ListView):
     """Our employee list view."""
 
     login_url = "/login/"
     model = User
-    template_name="ventashop/administration/employees.html"
+    template_name = "ventashop/administration/employees.html"
     context_object_name = "employee_list"
 
     def get_queryset(self):
@@ -137,12 +158,12 @@ class EmployeeListView(LoginRequiredMixin, TestIsAdministratorMixin, ListView):
 
 class MySpaceView(LoginRequiredMixin, TestIsCustomerMixin, ListView):
     """Main view for customer's "my space"."""
-    
+
     login_url = "/login/"
     template_name = "ventashop/customer/my_space.html"
     model = Order
     paginate_by = 100  # if pagination is desired
-    context_object_name = 'order_list'
+    context_object_name = "order_list"
 
     def get_queryset(self):
         """
@@ -150,19 +171,23 @@ class MySpaceView(LoginRequiredMixin, TestIsCustomerMixin, ListView):
         for an owner (aka CustomerAccount)
         """
         return Order.objects.filter(customer_account=self.request.user.customeraccount)
-    
+
     def get_context_data(self, **kwargs):
         """Get related employee and conversation"""
 
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        related_employee = get_object_or_404(User, reg_number = user.customeraccount.employee_reg)
+        related_employee = get_object_or_404(
+            User, reg_number=user.customeraccount.employee_reg
+        )
         context["related_employee"] = related_employee
 
         # context["conversation"] = get_object_or_404(Conversation, customer_account=user.customeraccount)
-        context["conversation"] = Conversation.objects.filter(participants=user).filter(participants=related_employee)[0]
-        
+        context["conversation"] = Conversation.objects.filter(participants=user).filter(
+            participants=related_employee
+        )[0]
+
         return context
 
 
@@ -186,18 +211,20 @@ class CustomerListView(LoginRequiredMixin, TestIsEmployeeMixin, ListView):
 
         user = self.request.user
         customer_list = User.objects.filter(
-            role="CUSTOMER", customeraccount__employee_reg=user.reg_number).order_by("date_joined")
-        
+            role="CUSTOMER", customeraccount__employee_reg=user.reg_number
+        ).order_by("date_joined")
+
         return customer_list
-    
+
 
 ###################################
 ##### PRODUCTS AND CATEGORIES #####
 ###################################
 
+
 class ProductCreateView(LoginRequiredMixin, TestIsEmployeeMixin, CreateView):
     """Our view to create a new product."""
-    
+
     login_url = "/login/"
     model = Product
     fields = ["name", "image", "description", "price", "category"]
@@ -205,14 +232,14 @@ class ProductCreateView(LoginRequiredMixin, TestIsEmployeeMixin, CreateView):
 
     def form_valid(self, form):
         try:
-            response =  super().form_valid(form)
+            response = super().form_valid(form)
         except IntegrityError as err:
             return render(
                 self.request,
                 "ventashop/product_form.html",
                 {
                     "error_message": "Le Libellé est trop similaire à un produit existant, veuillez le changer svp.",
-                    "form": form
+                    "form": form,
                 },
             )
         return response
@@ -220,9 +247,8 @@ class ProductCreateView(LoginRequiredMixin, TestIsEmployeeMixin, CreateView):
 
 class ProductView(TemplateView):
     """Our product view."""
+
     template_name = "ventashop/products.html"
-
-
 
     def get_queryset(self):
         """
@@ -236,8 +262,8 @@ class ProductListView(ListView):
 
     model = Product
     # paginate_by = 100  # if pagination is desired
-    template_name = 'ventashop/products.html'
-    context_object_name = 'product_list'
+    template_name = "ventashop/products.html"
+    context_object_name = "product_list"
 
     def get_queryset(self, **kwargs):
         """
@@ -245,7 +271,9 @@ class ProductListView(ListView):
         """
 
         if "slug" in self.kwargs:
-            p_set = Product.objects.filter(category__slug=self.kwargs["slug"]).order_by("name")
+            p_set = Product.objects.filter(category__slug=self.kwargs["slug"]).order_by(
+                "name"
+            )
         else:
             p_set = Product.objects.all().order_by("name")
 
@@ -253,7 +281,7 @@ class ProductListView(ListView):
             product.price *= 1000
 
         return p_set
-    
+
     def get_context_data(self, **kwargs):
         """
         We want the actual category if specified,
@@ -261,14 +289,14 @@ class ProductListView(ListView):
         """
 
         context = super().get_context_data(**kwargs)
-        
+
         if "slug" in self.kwargs:
             actual_category = Category.objects.filter(slug=self.kwargs["slug"])
             if actual_category.exists():
                 context["actual_category"] = actual_category[0]
 
         context["category_list"] = Category.objects.all().order_by("name")
-        
+
         return context
 
 
@@ -276,12 +304,12 @@ class ProductDetailView(DetailView):
     """Our product's detailed view."""
 
     model = Product
-    template_name = 'ventashop/product_detail.html'
+    template_name = "ventashop/product_detail.html"
 
 
 class CategoryCreateView(LoginRequiredMixin, TestIsEmployeeMixin, CreateView):
     """Our view to create a new category."""
-    
+
     login_url = "/login/"
     model = Category
     fields = ["name"]
@@ -289,14 +317,14 @@ class CategoryCreateView(LoginRequiredMixin, TestIsEmployeeMixin, CreateView):
 
     def form_valid(self, form):
         try:
-            response =  super().form_valid(form)
+            response = super().form_valid(form)
         except IntegrityError as err:
             return render(
                 self.request,
                 "ventashop/category_form.html",
                 {
                     "error_message": "Le nom est trop similaire à une catégorie existante, veuillez le modifier svp.",
-                    "form": form
+                    "form": form,
                 },
             )
         return response
@@ -308,7 +336,9 @@ class CategoryListView(ListView):
 
     model = Category
     paginate_by = 100  # if pagination is desired
-    template_name = 'ventashop/categories.html'
+    template_name = "ventashop/categories.html"
+
+
 ##### NOT USED #####
 
 
@@ -316,17 +346,20 @@ class CategoryListView(ListView):
 ##### CART #####
 ################
 
+
 class CartView(LoginRequiredMixin, TestIsCustomerMixin, TemplateView):
     """The owner's cart view."""
 
     login_url = "/login/"
-    template_name = 'ventashop/cart.html'
+    template_name = "ventashop/cart.html"
 
     def get_context_data(self, **kwargs):
         """Cart with line item list to be displayed."""
 
-        context =  super().get_context_data(**kwargs)
-        cart = get_object_or_404(Cart, customer_account=self.request.user.customeraccount)
+        context = super().get_context_data(**kwargs)
+        cart = get_object_or_404(
+            Cart, customer_account=self.request.user.customeraccount
+        )
 
         context["cart"] = cart
         context["line_item_list"] = cart.lineitem_set.all().order_by("product")
@@ -335,30 +368,32 @@ class CartView(LoginRequiredMixin, TestIsCustomerMixin, TemplateView):
 
 class ProductAddToCartView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
     """Add a product (aka a line item) to cart"""
-    
+
     login_url = "/login/"
     http_method_names = ["post"]
-    pattern_name = 'ventashop:product-detail'
+    pattern_name = "ventashop:product-detail"
 
     def get_redirect_url(self, *args, **kwargs):
         """Add product to cart and redirect"""
 
         # cart = get_object_or_404(Cart, pk=kwargs["cart_id"])
-        cart = get_object_or_404(Cart, customer_account=self.request.user.customeraccount)
+        cart = get_object_or_404(
+            Cart, customer_account=self.request.user.customeraccount
+        )
         product = get_object_or_404(Product, pk=kwargs["product_id"])
         cart.add_line_item(product, 1000)
-        
+
         kwargs = {}
-        args=(product.slug,)
+        args = (product.slug,)
         return super().get_redirect_url(*args, **kwargs)
 
 
 class LineItemUpdateView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
     """Update a line item quantity in cart"""
-    
+
     login_url = "/login/"
     http_method_names = ["post"]
-    pattern_name = 'ventashop:cart'
+    pattern_name = "ventashop:cart"
 
     def post(self, request, *args, **kwargs):
         """update quantity, checking its value"""
@@ -368,29 +403,29 @@ class LineItemUpdateView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
                 quantity = int(request.POST["quantity"])
             except:
                 quantity = 1000
-        
+
             if quantity >= 1000:
                 cart = get_object_or_404(Cart, pk=kwargs["cart_id"])
                 line_item = get_object_or_404(LineItem, pk=kwargs["line_item_id"])
                 cart.update_line_item(line_item.product, quantity)
-        
+
         return super().post(request, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
         """Redirect to cart view."""
 
         # return super().get_redirect_url(*args, kwargs["cart_id"])
-        args=(kwargs["cart_id"],)
+        args = (kwargs["cart_id"],)
         kwargs = {}
         return super().get_redirect_url(*args, **kwargs)
-    
+
 
 class LineItemRemoveFromCartView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
     """Remove a line item (aka a product) from cart"""
-    
+
     login_url = "/login/"
     http_method_names = ["post"]
-    pattern_name = 'ventashop:cart'
+    pattern_name = "ventashop:cart"
 
     def get_redirect_url(self, *args, **kwargs):
         """Delete line item and redirect to cart view"""
@@ -399,7 +434,7 @@ class LineItemRemoveFromCartView(LoginRequiredMixin, TestIsCustomerMixin, Redire
         cart = line_item.cart
         line_item.delete()
         cart.save()
-        
+
         kwargs = {}
         kwargs["cart_id"] = cart.id
         return super().get_redirect_url(*args, kwargs["cart_id"])
@@ -407,17 +442,17 @@ class LineItemRemoveFromCartView(LoginRequiredMixin, TestIsCustomerMixin, Redire
 
 class CartEmptyView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
     """Remove all line items (aka products) from cart"""
-    
+
     login_url = "/login/"
     http_method_names = ["post"]
-    pattern_name = 'ventashop:cart'
+    pattern_name = "ventashop:cart"
 
     def get_redirect_url(self, *args, **kwargs):
         """Empty cart"""
-        
+
         cart = get_object_or_404(Cart, pk=kwargs["pk"])
         cart.empty_cart()
-        
+
         kwargs = {}
         return super().get_redirect_url(*args, **kwargs)
 
@@ -426,32 +461,33 @@ class CartEmptyView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
 ##### ORDER #####
 #################
 
+
 class MakeOrderView(LoginRequiredMixin, TestIsCustomerMixin, RedirectView):
     """Make order from cart."""
 
     login_url = "/login/"
     http_method_names = ["post"]
-    pattern_name = 'ventashop:order-detail'
+    pattern_name = "ventashop:order-detail"
 
     def get_redirect_url(self, *args, **kwargs):
         """Make order."""
-        
+
         cart = get_object_or_404(Cart, pk=kwargs["pk"])
         order = cart.make_order()
-        
+
         kwargs = {}
-        args=(order.slug,)
-        return super().get_redirect_url(*args, **kwargs)   
+        args = (order.slug,)
+        return super().get_redirect_url(*args, **kwargs)
 
 
-class OrderListView(LoginRequiredMixin, TestIsCustomerMixin, ListView): 
+class OrderListView(LoginRequiredMixin, TestIsCustomerMixin, ListView):
     """Our order list view."""
 
     login_url = "/login/"
     model = Order
     paginate_by = 100  # if pagination is desired
-    template_name = 'ventashop/orders.html'
-    context_object_name = 'order_list'
+    template_name = "ventashop/orders.html"
+    context_object_name = "order_list"
 
     def get_queryset(self):
         """
@@ -466,22 +502,22 @@ class OrderDetailView(LoginRequiredMixin, TestIsCustomerMixin, DetailView):
 
     login_url = "/login/"
     model = Order
-    template_name = 'ventashop/order_detail.html'
+    template_name = "ventashop/order_detail.html"
 
     def get_context_data(self, **kwargs):
         """Line item list, order status and last comment to be displayed."""
 
-        context =  super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         order = self.get_object()
 
         context["line_item_list"] = order.lineitem_set.all()
-        
+
         comments = order.comment_set.all()
         if comments.count() > 0:
             context["comment"] = comments[0]
         else:
             context["comment"] = False
-        
+
         status_tuple_list = [st for st in Order.STATUS_CHOICES if st[0] == order.status]
         context["status"] = status_tuple_list[0][1]
 

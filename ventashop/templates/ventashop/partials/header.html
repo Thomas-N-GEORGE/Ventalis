@@ -39,7 +39,7 @@
         {% if user.is_authenticated %}
           {% if user.role == "CUSTOMER" %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'ventashop:cart' %}">Mon pannier</a>
+            <a class="nav-link" href="{% url 'ventashop:cart' %}">Mon panier</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'ventashop:my_space' %}">Mon espace</a>

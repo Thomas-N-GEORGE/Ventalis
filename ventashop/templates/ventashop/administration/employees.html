@@ -15,11 +15,9 @@
     
     <div class="list-group my-3">
         {% for employee in employee_list %}
-            <a 
-                href="{% url 'ventashop:employee_update' employee.pk %}"
-                class="list-group-item list-group-item-action link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-            >
-                <div class="row">
+
+            <div class="list-group-item">
+              <div class="row">
                     <div class="col">{{ employee.first_name|title }} {{ employee.last_name|upper }}</div>
                     <div class="col">
                         mat. {{ employee.reg_number }}
@@ -27,8 +25,13 @@
                     <div class="col text-end">
                         Date d'entrée : {{ employee.date_joined|date:"D d M Y" }}
                     </div>
+                    <div class="col text-end">
+                      <form action="{% url 'ventashop:employee_update' employee.pk %}" method="get">
+                          <button class="btn btn-secondary">Mot de passe</button>
+                      </form>
+                    </div>
+                  </div> 
                 </div> 
-            </a> 
         {% empty %}
             <a class="list-group-item list-group-item-action disabled">Pas encore d'employé(e).</a>
         {% endfor %}
