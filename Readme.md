@@ -9,8 +9,8 @@ Projet de fin d'études STUDI Bachelor CDA 2022/2024 (spéc. Python).
 
 0. Pré-requis : 
  - Avoir installé Python v10. ou plus sur la machine locale. https://www.python.org/downloads/
- - Avoir installé PostgreSQL sur la machine locale. https://www.postgresql.org/download/
  - Avoir installé Git sur la machine locale. https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+ - Optionnel : avoir installé PostgreSQL sur la machine locale. https://www.postgresql.org/download/
 
 1. Cloner le projet : 
  - Copier le lien Github en haut à droite de la page "code" du dépôt.
@@ -49,20 +49,41 @@ Votre invite de commande doit maintenant être précédée de `(env)`, vous indi
  pip install -r requirements.txt
 ````
 
-5. Base de données : soit la BDD SQlite3 utilisée par défaut par Dajngo, soit une BDD Postgres intallée à l'aide d'outils comme : 
-Et dans ce cas : modifier le fichier `settings.py` et accorder le dictionnaire DATABASES avec vos propres clés NAME et USER 
-````
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'username',
-        'USER': 'username',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-````
+5. Base de données : 
+
+ - Soit la BDD SQlite3 utilisée par défaut par Django :
+
+    - S'il n'existe pas déjà, créer un fichier nommé `db.sqlite3` à la racine du projet : 
+      ````
+      touch db.sqlite3
+      ````
+ 
+    - modifier le fichier `ventasite/settings.py` comme suit :
+
+      ````
+      DATABASES = {
+          'default': {
+              'ENGINE': 'django.db.backends.sqlite3',
+              'NAME': BASE_DIR / 'db.sqlite3',
+          }
+      }
+      ````
+
+ - Soit une BDD Postgres : https://www.postgresql.org/download/ 
+
+      Et dans ce cas, modifier le fichier `ventasite/settings.py` et accorder le dictionnaire DATABASES avec vos propres clés NAME et USER qui sont généralement le nom de votre compte utilisateur sur votre machine. 
+      ````
+      DATABASES = {
+          'default': {
+              'ENGINE': 'django.db.backends.postgresql',
+              'NAME': 'username',
+              'USER': 'username',
+              'PASSWORD': '',
+              'HOST': 'localhost',
+              'PORT': '5432',
+          }
+      }
+      ````
 
 7. Jouer les migrations pour créer les tables dans la BDD : 
 ````
@@ -77,7 +98,7 @@ mkdir media
 
 9. Lancer l'application : 
 ````
- python manage.py ventashop
+ python manage.py runserver
 ````
 
 On peut retrouver la page d'ouverture à l'adresse locale : 
@@ -107,12 +128,12 @@ Et éventuellement créer un superuser Django avec la commande :
 
 2. Ensuite, avec ce super utilisateur, on accède à la partie admin de Django ici http://127.0.0.1:8000/admin
 
-    Ceci nous permet de créer un utilisateur avec un compte adminisrateur pour Ventalis. Nepas oublier de lui attribuer le rôle admin.
+    Ceci nous permet de créer un utilisateur avec un compte administrateur pour Ventalis. Ne pas oublier de lui attribuer le rôle admin.
 
 3. En se connectant avec ce compte administrateur dans l'interface Ventalis, on accède à l'Espace Administrateur pour créer un/des Employé.e.s.
 
 4. Ensuite le compte Employé quant à lui permet de créer et gérer produits, commandes, etc. à partir de son espace "Intranet".
 
-Se référer au mode d'emploi SVP pour retrouver ces étapes à l'utilisation en détail, y compris en tant que Visiteur / Utilisateur.
+Se référer au Quick Start Guide disponible dans la documentation, SVP, pour retrouver le détail de ces étapes à l'utilisation de Ventashop, y compris en tant que Visiteur / Utilisateur.
 
 ---
