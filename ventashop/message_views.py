@@ -31,7 +31,7 @@ class MessageListView(
 
         user = self.request.user
         conversation = get_object_or_404(Conversation, pk=self.kwargs["pk"])
-        print(conversation.participants.all())
+        # print(conversation.participants.all())
 
         if user not in conversation.participants.all():
             return HttpResponse("Unauthorized", status=401)
