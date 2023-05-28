@@ -67,15 +67,15 @@ class CustomerPasswordResetView(PasswordResetView):
         form = self.form_class(request.POST)
         if form.is_valid():
             email = (form.cleaned_data["email"],)
-            print("cleaned_email : ", email)
+            # print("cleaned_email : ", email)
             user = User.objects.filter(email=email[0])
-            test = User.objects.all()
-            for t in test:
-                print(t, "email = ", t.email)
+            # test = User.objects.all()
+            # for t in test:
+            #     print(t, "email = ", t.email)
 
             if user.count() > 0:
+                # print(user)
                 # Password change available only to registrated Customers.
-                print(user)
                 if user[0].role == "CUSTOMER":
                     return super().post(request, *args, **kwargs)
             else:

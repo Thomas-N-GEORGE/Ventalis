@@ -20,11 +20,11 @@ class StaticViewsTestCase(TestCase):
 
     def test_home(self):
         response = self.c.get("/")
-        self.assertContains(response, "Produits de marketing")
+        self.assertContains(response, "Nous sommes une entreprise spécialisée")
     
     def test_about(self):
         response = self.c.get("/about/")
-        self.assertContains(response, "Nous sommes une entreprise spécialisée")
+        self.assertContains(response, "Lorem ipsum dolor sit amet,")
     
     # def test_contact(self):
     #     response = self.c.get("/contact/")

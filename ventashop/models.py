@@ -207,7 +207,8 @@ class Cart(models.Model):
         self.total_price = 0
 
         for li in LineItem.objects.filter(cart=self):
-            self.total_price += li.price
+            if li.cart is not None:
+                self.total_price += li.price
 
     def add_line_item(self, product, quantity):
         """
