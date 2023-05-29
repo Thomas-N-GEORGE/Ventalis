@@ -218,6 +218,8 @@ if IS_PROD:
 
 
 # Email
+DEFAULT_FROM_EMAIL = "my_registered_sendgrid_single_sender"
+
 if DEBUG:
     # Email during development, output in console :
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
