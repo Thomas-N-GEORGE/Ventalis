@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.defaultfilters import slugify
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -163,8 +164,7 @@ class Category(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
+        self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
 
 
@@ -184,12 +184,14 @@ class Product(models.Model):
         Category, on_delete=models.SET_NULL, blank=True, null=True
     )
 
+    def get_absolute_url(self):
+        return reverse("ventashop:product-detail", kwargs={"slug": self.slug})
+
     def __str__(self) -> str:
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
+        self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
 
 

@@ -15,7 +15,16 @@
         <div class="row">
             <div class="col fs-1 my-3">{{ product.name }}</div>
         </div>
-        
+        <!-- Product update link, for employees. -->
+        {% if user.role == "EMPLOYEE" %}
+          <a 
+            href="{% url 'ventashop:product-update' product.slug %}"
+            class="mx-1 link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+            >Modifier le produit
+          </a>
+        {% endif %}
+
+
         <div class="row py-3 gx-5 bg-body-tertiary">
             <div class="col-sm-8 d-flex flex-column justify-content-center">
                         <!-- Image -->

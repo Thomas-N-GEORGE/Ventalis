@@ -245,6 +245,29 @@ class ProductCreateView(LoginRequiredMixin, TestIsEmployeeMixin, CreateView):
         return response
 
 
+class ProductUpdateView(LoginRequiredMixin, TestIsEmployeeMixin, UpdateView):
+    """Our view to update an existing product."""
+    
+    login_url = "/login/"
+    model = Product
+    fields = ["name", "image", "description", "price", "category"]
+    template_name_suffix = "_update_form"
+
+    def form_valid(self, form):
+        try:
+            response = super().form_valid(form)
+        except IntegrityError as err:
+            return render(
+                self.request,
+                "ventashop/product_form.html",
+                {
+                    "error_message": "Le Libellé est trop similaire à un produit existant, veuillez le changer svp.",
+                    "form": form,
+                },
+            )
+        return response
+    
+
 class ProductView(TemplateView):
     """Our product view."""
 
@@ -331,37 +354,36 @@ class CategoryCreateView(LoginRequiredMixin, TestIsEmployeeMixin, CreateView):
                 },
             )
         return response
-    
+
 
 class CategoryUpdateView(LoginRequiredMixin, TestIsEmployeeMixin, UpdateView):
-	"""Our view to update a category name."""
+    """Our view to update a category name."""
 
-	login_url = "/login/"
-	model = Category
-	fields = ["name"]
-	template_name_suffix = "_update_form"
-	success_url = "/categories/"
+    login_url = "/login/"
+    model = Category
+    fields = ["name"]
+    template_name_suffix = "_update_form"
+    success_url = "/categories/"
 
-	def form_valid(self, form):
-		try:
-			# Check if name is not "api" which would cause url routing problems.
-			if form.cleaned_data["name"] == "api":
-				raise IntegrityError()
-			response = super().form_valid(form)
-		except IntegrityError as err:
-			return render(
-				self.request,
-				"ventashop/category_form.html",
-				{
-					"error_message": "Le nom est trop similaire à une catégorie existante, veuillez le modifier svp.",
-					"form": form,
-				},
-			)
-        
-		return response
-		
+    def form_valid(self, form):
+        try:
+            # Check if name is not "api" which would cause url routing problems.
+            if form.cleaned_data["name"] == "api":
+                raise IntegrityError()
+            response = super().form_valid(form)
+        except IntegrityError as err:
+            return render(
+                self.request,
+                "ventashop/category_form.html",
+                {
+                    "error_message": "Le nom est trop similaire à une catégorie existante, veuillez le modifier svp.",
+                    "form": form,
+                },
+            )
 
-##### NOT USED #####
+        return response
+
+
 class CategoryListView(ListView):
     """Our category list view."""
 
@@ -369,9 +391,6 @@ class CategoryListView(ListView):
     # paginate_by = 100  # if pagination is desired
     template_name = "ventashop/categories.html"
     context_object_name = "category_list"
-
-
-##### NOT USED #####
 
 
 ################

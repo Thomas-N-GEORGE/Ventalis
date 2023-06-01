@@ -1,14 +1,22 @@
 """Our views' test module, for logic and content."""
 
+from decimal import Decimal
+
 from django.core import mail
 from django.test import Client, TestCase
 from django.urls import reverse
 
 from ventashop.forms import UserForm
-from ventashop.models import (Category, Product, LineItem, 
-                              Cart, Order, Comment, 
-                              Conversation, Message,
-                              )
+from ventashop.models import (
+    Category,
+    Product,
+    LineItem,
+    Cart,
+    Order,
+    Comment,
+    Conversation,
+    Message,
+)
 from ventashop.tests import utils_tests
 
 
@@ -21,19 +29,19 @@ class StaticViewsTestCase(TestCase):
     def test_home(self):
         response = self.c.get("/")
         self.assertContains(response, "Nous sommes une entreprise spécialisée")
-    
+
     def test_about(self):
         response = self.c.get("/about/")
         self.assertContains(response, "Lorem ipsum dolor sit amet,")
-    
+
     # def test_contact(self):
     #     response = self.c.get("/contact/")
     #     self.assertContains(response, "")
-    
+
     # def test_login(self):
     #     response = self.c.get("/login/")
     #     self.assertContains(response, "")
-    
+
     # def test_category(self):
     #     response = self.c.get("/category/")
     #     self.assertContains(response, "")
@@ -47,13 +55,13 @@ class ContactFormViewTestCase(TestCase):
 
         # Arrange.
         c = Client()
-        
+
         # Act.
         response = c.post(
             "/contact/",
             {
                 "company": "test_company",
-                "last_name": "test_last_name", 
+                "last_name": "test_last_name",
                 "first_name": "test_first_name",
                 "from_email": "test_from_email@test.com",
                 "subject": "test_subject",
@@ -62,7 +70,7 @@ class ContactFormViewTestCase(TestCase):
         )
 
         # Assert.
-        self.assertRedirects(response=response, expected_url=reverse('ventashop:home'))
+        self.assertRedirects(response=response, expected_url=reverse("ventashop:home"))
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, "test_subject")
 
@@ -75,7 +83,7 @@ class CategoryCreateViewTestCase(TestCase):
 
         self.c = Client()
         self.employee1 = utils_tests.create_employee1()
-        self.c.login(email='employee1@ventalis.com', password='12345678&')
+        self.c.login(email="employee1@ventalis.com", password="12345678&")
         self.count = Category.objects.all().count()
 
     def test_category_created(self):
@@ -86,7 +94,7 @@ class CategoryCreateViewTestCase(TestCase):
 
         # Assert
         self.assertEqual(self.count + 1, Category.objects.all().count())
-    
+
     def test_category_unique(self):
         """Check if a category is unique in db."""
 
@@ -115,7 +123,7 @@ class CategoryUpdateViewTestCase(TestCase):
 
         self.c = Client()
         self.employee1 = utils_tests.create_employee1()
-        self.c.login(email='employee1@ventalis.com', password='12345678&')
+        self.c.login(email="employee1@ventalis.com", password="12345678&")
         self.c.post("/category_form/", {"name": "test"})
         self.count = Category.objects.all().count()
 
@@ -127,8 +135,8 @@ class CategoryUpdateViewTestCase(TestCase):
 
         # Assert
         self.assertEqual(self.count, Category.objects.all().count())
-        self.assertEqual(0, Category.objects.filter(name="test").count())  
-        self.assertEqual(1, Category.objects.filter(name="test2").count())  
+        self.assertEqual(0, Category.objects.filter(name="test").count())
+        self.assertEqual(1, Category.objects.filter(name="test2").count())
 
     def test_category_not_renamed_api(self):
         """Check if category is not renamed "api", which won't be accessible afterwards."""
@@ -138,8 +146,8 @@ class CategoryUpdateViewTestCase(TestCase):
 
         # Assert.
         self.assertEqual(self.count, Category.objects.all().count())
-        self.assertEqual(1, Category.objects.filter(name="test").count())  
-        self.assertEqual(0, Category.objects.filter(name="api").count()) 
+        self.assertEqual(1, Category.objects.filter(name="test").count())
+        self.assertEqual(0, Category.objects.filter(name="api").count())
 
 
 class ProductCreateViewTestCase(TestCase):
@@ -151,7 +159,7 @@ class ProductCreateViewTestCase(TestCase):
 
         cls.c = Client()
         cls.employee1 = utils_tests.create_employee1()
-        cls.c.login(email='employee1@ventalis.com', password='12345678&')
+        cls.c.login(email="employee1@ventalis.com", password="12345678&")
         cls.count = Product.objects.all().count()
         cls.category = Category.objects.create(name="test")
 
@@ -159,13 +167,13 @@ class ProductCreateViewTestCase(TestCase):
         """Simple utility method to create a product for test cases."""
 
         self.c.post(
-            "/product_form/", 
+            "/product_form/",
             {
-                "name": "test", 
+                "name": "test",
                 "description": "test description",
                 "price": 42.42,
                 "category": self.category.id,
-            }
+            },
         )
 
     def test_product_created(self):
@@ -176,7 +184,7 @@ class ProductCreateViewTestCase(TestCase):
 
         # Assert
         self.assertEqual(self.count + 1, Product.objects.all().count())
-    
+
     def test_product_unique(self):
         """Check if a product is unique in db."""
 
@@ -192,35 +200,90 @@ class ProductCreateViewTestCase(TestCase):
 
         # Act.
         response = self.c.post(
-                "/product_form/", 
-                {
-                    "name": "test", 
-                    "description": "test description",
-                    "price": 42.42,
-                }
-            )
-        
+            "/product_form/",
+            {
+                "name": "test",
+                "description": "test description",
+                "price": 42.42,
+            },
+        )
+
         # Assert.
-        self.assertRedirects(response=response, 
-                             expected_url=reverse("ventashop:products-all"))
+        self.assertRedirects(
+            response=response, expected_url=reverse("ventashop:products-all")
+        )
 
     def test_redirect_to_products_all_page_with_category_specified(self):
         """Check redirection to "product-all" page after creating product with category."""
 
         # Act.
         response = self.c.post(
-                "/product_form/", 
-                {
-                    "name": "test", 
-                    "description": "test description",
-                    "price": 42.42,
-                    "category": self.category.id,
-                }
-            )
-        
+            "/product_form/",
+            {
+                "name": "test",
+                "description": "test description",
+                "price": 42.42,
+                "category": self.category.id,
+            },
+        )
+
         # Assert.
-        self.assertRedirects(response=response, 
-                             expected_url=reverse("ventashop:products-all"))
+        self.assertRedirects(
+            response=response, expected_url=reverse("ventashop:products-all")
+        )
+
+
+class ProductUpdateViewTestCase(TestCase):
+    """Test class for our product update view."""
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        """Arrange."""
+
+        cls.c = Client()
+        cls.employee1 = utils_tests.create_employee1()
+        cls.c.login(email="employee1@ventalis.com", password="12345678&")
+        cls.category = Category.objects.create(name="test")
+        cls.category2 = Category.objects.create(name="test2")
+        cls.create_a_product(cls)
+        cls.count = Product.objects.all().count()
+
+    def create_a_product(self):
+        """Simple utility method to create a product for test cases."""
+
+        self.c.post(
+            "/product_form/",
+            {
+                "name": "test",
+                "description": "test description",
+                "price": 42.42,
+                "category": self.category.id,
+            },
+        )
+
+    def test_product_updated(self):
+        """Check if existing product is updated correctly with redirection to its detailed view."""
+
+        # Act.
+        response = self.c.post(
+            "/product_update_form/test/",
+            {
+                "name": "test2",
+                "description": "test2 description",
+                "price": 44.44,
+                "category": self.category2.id,
+            },
+        )
+        updated_product_set = Product.objects.filter(name="test2")
+
+        # Assert
+        self.assertEqual(self.count, Product.objects.all().count())
+        self.assertEqual(0, Product.objects.filter(name="test").count())
+        self.assertEqual(1, updated_product_set.count())
+        self.assertEqual(updated_product_set[0].description, "test2 description")
+        self.assertEqual(updated_product_set[0].price, Decimal('44.44'))
+        self.assertEqual(updated_product_set[0].category.name, "test2")
+        self.assertRedirects(response=response, expected_url="/test2/product_detail/")
 
 
 class ProductsListViewTestCase(TestCase):
@@ -236,22 +299,22 @@ class ProductsListViewTestCase(TestCase):
         # 2 categories.
         cls.category1 = Category.objects.create(name="test1")
         cls.category2 = Category.objects.create(name="test2")
-        
+
         # 2 products in same category1.
         cls.product1 = Product.objects.create(
-            name="product1", 
+            name="product1",
             description="description1",
-            price=4242, 
-            category=cls.category1
+            price=4242,
+            category=cls.category1,
         )
 
         cls.product2 = Product.objects.create(
-            name="product2", 
+            name="product2",
             description="description2",
-            price=4242, 
-            category=cls.category1
+            price=4242,
+            category=cls.category1,
         )
-    
+
     def test_product_price_display(self):
         """Check prices multiplied by 1000 are displayed."""
 
@@ -273,20 +336,20 @@ class ProductsListViewTestCase(TestCase):
 
     def test_products_filtered_by_category(self):
         """Check products are displayed in their category."""
-        
+
         # Act.
-        url  = "/" + str(self.category1.slug) + "/products/"
+        url = "/" + str(self.category1.slug) + "/products/"
         response = self.c.get(url)
 
         # Assert.
         self.assertContains(response, "product1")
         self.assertContains(response, "product2")
-        
+
     def test_products_filtered_by_category_empty_category(self):
         """Check no products are displayed in "empty" category."""
 
         # Act.
-        url  = "/" + str(self.category2.slug) + "/products/"
+        url = "/" + str(self.category2.slug) + "/products/"
         response = self.c.get(url)
 
         # Assert.
@@ -308,17 +371,17 @@ class CartEditingViewsTestCase(TestCase):
         cls.customer1 = utils_tests.create_customer1()
 
         cls.c = Client()
-        cls.c.login(email='customer1@test.com', password='12345678&')
+        cls.c.login(email="customer1@test.com", password="12345678&")
 
         cls.category = Category.objects.create(name="test_cat")
         cls.product1 = Product.objects.create(
-            name="product1", 
+            name="product1",
             description="description1",
-            price=4242, 
-            category=cls.category 
+            price=4242,
+            category=cls.category,
         )
         cls.product1_id = str(cls.product1.pk)
-        
+
         cls.cart = Cart.objects.get(customer_account=cls.customer1.customeraccount)
         cls.li_count = cls.cart.lineitem_set.filter(cart=cls.cart).count()
         cls.cart_id = str(cls.cart.pk)
@@ -330,82 +393,107 @@ class CartEditingViewsTestCase(TestCase):
         url = "/product_add/" + self.cart_id + "/" + self.product1_id + "/"
 
         # Act.
-        response = self.c.post(reverse("ventashop:product-add-to-cart",
-                                        # kwargs={'cart_id': self.cart_id, 'product_id': self.product1_id})) 
-                                        kwargs={'product_id': self.product1_id})) 
+        response = self.c.post(
+            reverse(
+                "ventashop:product-add-to-cart",
+                # kwargs={'cart_id': self.cart_id, 'product_id': self.product1_id}))
+                kwargs={"product_id": self.product1_id},
+            )
+        )
 
         # Assert
-        self.assertEqual(self.li_count + 1, self.cart.lineitem_set.filter(cart=self.cart).count())
-        self.assertRedirects(response=response, 
-                            expected_url=reverse("ventashop:product-detail", args=(self.product1.slug,)))
-    
+        self.assertEqual(
+            self.li_count + 1, self.cart.lineitem_set.filter(cart=self.cart).count()
+        )
+        self.assertRedirects(
+            response=response,
+            expected_url=reverse(
+                "ventashop:product-detail", args=(self.product1.slug,)
+            ),
+        )
+
     def test_line_item_update_view_with_product_quantity_GE_1000(self):
         """Check cart update and redirection after updating a product quantity in cart."""
-    
+
         # Arrange.
         self.cart.add_line_item(self.product1, 1000)
-        line_item = self.cart.lineitem_set.filter(cart=self.cart, product=self.product1_id)[0]
+        line_item = self.cart.lineitem_set.filter(
+            cart=self.cart, product=self.product1_id
+        )[0]
 
         # Act.
         response = self.c.post(
-            reverse("ventashop:line-item-update",
+            reverse(
+                "ventashop:line-item-update",
                 kwargs={
-                    'cart_id': self.cart.pk, 
-                    'line_item_id': line_item.pk,
-                    }
-                ),
+                    "cart_id": self.cart.pk,
+                    "line_item_id": line_item.pk,
+                },
+            ),
             {"quantity": 1234},
         )
 
         # Assert.
-        self.assertRedirects(response=response, 
-                            expected_url=reverse("ventashop:cart", args=(self.cart_id,)))
+        self.assertRedirects(
+            response=response,
+            expected_url=reverse("ventashop:cart", args=(self.cart_id,)),
+        )
         # self.assertEqual(self.cart.total_price, 4242 * 1500)  # Why does this fail ???
         self.assertEqual(Cart.objects.get(pk=self.cart.pk).total_price, 4242 * 1234)
 
     def test_line_item_update_view_with_product_quantity_LT_1000(self):
         """Check cart update and redirection after updating a product quantity < 1000 in cart."""
-    
+
         # Arrange.
         self.cart.add_line_item(self.product1, 1000)
-        line_item = self.cart.lineitem_set.filter(cart=self.cart, product=self.product1_id)[0]
+        line_item = self.cart.lineitem_set.filter(
+            cart=self.cart, product=self.product1_id
+        )[0]
 
         # Act.
         response = self.c.post(
-            reverse("ventashop:line-item-update",
+            reverse(
+                "ventashop:line-item-update",
                 kwargs={
-                    'cart_id': self.cart.pk, 
-                    'line_item_id': line_item.pk,
-                    }
-                ),
+                    "cart_id": self.cart.pk,
+                    "line_item_id": line_item.pk,
+                },
+            ),
             {"quantity": 999},
         )
 
         # Assert.
-        self.assertRedirects(response=response, 
-                            expected_url=reverse("ventashop:cart", args=(self.cart_id,)))
+        self.assertRedirects(
+            response=response,
+            expected_url=reverse("ventashop:cart", args=(self.cart_id,)),
+        )
         self.assertEqual(Cart.objects.get(pk=self.cart.pk).total_price, 4242 * 1000)
-    
+
     def test_line_item_update_view_with_no_product_quantity_in_request(self):
         """Check cart update and redirection after updating a product with missing request "quantity" key."""
-    
+
         # Arrange.
         self.cart.add_line_item(self.product1, 1000)
-        line_item = self.cart.lineitem_set.filter(cart=self.cart, product=self.product1_id)[0]
+        line_item = self.cart.lineitem_set.filter(
+            cart=self.cart, product=self.product1_id
+        )[0]
 
         # Act.
         response = self.c.post(
-            reverse("ventashop:line-item-update",
+            reverse(
+                "ventashop:line-item-update",
                 kwargs={
-                    'cart_id': self.cart.pk, 
-                    'line_item_id': line_item.pk,
-                    }
-                ),
+                    "cart_id": self.cart.pk,
+                    "line_item_id": line_item.pk,
+                },
+            ),
         )
 
         # Assert.
-        self.assertRedirects(response=response, 
-                            expected_url=reverse("ventashop:cart", args=(self.cart_id,)))
+        self.assertRedirects(
+            response=response,
+            expected_url=reverse("ventashop:cart", args=(self.cart_id,)),
+        )
         self.assertEqual(Cart.objects.get(pk=self.cart.pk).total_price, 4242 * 1000)
 
     def test_line_item_remove_from_cart_view(self):
@@ -414,20 +502,25 @@ class CartEditingViewsTestCase(TestCase):
         # Arrange.
         cart_tp_init = self.cart.total_price
         self.cart.add_line_item(self.product1, 1000)
-        line_item = self.cart.lineitem_set.filter(cart=self.cart, product=self.product1_id)[0]
+        line_item = self.cart.lineitem_set.filter(
+            cart=self.cart, product=self.product1_id
+        )[0]
 
         # Act.
         response = self.c.post(
-            reverse("ventashop:line-item-remove",
+            reverse(
+                "ventashop:line-item-remove",
                 kwargs={
-                    'line_item_id': line_item.pk,
-                    }
-                ),
+                    "line_item_id": line_item.pk,
+                },
+            ),
         )
 
         # Assert.
-        self.assertRedirects(response=response, 
-                            expected_url=reverse("ventashop:cart", args=(self.cart_id,)))
+        self.assertRedirects(
+            response=response,
+            expected_url=reverse("ventashop:cart", args=(self.cart_id,)),
+        )
         self.assertEqual(Cart.objects.get(pk=self.cart.pk).total_price, cart_tp_init)
 
     def test_cart_empty_view(self):
@@ -436,20 +529,22 @@ class CartEditingViewsTestCase(TestCase):
         # Arrange.
         cart_tp_init = self.cart.total_price
         self.cart.add_line_item(self.product1, 1000)
-        line_item = self.cart.lineitem_set.filter(cart=self.cart, product=self.product1_id)[0]
+        line_item = self.cart.lineitem_set.filter(
+            cart=self.cart, product=self.product1_id
+        )[0]
 
         # Act.
         response = self.c.post(
-            reverse("ventashop:cart-empty",
+            reverse(
+                "ventashop:cart-empty",
                 kwargs={
-                    'pk': self.cart.pk,
-                    }
-                ),
+                    "pk": self.cart.pk,
+                },
+            ),
         )
 
         # Assert.
-        self.assertRedirects(response=response, 
-                            expected_url=reverse("ventashop:cart"))
+        self.assertRedirects(response=response, expected_url=reverse("ventashop:cart"))
         self.assertEqual(Cart.objects.get(pk=self.cart.pk).total_price, cart_tp_init)
 
 
@@ -463,17 +558,19 @@ class ProductDetailViewTestCase(TestCase):
         cls.c = Client()
         cls.category = Category.objects.create(name="test_cat")
         cls.product1 = Product.objects.create(
-            name="product1", 
+            name="product1",
             description="description1",
-            price=4242, 
-            category=cls.category 
+            price=4242,
+            category=cls.category,
         )
 
     def test_display_product_prduct_details(self):
         """Check if every field is displayed in view."""
 
         # Act.
-        response = self.c.get(reverse('ventashop:product-detail', args=(self.product1.slug,)))
+        response = self.c.get(
+            reverse("ventashop:product-detail", args=(self.product1.slug,))
+        )
 
         # Assert.
         self.assertContains(response, "product1")
@@ -490,15 +587,15 @@ class CartViewTestCase(TestCase):
         """Arrange."""
 
         cls.product1 = Product.objects.create(
-            name="product1", 
+            name="product1",
             description="description1",
-            price=4242, 
+            price=4242,
         )
 
         cls.product2 = Product.objects.create(
-            name="product2", 
+            name="product2",
             description="description1",
-            price=6789, 
+            price=6789,
         )
 
         cls.cart = Cart.objects.create()
@@ -514,9 +611,9 @@ class ConversationListViewTestCase(TestCase):
         cls.employee1 = utils_tests.create_employee1()
         cls.customer1 = utils_tests.create_customer1()
         cls.customer2 = utils_tests.create_customer2()
-        
+
         cls.c = Client()
-        cls.c.login(email='employee1@ventalis.com', password='12345678&')
+        cls.c.login(email="employee1@ventalis.com", password="12345678&")
 
     def test_conversation_list_view(self):
         """Check if conversations are displayed in view."""
@@ -537,14 +634,14 @@ class MessageListViewTestCase(TestCase):
 
         cls.employee1 = utils_tests.create_employee1()
         cls.customer1 = utils_tests.create_customer1()
-        
+
         cls.c = Client()
-        cls.c.login(email='customer1@test.com', password='12345678&')
+        cls.c.login(email="customer1@test.com", password="12345678&")
 
         # cls.conversation = Conversation.objects.get(customer_account=cls.customer1.customeraccount)
         cls.conversation = Conversation.objects.get(participants=cls.customer1)
         cls.conv_id = cls.conversation.pk
-        
+
         # create 10 messages in cls.conversation
         for i in range(0, 10):
             Message.objects.create(
@@ -553,13 +650,13 @@ class MessageListViewTestCase(TestCase):
                 content="content" + str(i),
                 conversation=cls.conversation,
             )
-    
+
     def test_display_all_messages(self):
         """Check if all messages are displayed in url "ventashop:messages"."""
 
         # Arrange.
         url = "/" + str(self.conv_id) + "/messages/"
-    
+
         # Act.
         response = self.c.get(url)
 
@@ -574,7 +671,7 @@ class MessageListViewTestCase(TestCase):
         # Arrange.
         n = 5
         url = "/" + str(self.conv_id) + "/messages/" + str(n)
-    
+
         # Act.
         response = self.c.get(url)
 
@@ -586,7 +683,7 @@ class MessageListViewTestCase(TestCase):
 
     def test_new_message_form_in_view(self):
         """
-        Check if new message is created with form, 
+        Check if new message is created with form,
         and redirection to url "ventashop:messages-last".
         """
 
@@ -594,7 +691,9 @@ class MessageListViewTestCase(TestCase):
         response = self.c.post(
             reverse(
                 "ventashop:messages",
-                kwargs={"pk": self.conv_id,},
+                kwargs={
+                    "pk": self.conv_id,
+                },
             ),
             {"author": "author11", "content": "content11"},
         )
@@ -604,6 +703,13 @@ class MessageListViewTestCase(TestCase):
 
         self.assertEqual(last_message.author, self.customer1)
         self.assertEqual(last_message.content, "content11")
-        self.assertRedirects(response=response,
-                             expected_url=reverse("ventashop:messages-last", args=(self.conv_id, 5,))
+        self.assertRedirects(
+            response=response,
+            expected_url=reverse(
+                "ventashop:messages-last",
+                args=(
+                    self.conv_id,
+                    5,
+                ),
+            ),
         )

@@ -20,6 +20,7 @@ from ventashop.views import (
     ProductDetailView,
     ProductListView,
     ProductCreateView,
+    ProductUpdateView,
     CartView,
     CartEmptyView,
     ProductAddToCartView,
@@ -59,9 +60,9 @@ urlpatterns = [
         name="product-detail",
     ),
     path("product_form/", ProductCreateView.as_view(), name="product-create"),
+    path("product_update_form/<slug:slug>/", ProductUpdateView.as_view(), name="product-update"),
     path("category_form/", CategoryCreateView.as_view(), name="category-create"),
     path("category_update_form/<slug:slug>/", CategoryUpdateView.as_view(), name="category-update"),
-    ##### Not used for now #####
     path("categories/", CategoryListView.as_view(), name="categories"),
     ################
     ##### CART #####

@@ -1,8 +1,8 @@
-<!-- Our form to create a new product -->
+<!-- Our form to update an existing product. -->
 
 {% extends 'ventashop/base.html' %}
 
-{% block title %}nouveau produit{% endblock title %}
+{% block title %}modiifier un produit{% endblock title %}
 
 {% block content %}
 
@@ -10,7 +10,7 @@
 
 <div class="container-sm min-vh-100">
 
-    <div class="fs-3 mb-3">Ajouter un produit</div>
+    <div class="fs-3 mb-3">Modifier un produit</div>
 
     <!-- Slug integrity error -->
     {% if error_message %}
@@ -27,7 +27,7 @@
             {{ field.errors }}
         </div>
     {% endfor %}
-        <button type="submit" class="btn btn-primary">Créer</button>
+        <button type="submit" class="btn btn-primary">Modifier</button>
     </form>
 
 </div>
