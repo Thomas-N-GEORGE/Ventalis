@@ -67,7 +67,7 @@ class ContactFormViewTestCase(TestCase):
         self.assertEqual(mail.outbox[0].subject, "test_subject")
 
 
-class CategoryFormViewTestCase(TestCase):
+class CategoryCreateViewTestCase(TestCase):
     """Test class for our Category form."""
 
     def setUp(self) -> None:
@@ -96,6 +96,50 @@ class CategoryFormViewTestCase(TestCase):
 
         # Assert
         self.assertEqual(self.count + 1, Category.objects.all().count())
+
+    def test_category_not_named_api(self):
+        """Check if category is not named "api", which won't be accessible afterwards."""
+
+        # Act.
+        self.c.post("/category_form/", {"name": "api"})
+
+        # Assert.
+        self.assertEqual(self.count, Category.objects.all().count())
+
+
+class CategoryUpdateViewTestCase(TestCase):
+    """Test class for our Category Update form."""
+
+    def setUp(self) -> None:
+        """Arrange."""
+
+        self.c = Client()
+        self.employee1 = utils_tests.create_employee1()
+        self.c.login(email='employee1@ventalis.com', password='12345678&')
+        self.c.post("/category_form/", {"name": "test"})
+        self.count = Category.objects.all().count()
+
+    def test_category_updated(self):
+        """Check if an existing category is updated."""
+
+        # Act.
+        self.c.post("/category_update_form/test/", {"name": "test2"})
+
+        # Assert
+        self.assertEqual(self.count, Category.objects.all().count())
+        self.assertEqual(0, Category.objects.filter(name="test").count())  
+        self.assertEqual(1, Category.objects.filter(name="test2").count())  
+
+    def test_category_not_renamed_api(self):
+        """Check if category is not renamed "api", which won't be accessible afterwards."""
+
+        # Act.
+        self.c.post("/category_update_form/test/", {"name": "api"})
+
+        # Assert.
+        self.assertEqual(self.count, Category.objects.all().count())
+        self.assertEqual(1, Category.objects.filter(name="test").count())  
+        self.assertEqual(0, Category.objects.filter(name="api").count()) 
 
 
 class ProductCreateViewTestCase(TestCase):

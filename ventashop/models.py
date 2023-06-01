@@ -156,6 +156,9 @@ class Category(models.Model):
     )  # The default form widget for this field is a TextInput.
     slug = models.SlugField(null=False, unique=True)
 
+    class Meta:
+        ordering = ["name"]
+
     def __str__(self) -> str:
         return self.name
 
