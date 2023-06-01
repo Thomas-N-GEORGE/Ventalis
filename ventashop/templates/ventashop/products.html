@@ -20,6 +20,7 @@
                 Catégories
             </button>
             <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'ventashop:categories' %}">Liste des catégories</a></li>
                 <li><a class="dropdown-item" href="{% url 'ventashop:products-all' %}">Tous les produits</a></li>
                 {% for category in category_list %}
                 <li><a class="dropdown-item" href="{% url 'ventashop:products' category.slug %}">{{ category.name }}</a></li>
@@ -67,7 +68,7 @@
                 </div>
             </a>
         {% empty %}
-            <a class="list-group-item list-group-item-action disabled">Pas de produits.</a>
+            <a class="list-group-item list-group-item-action disabled">Pas de produit.</a>
         {% endfor %}
     </div>
 
